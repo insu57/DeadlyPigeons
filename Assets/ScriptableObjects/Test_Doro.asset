@@ -12,18 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fac476c998a02c42839949ab16dcfce, type: 3}
   m_Name: Test_Doro
   m_EditorClassIdentifier: 
-  characterName: DORO
-  characterSprite: {fileID: -2245382313370318542, guid: aee375be45a0aab4b99b6eda7cf5ebac, type: 3}
-  maxHealth: 10000
-  healthRegen: 0
-  healthAbsorb: 0
-  armor: 0
-  dodgeChance: 0
-  speed: 0
-  damageMultiplier: 0
-  meleeDamage: 0
-  rangedDamage: 0
-  criticalChance: 0
-  attackSpeed: 0
-  luck: 0
-  harvest: 0
+  <ID>k__BackingField: 1003
+  <CharacterSprite>k__BackingField: {fileID: -2245382313370318542, guid: aee375be45a0aab4b99b6eda7cf5ebac, type: 3}
+  <CharacterStats>k__BackingField:
+    characterName: DORO
+    maxHealth: 20
+    healthRegen: 0
+    healthAbsorb: 0
+    armor: 0
+    dodgeChance: 10
+    speed: 10
+    damageMultiplier: 0
+    meleeDamage: 0
+    rangedDamage: 0
+    criticalChance: 0
+    attackSpeed: 0
+    luck: 0
+    harvest: 0
+  <CharacterName>k__BackingField: DORO
+  <MaxHealth>k__BackingField: 0
+  <HealthRegen>k__BackingField: 0
+  <HealthAbsorb>k__BackingField: 0
+  <Armor>k__BackingField: 0
+  <DodgeChance>k__BackingField: 10
+  <Speed>k__BackingField: 10
+  <DamageMultiplier>k__BackingField: 0
+  <MeleeDamage>k__BackingField: 0
+  <RangedDamage>k__BackingField: 0
+  <CriticalChance>k__BackingField: 0
+  <AttackSpeed>k__BackingField: 0
+  <Luck>k__BackingField: 0
+  <Harvest>k__BackingField: 0
+  weapons: []

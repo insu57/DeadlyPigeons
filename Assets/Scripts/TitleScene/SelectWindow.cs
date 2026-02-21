@@ -41,7 +41,7 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private Sprite randomSprite;
     [SerializeField] private CharacterSelectBtn selectBtn; //Prefab
     //test
-    [SerializeField] private CharacterData[] chars;
+    [SerializeField] private CharacterDataSO[] chars;
     
     public GameObject Window => window;
     
@@ -115,8 +115,8 @@ public class SelectWindow : MonoBehaviour
     {
         var charData = chars[idx];
         charImage.sprite = charData.CharacterSprite;
-        charName.text = charData.CharacterName;
-        charHealth.text = charData.MaxHealth.ToString(CultureInfo.CurrentCulture);
+        charName.text = charData.CharacterStats.characterName;
+        charHealth.text = charData.CharacterStats.maxHealth.ToString(CultureInfo.CurrentCulture);
     }
 
     private void ShowRandomDescription()
@@ -141,7 +141,7 @@ public class SelectWindow : MonoBehaviour
         var randIdx = Random.Range(0, chars.Length);
         var charData = chars[randIdx];
         charImage.sprite = charData.CharacterSprite;
-        charName.text = charData.CharacterName;
-        charHealth.text = charData.MaxHealth.ToString(CultureInfo.CurrentCulture);
+        charName.text = charData.CharacterStats.characterName;
+        charHealth.text = charData.CharacterStats.maxHealth.ToString(CultureInfo.CurrentCulture);
     }
 }
