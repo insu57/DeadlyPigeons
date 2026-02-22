@@ -10,7 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41d54e0e9ea20234c933c2f5bbd29bbb, type: 3}
-  m_Name: AKM
+  m_Name: M1911
   m_EditorClassIdentifier: 
-  weaponName: AKM
-  weaponSprite: {fileID: 21300000, guid: b777063162bd972418ee25b654a569e3, type: 3}
+  <ID>k__BackingField: 2101
+  <Name>k__BackingField: M1911
+  <Sprite>k__BackingField: {fileID: 0}
+  <WeaponStat>k__BackingField:
+    tier: 1
