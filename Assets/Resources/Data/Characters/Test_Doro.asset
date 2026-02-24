@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <ID>k__BackingField: 1003
   <CharacterName>k__BackingField: DORO
-  <CharacterSprite>k__BackingField: {fileID: -2245382313370318542, guid: aee375be45a0aab4b99b6eda7cf5ebac, type: 3}
+  <CharacterSprite>k__BackingField: {fileID: -2245382313370318542, guid: ef7ae709b4802104c9505a8e429dcbd6, type: 3}
   <CharMainStats>k__BackingField:
     maxHealth: 20
     healthRegen: 0
@@ -29,4 +29,4 @@ MonoBehaviour:
     attackSpeed: 0
     luck: 0
     harvest: 0
-  initWeaponIDList: d1070000
+  <InitWeaponIDList>k__BackingField: d1070000

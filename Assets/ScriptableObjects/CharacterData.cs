@@ -36,15 +36,16 @@ public class CharacterData : ScriptableObject
     [field: SerializeField] public Sprite CharacterSprite { get; private set; }
     [field: SerializeField] public CharMainStats CharMainStats { get; private set; }
     
-    [SerializeField] private List<int> initWeaponIDList;
+    [field: SerializeField] public List<int> InitWeaponIDList {get; private set;}
     
 
 #if UNITY_EDITOR
-    public void SyncDataCSV(string charName, CharMainStats charMainStats, List<int> weaponIDList) //임시
+    public void SyncDataCSV(string charName, CharMainStats charMainStats, Sprite sprite, List<int> weaponIDList) //임시
     {
         CharacterName = charName;
         CharMainStats = charMainStats;
-        initWeaponIDList = weaponIDList;
+        CharacterSprite = sprite;
+        InitWeaponIDList = weaponIDList;
     }
 #endif
 }

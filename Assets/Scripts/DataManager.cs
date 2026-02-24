@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class DataManager : Singleton<DataManager>
 {
-    private Dictionary<int, CharacterData> _charDict = new();
-    private Dictionary<int, WeaponData> _weaponDict = new();
+    public Dictionary<int, CharacterData> CharDict { get; } = new();
+    public List<CharacterData> CharList { get; } = new();
+    public Dictionary<int, WeaponData> WeaponDict { get; } = new();
+    public List<WeaponData> WeaponList { get; } = new();
+    
 
     protected override void Awake()
     {
@@ -18,13 +21,15 @@ public class DataManager : Singleton<DataManager>
         CharacterData[] characters = Resources.LoadAll<CharacterData>("Data/Characters");
         foreach (var charData in characters)
         {
-            _charDict.Add(charData.ID, charData);
+            CharDict.Add(charData.ID, charData);
+            CharList.Add(charData);
         }
         
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
         foreach (var wData in weapons)
         {
-            _weaponDict.Add(wData.ID, wData);
+            WeaponDict.Add(wData.ID, wData);
+            WeaponList.Add(wData);
         }
     }
 }

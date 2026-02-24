@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 365935756867443696}
   - component: {fileID: 4105155184221719934}
   m_Layer: 5
-  m_Name: CharacterImg
+  m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 3499409352049314906}
   - component: {fileID: 7143423077175295752}
   m_Layer: 5
-  m_Name: CharcterSelectButton
+  m_Name: SelectButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -209,5 +209,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e72d4b2d8cb68443af1877032c9833a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CharacterImage: {fileID: 4105155184221719934}
+  btnImage: {fileID: 4105155184221719934}
   selectBtn: {fileID: 3499409352049314906}

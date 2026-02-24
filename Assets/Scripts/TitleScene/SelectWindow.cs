@@ -22,11 +22,11 @@ public class SelectWindow : MonoBehaviour
     [Header("Char Select")]
     [SerializeField] private GameObject charSelect;
     [SerializeField] private Transform charViewportContent;
-    private List<Button> _selectBtns = new ();
 
     [Header("Weapon Select")] 
     [SerializeField] private GameObject weaponSelect;
     [SerializeField] private Transform weaponViewportContent;
+    private List<SelectButton> _weaponSelectList = new();
     
     [Header("Difficulty Select")]
     [SerializeField] private GameObject difficultySelect;
@@ -39,9 +39,8 @@ public class SelectWindow : MonoBehaviour
     
     [Header("Prefabs")]
     [SerializeField] private Sprite randomSprite;
-    [SerializeField] private CharacterSelectBtn selectBtn; //Prefab
-    //test
-    [SerializeField] private CharacterData[] chars;
+    [SerializeField] private SelectButton selectButton; //Prefab
+ 
     
     public GameObject Window => window;
     
@@ -73,7 +72,7 @@ public class SelectWindow : MonoBehaviour
             }
             case SelectWindowState.WeaponSelect:
             {
-                weaponSelect.SetActive(false);
+                weaponSelect.SetActive(false); //개선 방안 필요.
                 charSelect.SetActive(true);
                 break;
             }
@@ -92,54 +91,90 @@ public class SelectWindow : MonoBehaviour
     private void InitCharSelectBtn()
     {
         //랜덤 캐릭터 버튼 추가 필요
-        var randomBtn  = Instantiate(selectBtn, charViewportContent);
+        //var randomBtn  = Instantiate(selectButton, charViewportContent);
+        var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        randomBtn.transform.SetParent(charViewportContent);
         randomBtn.OnBtnPointerEnter += ShowRandomDescription;
         //randomBtn.SelectBtn.onClick.AddListener(RandomButton);
-        randomBtn.SelectBtn.onClick.AddListener(EnterWeaponSelect);
+        //randomBtn.SelectBtn.onClick.AddListener(EnterWeaponSelect);
         
-        for (int i = 0; i < chars.Length; i++)
+        foreach (var (id, charData) in DataManager.Instance.CharDict)
         {
-            var newBtn = Instantiate(selectBtn, charViewportContent);
+            //var newBtn = Instantiate(selectButton, charViewportContent);
+            var newBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+            newBtn.transform.SetParent(charViewportContent);
+            
+            newBtn.SetButtonImg(charData.CharacterSprite);
+           
+            newBtn.OnBtnPointerEnter += () => ShowCharDescription(id);
 
-            var idx = i;
-            newBtn.SetCharacterImg(chars[idx].CharacterSprite);
-
-            newBtn.OnBtnPointerEnter += () => ShowCharDescription(idx);
-
-
-            //newBtn.SelectBtn.onClick.AddListener(() => ShowCharDescription(idx));
+            newBtn.SelectBtn.onClick.AddListener(() => EnterWeaponSelect(id));
         }
+        
     }
 
-    private void ShowCharDescription(int idx)
+    private void ShowCharDescription(int id)
     {
-        var charData = chars[idx];
+        var charData = DataManager.Instance.CharDict[id];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
         charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
     }
 
+    private void ShowWeaponList(int id)
+    {
+        foreach (var selectBtn in _weaponSelectList)
+        {
+            ObjectPoolingManager.Instance.ReleaseSelectBtn(selectBtn);
+        }
+        
+        _weaponSelectList.Clear();
+
+
+        foreach (var weaponID in DataManager.Instance.CharDict[id].InitWeaponIDList)
+        {
+            var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+            
+            selectBtn.transform.SetParent(weaponViewportContent);
+            
+            selectBtn.SetButtonImg(DataManager.Instance.WeaponDict[weaponID].Sprite);
+            
+            _weaponSelectList.Add(selectBtn);
+        }
+    }
+
     private void ShowRandomDescription()
     {
-        //Localization 생각.
+        //Localization 주의.
         charImage.sprite = randomSprite;
         charName.text = "랜덤";
         charHealth.text = "?";
     }
 
-    private void EnterWeaponSelect()
+    private void SetSelectBtn(int id, Sprite sprite)
     {
+        var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        selectBtn.SetButtonImg(sprite);
+        selectBtn.OnBtnPointerEnter += () => ShowCharDescription(id);
+        
+    }
+
+    private void EnterWeaponSelect(int id)
+    {
+        ShowCharDescription(id);
+        
         _currentDepth = SelectWindowState.WeaponSelect;
         charSelect.SetActive(false);
         weaponSelect.SetActive(true);
         
         //WEAPON...!
+        ShowWeaponList(id);
     }
     
-    private void RandomButton()
+    private void RandomCharacter()
     {
-        var randIdx = Random.Range(0, chars.Length);
-        var charData = chars[randIdx];
+        var randIdx = Random.Range(0, DataManager.Instance.CharList.Count);
+        var charData = DataManager.Instance.CharList[randIdx];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
         charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);

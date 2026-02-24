@@ -8,6 +8,9 @@ public class DataSync : MonoBehaviour
 {
     [SerializeField] private TextAsset characterCSV;
     [SerializeField] private TextAsset weaponCSV;
+    [SerializeField] private string charPath = "Assets/Sprites/Characters/";
+    [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
+    
     
     [ContextMenu("Sync Character Data")]
     public void SyncDataFromCSV()
@@ -70,10 +73,19 @@ public class DataSync : MonoBehaviour
                 }
                 
                 
-                so.SyncDataCSV(characterName, parsed, parsedWeaponID);
+                
+#if  UNITY_EDITOR
+                string charSpritePath = $"{charPath}{so.ID}.png";
+                Sprite charSprite = AssetDatabase.LoadAssetAtPath<Sprite>(charSpritePath);
+                if (!charSprite)
+                {
+                    Debug.LogError("Character Sprite Not Found : " + so.ID);
+                }
+                
+                so.SyncDataCSV(characterName, parsed, charSprite, parsedWeaponID);
                 
                 charUpdateCount++;
-#if  UNITY_EDITOR
+                
                 EditorUtility.SetDirty(so);
 #endif
             }
@@ -109,12 +121,18 @@ public class DataSync : MonoBehaviour
                     tier = int.Parse(rowData[3]),
                 };
                 
-                so.SyncDataCSV(weaponName, parsed);
+#if UNITY_EDITOR
+                string weaponSpritePath = $"{weaponPath}{so.ID}.png";
+                Sprite weaponSprite = AssetDatabase.LoadAssetAtPath<Sprite>(weaponSpritePath);
+                if (!weaponSprite)
+                {
+                    Debug.LogError("Weapon Sprite Not Found : " + so.ID);
+                }
+                
+                so.SyncDataCSV(weaponName, parsed, weaponSprite);
 
                 weaponUpdateCount++;
                 
-                
-#if UNITY_EDITOR
                 EditorUtility.SetDirty(so);
 #endif
             }

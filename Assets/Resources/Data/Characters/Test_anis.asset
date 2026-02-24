@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <ID>k__BackingField: 1001
   <CharacterName>k__BackingField: Anis
-  <CharacterSprite>k__BackingField: {fileID: 21300000, guid: 6b58dceb46e20e846b37db348fa83e72, type: 3}
+  <CharacterSprite>k__BackingField: {fileID: 21300000, guid: 9c0a2949d63f543489c9c20f967f0db3, type: 3}
   <CharMainStats>k__BackingField:
     maxHealth: 15
     healthRegen: 0
@@ -29,4 +29,4 @@ MonoBehaviour:
     attackSpeed: 0
     luck: 0
     harvest: 0
-  initWeaponIDList: 3508000036080000
+  <InitWeaponIDList>k__BackingField: 3508000036080000
