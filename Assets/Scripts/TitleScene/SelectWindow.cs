@@ -1,16 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class SelectWindow : MonoBehaviour
 {
-    [SerializeField] private GameObject window;
-    [FormerlySerializedAs("closeBtn")] [SerializeField] private Button backButton;
-
     private enum SelectWindowState
     {
         CharSelect = 0,
@@ -18,7 +18,11 @@ public class SelectWindow : MonoBehaviour
         DifficultySelect = 2
     }
     
-    private SelectWindowState _currentDepth = 0;
+    [field: SerializeField] public GameObject Window { get; private set; }
+    [SerializeField] private Button backButton;
+    private Dictionary<SelectWindowState, GameObject> _selectWindowDict = new();
+    
+    private SelectWindowState _currentState;
     [Header("Char Select")]
     [SerializeField] private GameObject charSelect;
     [SerializeField] private Transform charViewportContent;
@@ -40,10 +44,14 @@ public class SelectWindow : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private Sprite randomSprite;
     [SerializeField] private SelectButton selectButton; //Prefab
- 
-    
-    public GameObject Window => window;
-    
+
+    private void Awake()
+    {
+        _selectWindowDict.Add(SelectWindowState.CharSelect, charSelect);
+        _selectWindowDict.Add(SelectWindowState.WeaponSelect, weaponSelect);
+        _selectWindowDict.Add(SelectWindowState.DifficultySelect, difficultySelect);
+    }
+
     private void Start()
     {
         backButton.onClick.AddListener(OnBackBtnClick);
@@ -53,54 +61,54 @@ public class SelectWindow : MonoBehaviour
 
     public void OpenSelectWindow()
     {
-        window.SetActive(true);
-        _currentDepth = SelectWindowState.CharSelect;
+        Window.SetActive(true);
+        _currentState = SelectWindowState.CharSelect;
         
         charSelect.SetActive(true);
         weaponSelect.SetActive(false);
         difficultySelect.SetActive(false);
     }
 
-    private void OnBackBtnClick()
+    private void SwitchWindow(SelectWindowState nextState)
     {
-        switch (_currentDepth)
+        _selectWindowDict[_currentState].SetActive(false);
+        _selectWindowDict[nextState].SetActive(true);
+        _currentState = nextState;
+    }
+    
+    public void OnBackBtnClick()//개선 방안 필요.
+    {
+        switch (_currentState)
         {
             case SelectWindowState.CharSelect:
             {
-                window.SetActive(false);
+                Window.SetActive(false);
                 break;
             }
             case SelectWindowState.WeaponSelect:
             {
-                weaponSelect.SetActive(false); //개선 방안 필요.
-                charSelect.SetActive(true);
+                SwitchWindow(SelectWindowState.CharSelect);
                 break;
             }
             case SelectWindowState.DifficultySelect:
             {
-                difficultySelect.SetActive(false);
-                weaponSelect.SetActive(true);
+                SwitchWindow(SelectWindowState.WeaponSelect);
                 break;
             }
             default: return;
         }
-        
-        _currentDepth--;
     }
     
     private void InitCharSelectBtn()
     {
         //랜덤 캐릭터 버튼 추가 필요
-        //var randomBtn  = Instantiate(selectButton, charViewportContent);
         var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         randomBtn.transform.SetParent(charViewportContent);
         randomBtn.OnBtnPointerEnter += ShowRandomDescription;
-        //randomBtn.SelectBtn.onClick.AddListener(RandomButton);
-        //randomBtn.SelectBtn.onClick.AddListener(EnterWeaponSelect);
+        randomBtn.SelectBtn.onClick.AddListener(SelectRandomCharacter);
         
         foreach (var (id, charData) in DataManager.Instance.CharDict)
         {
-            //var newBtn = Instantiate(selectButton, charViewportContent);
             var newBtn = ObjectPoolingManager.Instance.GetSelectBtn();
             newBtn.transform.SetParent(charViewportContent);
             
@@ -113,25 +121,29 @@ public class SelectWindow : MonoBehaviour
         
     }
 
-    private void ShowCharDescription(int id)
+    private void ShowCharDescription(int charID)
     {
-        var charData = DataManager.Instance.CharDict[id];
+        var charData = DataManager.Instance.CharDict[charID];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
         charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
     }
 
-    private void ShowWeaponList(int id)
+    private void ShowWeaponList(int charID) //개선필요!
     {
         foreach (var selectBtn in _weaponSelectList)
         {
             ObjectPoolingManager.Instance.ReleaseSelectBtn(selectBtn);
+            //초과하는 버튼은 이벤트 구독 해제...
         }
         
         _weaponSelectList.Clear();
+        
+        var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        randomBtn.transform.SetParent(weaponViewportContent);
+        //
 
-
-        foreach (var weaponID in DataManager.Instance.CharDict[id].InitWeaponIDList)
+        foreach (var weaponID in DataManager.Instance.CharDict[charID].InitWeaponIDList)
         {
             var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
             
@@ -151,32 +163,25 @@ public class SelectWindow : MonoBehaviour
         charHealth.text = "?";
     }
 
-    private void SetSelectBtn(int id, Sprite sprite)
-    {
-        var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        selectBtn.SetButtonImg(sprite);
-        selectBtn.OnBtnPointerEnter += () => ShowCharDescription(id);
-        
-    }
-
-    private void EnterWeaponSelect(int id)
-    {
-        ShowCharDescription(id);
-        
-        _currentDepth = SelectWindowState.WeaponSelect;
-        charSelect.SetActive(false);
-        weaponSelect.SetActive(true);
-        
-        //WEAPON...!
-        ShowWeaponList(id);
-    }
-    
-    private void RandomCharacter()
+    private void SelectRandomCharacter()
     {
         var randIdx = Random.Range(0, DataManager.Instance.CharList.Count);
         var charData = DataManager.Instance.CharList[randIdx];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
         charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
+        
+        EnterWeaponSelect(charData.ID);
     }
+
+    private void EnterWeaponSelect(int charID)
+    {
+        ShowCharDescription(charID);
+        
+        SwitchWindow(SelectWindowState.WeaponSelect);
+        
+        //WEAPON...!
+        ShowWeaponList(charID);
+    }
+    
 }

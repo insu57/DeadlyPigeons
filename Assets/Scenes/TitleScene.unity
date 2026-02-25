@@ -352,7 +352,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &63223378
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2594,7 +2594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3d19a9a47d5d31478049532c140b92e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  window: {fileID: 63223377}
+  <Window>k__BackingField: {fileID: 63223377}
   backButton: {fileID: 1363155712}
   charSelect: {fileID: 1403791277}
   charViewportContent: {fileID: 1014783962}

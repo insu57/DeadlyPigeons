@@ -1,9 +1,19 @@
+
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class TitleUI : MonoBehaviour
 {
+    private enum TitleState
+    {
+        Title = 0,
+        Select = 1,
+        Option = 2,
+    }
+    
     [Header("Main")] 
+    private  TitleState _currentState;
     [SerializeField] private Button startBtn;
     [SerializeField] private SceneName sceneNameToChange;
     [SerializeField] private Button optionBtn;
@@ -16,7 +26,11 @@ public class TitleUI : MonoBehaviour
 
     private void Start()
     {   
-        //startBtn.onClick.AddListener(LoadScene);
+        InputManager.Instance.Input.UI.Enable();
+        InputManager.Instance.Input.UI.Cancel.performed += OnCancelAction;
+        
+        _currentState = TitleState.Title;
+        
         startBtn.onClick.AddListener(OpenSelectWindow);
         optionBtn.onClick.AddListener(OpenOptionWindow);
         quitBtn.onClick.AddListener(QuitGame);
@@ -27,14 +41,32 @@ public class TitleUI : MonoBehaviour
 
     private void OpenSelectWindow()
     {
+        _currentState = TitleState.Select;
         selectWindow.OpenSelectWindow();
         optionWindow.Window.SetActive(false);
     }
 
     private void OpenOptionWindow()
     {
+        _currentState = TitleState.Option;
         optionWindow.Window.SetActive(true);
         selectWindow.Window.SetActive(false);
+    }
+
+    private void OnCancelAction(InputAction.CallbackContext ctx)
+    {
+        Debug.Log("OnCancelAction");
+        switch (_currentState)
+        {
+            case TitleState.Title:
+                QuitGame();
+                break;
+            case TitleState.Select:
+                selectWindow.OnBackBtnClick();
+                break;
+            case TitleState.Option:
+                break;
+        }
     }
     
     private void LoadScene()

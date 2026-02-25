@@ -72,7 +72,7 @@ using UnityEngine.InputSystem.Utilities;
 /// }
 /// </code>
 /// </example>
-public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
+public partial class @GlobalInput: IInputActionCollection2, IDisposable
 {
     /// <summary>
     /// Provides access to the underlying asset instance.
@@ -82,7 +82,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// <summary>
     /// Constructs a new instance.
     /// </summary>
-    public @InputSystem_Actions()
+    public @GlobalInput()
     {
         asset = InputActionAsset.FromJson(@"{
     ""version"": 1,
@@ -1167,10 +1167,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
     }
 
-    ~@InputSystem_Actions()
+    ~@GlobalInput()
     {
-        UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Player.Disable() has not been called.");
-        UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputSystem_Actions.UI.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, GlobalInput.Player.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, GlobalInput.UI.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1260,12 +1260,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// </summary>
     public struct PlayerActions
     {
-        private @InputSystem_Actions m_Wrapper;
+        private @GlobalInput m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public PlayerActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+        public PlayerActions(@GlobalInput wrapper) { m_Wrapper = wrapper; }
         /// <summary>
         /// Provides access to the underlying input action "Player/Move".
         /// </summary>
@@ -1445,12 +1445,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// </summary>
     public struct UIActions
     {
-        private @InputSystem_Actions m_Wrapper;
+        private @GlobalInput m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public UIActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+        public UIActions(@GlobalInput wrapper) { m_Wrapper = wrapper; }
         /// <summary>
         /// Provides access to the underlying input action "UI/Navigate".
         /// </summary>
