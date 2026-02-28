@@ -9,18 +9,27 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
+public class Selected
+{
+    public int CharID;
+    public List<int> WeaponIDList;
+    public int StageID;//?
+}
+
 public class SelectWindow : MonoBehaviour
 {
     private enum SelectWindowState
     {
         CharSelect = 0,
         WeaponSelect = 1,
-        DifficultySelect = 2
+        StageSelect = 2
     }
     
     [field: SerializeField] public GameObject Window { get; private set; }
     [SerializeField] private Button backButton;
     private Dictionary<SelectWindowState, GameObject> _selectWindowDict = new();
+    private Dictionary<SelectWindowState, GameObject> _selectPanelDict = new();
+    public Selected PlayerSelected { get; private set; }
     
     private SelectWindowState _currentState;
     [Header("Char Select")]
@@ -30,11 +39,14 @@ public class SelectWindow : MonoBehaviour
     [Header("Weapon Select")] 
     [SerializeField] private GameObject weaponSelect;
     [SerializeField] private Transform weaponViewportContent;
+    private SelectButton _randomWeaponBtn;
     private List<SelectButton> _weaponSelectList = new();
+    [SerializeField] private GameObject weaponPanel;
     
-    [Header("Difficulty Select")]
-    [SerializeField] private GameObject difficultySelect;
-    [SerializeField] private Transform diffViewportContent;
+    [Header("Stage Select")]
+    [SerializeField] private GameObject stageSelect;
+    [SerializeField] private Transform stageViewportContent;
+    [SerializeField] private GameObject stagePanel;
     
     [Header("Char Description")] 
     [SerializeField] private Image charImage;
@@ -45,11 +57,17 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private Sprite randomSprite;
     [SerializeField] private SelectButton selectButton; //Prefab
 
+    
+    
     private void Awake()
     {
         _selectWindowDict.Add(SelectWindowState.CharSelect, charSelect);
         _selectWindowDict.Add(SelectWindowState.WeaponSelect, weaponSelect);
-        _selectWindowDict.Add(SelectWindowState.DifficultySelect, difficultySelect);
+        _selectWindowDict.Add(SelectWindowState.StageSelect, stageSelect);
+        
+        _selectPanelDict.Add(SelectWindowState.CharSelect, null);
+        _selectPanelDict.Add(SelectWindowState.WeaponSelect, weaponPanel);
+        _selectPanelDict.Add(SelectWindowState.StageSelect, stagePanel);
     }
 
     private void Start()
@@ -57,6 +75,11 @@ public class SelectWindow : MonoBehaviour
         backButton.onClick.AddListener(OnBackBtnClick);
         
         InitCharSelectBtn();
+        
+        _randomWeaponBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        _randomWeaponBtn.transform.SetParent(weaponViewportContent);
+        
+        PlayerSelected = new Selected();
     }
 
     public void OpenSelectWindow()
@@ -66,13 +89,19 @@ public class SelectWindow : MonoBehaviour
         
         charSelect.SetActive(true);
         weaponSelect.SetActive(false);
-        difficultySelect.SetActive(false);
+        stageSelect.SetActive(false);
     }
 
     private void SwitchWindow(SelectWindowState nextState)
     {
         _selectWindowDict[_currentState].SetActive(false);
         _selectWindowDict[nextState].SetActive(true);
+        
+        var panel = _selectPanelDict[_currentState];
+        panel?.gameObject.SetActive(false);
+        panel = _selectPanelDict[nextState];
+        panel?.gameObject.SetActive(true);
+        
         _currentState = nextState;
     }
     
@@ -90,7 +119,7 @@ public class SelectWindow : MonoBehaviour
                 SwitchWindow(SelectWindowState.CharSelect);
                 break;
             }
-            case SelectWindowState.DifficultySelect:
+            case SelectWindowState.StageSelect:
             {
                 SwitchWindow(SelectWindowState.WeaponSelect);
                 break;
@@ -138,10 +167,6 @@ public class SelectWindow : MonoBehaviour
         }
         
         _weaponSelectList.Clear();
-        
-        var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        randomBtn.transform.SetParent(weaponViewportContent);
-        //
 
         foreach (var weaponID in DataManager.Instance.CharDict[charID].InitWeaponIDList)
         {
@@ -177,11 +202,21 @@ public class SelectWindow : MonoBehaviour
     private void EnterWeaponSelect(int charID)
     {
         ShowCharDescription(charID);
+        PlayerSelected.CharID = charID; //캐릭터 선택 완료.
         
         SwitchWindow(SelectWindowState.WeaponSelect);
         
         //WEAPON...!
         ShowWeaponList(charID);
     }
-    
+
+    private void SelectRandomWeapon()
+    {
+        
+    }
+
+    private void EnterStageSelect(int charID, int weaponID)
+    {
+        
+    }
 }
