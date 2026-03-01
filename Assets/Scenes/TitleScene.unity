@@ -1566,9 +1566,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterCSV: {fileID: 4900000, guid: faf0d09dedafc2d49af0150a76cb35b0, type: 3}
-  weaponCSV: {fileID: 4900000, guid: 3e1d7dfcf20480a45ab8a459ec6402c6, type: 3}
+  weaponCSV: {fileID: 4900000, guid: 2cb8e7dcd7aa9404cbff2602aa156f5a, type: 3}
+  weaponTypesCSV: {fileID: 4900000, guid: 0bd986ab3987bc34dacbd092415c64bb, type: 3}
   charPath: Assets/Sprites/Characters/
   weaponPath: Assets/Sprites/Weapons/
+  weaponTypesSO: {fileID: 11400000, guid: 923c9c56678994e46aac428a027de01d, type: 2}
 --- !u!4 &698695822
 Transform:
   m_ObjectHideFlags: 0
@@ -2901,6 +2903,8 @@ MonoBehaviour:
   charImage: {fileID: 863835748}
   charName: {fileID: 1189795624}
   charHealth: {fileID: 1956909115}
+  weaponImg: {fileID: 0}
+  weaponName: {fileID: 0}
   randomSprite: {fileID: 21300000, guid: ecab2097994706d469a110f23a9224e4, type: 3}
   selectButton: {fileID: 7143423077175295752, guid: 3906e198cf569d844b5998a6aeb6d7f2, type: 3}
 --- !u!1 &1159524484
@@ -2982,7 +2986,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1302756697
 RectTransform:
   m_ObjectHideFlags: 0

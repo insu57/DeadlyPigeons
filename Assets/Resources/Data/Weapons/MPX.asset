@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41d54e0e9ea20234c933c2f5bbd29bbb, type: 3}
-  m_Name: LongSword
+  m_Name: MPX
   m_EditorClassIdentifier: 
-  <ID>k__BackingField: 2001
-  <Name>k__BackingField: Longsword
-  <Sprite>k__BackingField: {fileID: 21300000, guid: 96f16bf04a86287499563446866bf3d4, type: 3}
+  <ID>k__BackingField: 2103
+  <Name>k__BackingField: MPX
+  <Sprite>k__BackingField: {fileID: 21300000, guid: a2ef9217003ed234090fcde07ba61d85, type: 3}
   <WeaponStat>k__BackingField:
-    initTier: 1
+    initTier: 2
     isMelee: 0
     types: 
     prices: 

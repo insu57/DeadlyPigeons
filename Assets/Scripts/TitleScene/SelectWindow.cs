@@ -52,6 +52,11 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private Image charImage;
     [SerializeField] private TMP_Text charName;
     [SerializeField] private TMP_Text charHealth;
+
+    [Header("Weapon Description")]
+    [SerializeField] private Image weaponImg;
+    [SerializeField] private TMP_Text weaponName;
+    
     
     [Header("Prefabs")]
     [SerializeField] private Sprite randomSprite;
@@ -133,7 +138,7 @@ public class SelectWindow : MonoBehaviour
         //랜덤 캐릭터 버튼 추가 필요
         var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         randomBtn.transform.SetParent(charViewportContent);
-        randomBtn.OnBtnPointerEnter += ShowRandomDescription;
+        randomBtn.OnBtnPointerEnter += ShowRandCharDescription;
         randomBtn.SelectBtn.onClick.AddListener(SelectRandomCharacter);
         
         foreach (var (id, charData) in DataManager.Instance.CharDict)
@@ -180,7 +185,7 @@ public class SelectWindow : MonoBehaviour
         }
     }
 
-    private void ShowRandomDescription()
+    private void ShowRandCharDescription()
     {
         //Localization 주의.
         charImage.sprite = randomSprite;
@@ -210,6 +215,12 @@ public class SelectWindow : MonoBehaviour
         ShowWeaponList(charID);
     }
 
+    private void ShowWeaponDescription(int weaponID)
+    {
+        
+    }
+    
+    
     private void SelectRandomWeapon()
     {
         

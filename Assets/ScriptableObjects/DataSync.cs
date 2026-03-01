@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -8,12 +9,13 @@ public class DataSync : MonoBehaviour
 {
     [SerializeField] private TextAsset characterCSV;
     [SerializeField] private TextAsset weaponCSV;
+    [SerializeField] private TextAsset weaponTypesCSV;
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
     [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
-    
+    [SerializeField] private WeaponTypesSO weaponTypesSO;
     
     [ContextMenu("Sync Character Data")]
-    public void SyncDataFromCSV()
+    public void SyncCharDataFromCSV()
     {
         if (!characterCSV)
         {
@@ -22,7 +24,6 @@ public class DataSync : MonoBehaviour
         }
         
         CharacterData[] characters = Resources.LoadAll<CharacterData>("Data/Characters");
-        WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
         
         string[] lines = characterCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
         Dictionary<int, string[]> csvDict = new();
@@ -95,9 +96,18 @@ public class DataSync : MonoBehaviour
             }
         }
         
-        lines = weaponCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
-        
-        csvDict.Clear();
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Character Data Updated: " + charUpdateCount + "/" + characters.Length);
+    }
+
+    [ContextMenu("Sync Weapon Data")]
+    public void SyncWeaponDataFromCSV()
+    {
+        WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
+        string[] lines = weaponCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> csvDict = new();
         
         for (int i = 1; i < lines.Length; i++)
         {
@@ -118,7 +128,7 @@ public class DataSync : MonoBehaviour
                 //0: ID, 1:Name, 2: id-name
                 WeaponStat parsed = new WeaponStat
                 {
-                    tier = int.Parse(rowData[3]),
+                    initTier = int.Parse(rowData[3]),
                 };
                 
 #if UNITY_EDITOR
@@ -143,11 +153,46 @@ public class DataSync : MonoBehaviour
             
         }
         
-        
 #if UNITY_EDITOR
         AssetDatabase.SaveAssets();
 #endif
-        Debug.Log("Character Data Updated: " + charUpdateCount + "/" + characters.Length);
         Debug.Log("Weapon Data Updated " + weaponUpdateCount + "/" + weapons.Length);
+    }
+
+    [ContextMenu("Sync Weapon Types")]
+    public void SyncWeaponTypesFromCSV()
+    {
+        string[] lines = weaponTypesCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
+        
+        List<WeaponTypeMapping> parsedTypes = new();
+
+        for (int i = 2; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            
+            int id = int.Parse(rowData[0]);
+            string typeName = rowData[1];
+
+            if (Enum.TryParse<WeaponTypes>(typeName, out var parsedType))
+            {
+                parsedTypes.Add(new WeaponTypeMapping
+                {
+                    id = id,
+                    type =  parsedType
+                });
+            }
+            else
+            {
+                Debug.LogError("Type Name Not Found : " + typeName);
+            }
+        }
+        
+#if UNITY_EDITOR
+       weaponTypesSO.SyncTypes(parsedTypes);
+        
+        EditorUtility.SetDirty(weaponTypesSO);
+        AssetDatabase.SaveAssets();
+#endif
+        
     }
 }

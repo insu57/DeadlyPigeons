@@ -16,4 +16,7 @@ MonoBehaviour:
   <Name>k__BackingField: AKM
   <Sprite>k__BackingField: {fileID: 21300000, guid: 5051b590a74c30a42b0d4d6e18693f45, type: 3}
   <WeaponStat>k__BackingField:
-    tier: 1
+    initTier: 1
+    isMelee: 0
+    types: 
+    prices: 

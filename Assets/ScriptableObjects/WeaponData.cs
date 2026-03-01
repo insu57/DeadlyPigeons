@@ -1,10 +1,14 @@
 using System;
 using UnityEngine;
 
+
 [Serializable]
 public struct WeaponStat
 {
-    public int tier;
+    public int initTier;
+    public bool isMelee;
+    public WeaponTypes[] types;
+    public int[] prices;
 }
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]
