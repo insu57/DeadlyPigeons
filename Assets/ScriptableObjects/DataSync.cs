@@ -8,6 +8,7 @@ using UnityEditor;
 public class DataSync : MonoBehaviour
 {
     [SerializeField] private TextAsset characterCSV;
+    [SerializeField] private TextAsset charSubStatsCSV;
     [SerializeField] private TextAsset weaponCSV;
     [SerializeField] private TextAsset weaponTypesCSV;
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
@@ -25,40 +26,53 @@ public class DataSync : MonoBehaviour
         
         CharacterData[] characters = Resources.LoadAll<CharacterData>("Data/Characters");
         
-        string[] lines = characterCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
-        Dictionary<int, string[]> csvDict = new();
-
-        for (int i = 1; i < lines.Length; i++)
+        string[] lines = characterCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> mainStatsDict = new();
+        
+        for (int i = 2; i < lines.Length; i++)
         {
             string[] rowData = lines[i].Split(',');
             
             int id = int.Parse(rowData[0]);
 
-            csvDict[id] = rowData;
+            mainStatsDict[id] = rowData;
+        }
+        
+        lines = charSubStatsCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> subStatsDict = new();
+
+        for (int i = 2; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+
+            int id = int.Parse(rowData[0]);
+
+            subStatsDict[id] = rowData;
         }
         
         int charUpdateCount = 0;
         foreach (var so in characters)
         {
-            if (csvDict.TryGetValue(so.ID, out string[] rowData))
+            if (mainStatsDict.TryGetValue(so.ID, out string[] rowData) &&
+                subStatsDict.TryGetValue(so.ID, out var subRowData))
             {
                 var characterName = rowData[1];
                 
-                CharMainStats parsed = new CharMainStats
+                var mainStatsParsed = new CharMainStats
                 {
                     // 0: ID, 1: Name
-                    maxHealth = float.Parse(rowData[2]),
-                    healthRegen = float.Parse(rowData[3]),
-                    healthAbsorb = float.Parse(rowData[4]),
-                    armor = float.Parse(rowData[5]),
-                    dodgeChance = float.Parse(rowData[6]),
-                    speed = float.Parse(rowData[7]),
-                    damageMultiplier = float.Parse(rowData[8]),
-                    meleeDamage = float.Parse(rowData[9]),
-                    rangedDamage = float.Parse(rowData[10]),
-                    criticalChance = float.Parse(rowData[11]),
-                    luck = float.Parse(rowData[12]),
-                    harvest = float.Parse(rowData[13]),
+                    maxHealth = int.Parse(rowData[2]),
+                    healthRegen = int.Parse(rowData[3]),
+                    healthAbsorb = int.Parse(rowData[4]),
+                    armor = int.Parse(rowData[5]),
+                    dodgeChance = int.Parse(rowData[6]),
+                    speed = int.Parse(rowData[7]),
+                    damageMultiplier = int.Parse(rowData[8]),
+                    meleeDamage = int.Parse(rowData[9]),
+                    rangedDamage = int.Parse(rowData[10]),
+                    criticalChance = int.Parse(rowData[11]),
+                    luck = int.Parse(rowData[12]),
+                    harvest = int.Parse(rowData[13]),
                 };
                 
                 string initWeapons = rowData[14];
@@ -72,7 +86,22 @@ public class DataSync : MonoBehaviour
                         parsedWeaponID.Add(id);
                     }
                 }
-                
+
+                var subStatsParsed = new CharSubStats
+                {
+                    consumableHeal = int.Parse(subRowData[2]),
+                    xpGain = int.Parse(subRowData[3]),
+                    itemPrice = int.Parse(subRowData[4]),
+                    pickUpRange = int.Parse(subRowData[5]),
+                    explosiveDamage = int.Parse(subRowData[6]),
+                    explosiveSize = int.Parse(subRowData[7]),
+                    bounces = int.Parse(subRowData[8]),
+                    piercing = int.Parse(subRowData[9]),
+                    freeRerolls = int.Parse(subRowData[10]),
+                    enemies = int.Parse(subRowData[11]),
+                    enemiesSpeed = int.Parse(subRowData[12]),
+                    rerollPrice = int.Parse(subRowData[13])
+                };
                 
                 
 #if  UNITY_EDITOR
@@ -83,7 +112,7 @@ public class DataSync : MonoBehaviour
                     Debug.LogError("Character Sprite Not Found : " + so.ID);
                 }
                 
-                so.SyncDataCSV(characterName, parsed, charSprite, parsedWeaponID);
+                so.SyncDataCSV(characterName, mainStatsParsed, subStatsParsed ,charSprite, parsedWeaponID);
                 
                 charUpdateCount++;
                 
@@ -126,9 +155,53 @@ public class DataSync : MonoBehaviour
             {
                 var weaponName =  rowData[1];
                 //0: ID, 1:Name, 2: id-name
+                
+                var strArr = rowData[5].Split('|');
+                List<WeaponTypes> weaponTypes = new();
+                foreach (var str in strArr)
+                {
+                    var newType = WeaponData.ToWeaponTypes(str);
+                    if (newType != WeaponTypes.None)
+                    {
+                        weaponTypes.Add(newType);
+                    }
+                }
+                
+                strArr = rowData[6].Split('|');
+                List<int> baseDamage = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out int damage))
+                    {
+                        baseDamage.Add(damage);
+                    }
+                }
+                
+                strArr = rowData[7].Split('|');
+                List<DamageTypeMultiplier> damageTypeMultipliers = new();
+                foreach (var str in strArr)
+                {
+                    var tmp = str.Split(':');
+                    var type = WeaponData.ToDamageTypes(tmp[0]);
+                    if(type == DamageTypes.None) continue;
+                    var multiplier = int.Parse(tmp[1]);
+                    var newType = new DamageTypeMultiplier
+                    {
+                        type = type,
+                        value = multiplier
+                    };
+                    damageTypeMultipliers.Add(newType);
+                }
+                
+                ////
+                
                 WeaponStat parsed = new WeaponStat
                 {
                     initTier = int.Parse(rowData[3]),
+                    isMelee = rowData[4] == "Melee",
+                    types = weaponTypes,
+                    baseDamage = baseDamage,
+                    damageMultipliers = damageTypeMultipliers,
                 };
                 
 #if UNITY_EDITOR
@@ -159,6 +232,7 @@ public class DataSync : MonoBehaviour
         Debug.Log("Weapon Data Updated " + weaponUpdateCount + "/" + weapons.Length);
     }
 
+    /*
     [ContextMenu("Sync Weapon Types")]
     public void SyncWeaponTypesFromCSV()
     {
@@ -194,5 +268,5 @@ public class DataSync : MonoBehaviour
         AssetDatabase.SaveAssets();
 #endif
         
-    }
+    }*/
 }

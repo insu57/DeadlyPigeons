@@ -3,17 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum WeaponTypes
-{
-    Precise,
-    Blunt,
-    Primitive,
-    Gun,
-    Medieval,
-    Blade,
-    Heavy,
-    None
-}
+
 
 [Serializable]
 public struct WeaponTypeMapping

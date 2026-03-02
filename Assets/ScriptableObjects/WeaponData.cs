@@ -1,14 +1,51 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
+public enum WeaponTypes
+{
+    Precise,
+    Blunt,
+    Primitive,
+    Gun,
+    Medieval,
+    Blade,
+    Heavy,
+    None
+}
+
+public enum DamageTypes
+{
+    Melee,
+    Ranged,
+    Elemental,
+    Engineering,
+    Tactical,
+    None
+}
+
+[Serializable]
+public struct DamageTypeMultiplier
+{
+    public DamageTypes type;
+    public int value;
+}
 
 [Serializable]
 public struct WeaponStat
 {
     public int initTier;
     public bool isMelee;
-    public WeaponTypes[] types;
-    public int[] prices;
+    public List<WeaponTypes> types;
+    public List<int> baseDamage;
+    public List<DamageTypeMultiplier> damageMultipliers;
+    public List<int> attackSpeed;
+    public List<int> critChance;
+    public List<int> critDamage;
+    public List<int> range;
+    public List<int>  knockBack;
+    public List<int>  healthAbsorb;
+    public List<int> prices;
 }
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]
@@ -19,7 +56,42 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public string Name { get; private set; }
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
-    
+
+    public static WeaponTypes ToWeaponTypes(string type)
+    {
+        switch (type)
+        {
+            case "Blunt": return WeaponTypes.Blunt;
+            case "Precise": return WeaponTypes.Precise;
+            case "Primitive": return WeaponTypes.Primitive;
+            case "Gun": return WeaponTypes.Gun;
+            case "Medieval": return WeaponTypes.Medieval;
+            case "Blade": return WeaponTypes.Blade;
+            case "Heavy": return WeaponTypes.Heavy;
+            default:
+            {
+                Debug.LogWarning("Weapon Type Can't Find: "+ type);
+                return WeaponTypes.None;
+            }
+        }
+    }
+
+    public static DamageTypes ToDamageTypes(string type)
+    {
+        switch (type)
+        {
+            case "Melee": return DamageTypes.Melee;
+            case "Ranged": return DamageTypes.Ranged;
+            case "Elemental": return DamageTypes.Elemental;
+            case "Engineering": return DamageTypes.Engineering;
+            case "Tactical": return DamageTypes.Tactical;
+            default:
+            {
+                Debug.LogWarning("Damage Type Can't Find: "+ type);
+                return DamageTypes.None;
+            }
+        }
+    }
     
 #if UNITY_EDITOR
     public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite) //임시
