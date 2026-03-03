@@ -30,3 +30,16 @@ MonoBehaviour:
     luck: 0
     harvest: 5
   <InitWeaponIDList>k__BackingField: d107000036080000
+  <CharSubStats>k__BackingField:
+    consumableHeal: 0
+    xpGain: 0
+    itemPrice: 0
+    pickUpRange: 0
+    explosiveDamage: 0
+    explosiveSize: 0
+    bounces: 0
+    piercing: 0
+    freeRerolls: 0
+    enemies: 0
+    enemiesSpeed: 0
+    rerollPrice: 0

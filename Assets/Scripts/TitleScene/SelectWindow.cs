@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,6 +33,8 @@ public class SelectWindow : MonoBehaviour
     public Selected PlayerSelected { get; private set; }
     
     private SelectWindowState _currentState;
+    StringBuilder sb = new();
+    
     [Header("Char Select")]
     [SerializeField] private GameObject charSelect;
     [SerializeField] private Transform charViewportContent;
@@ -56,7 +59,7 @@ public class SelectWindow : MonoBehaviour
     [Header("Weapon Description")]
     [SerializeField] private Image weaponImg;
     [SerializeField] private TMP_Text weaponName;
-    
+    [SerializeField] private TMP_Text weaponDescription;
     
     [Header("Prefabs")]
     [SerializeField] private Sprite randomSprite;
@@ -85,6 +88,9 @@ public class SelectWindow : MonoBehaviour
         _randomWeaponBtn.transform.SetParent(weaponViewportContent);
         
         PlayerSelected = new Selected();
+
+        weaponDescription.text = $"<sprite name=\"elemental_icon\">";
+
     }
 
     public void OpenSelectWindow()
@@ -217,6 +223,11 @@ public class SelectWindow : MonoBehaviour
 
     private void ShowWeaponDescription(int weaponID)
     {
+        var weaponData = DataManager.Instance.WeaponDict[weaponID];
+
+        sb.Clear();
+
+        weaponName.text = weaponData.Name;
         
     }
     

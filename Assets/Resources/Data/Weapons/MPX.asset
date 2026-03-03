@@ -18,5 +18,22 @@ MonoBehaviour:
   <WeaponStat>k__BackingField:
     initTier: 2
     isMelee: 0
-    types: 
-    prices: 
+    types: 03000000
+    baseDamage: 080000000b0000000f000000
+    damageMultipliers:
+    - type: 1
+      value: 460000005f00000078000000
+    attackSpeed:
+    - 0.2
+    - 0.19
+    - 0.17
+    critChance: 030000000400000005000000
+    critDamage:
+    - 1.5
+    - 1.5
+    - 1.5
+    range: 90010000f401000058020000
+    knockBack: 000000000000000000000000
+    healthAbsorb: 000000000000000000000000
+    prices: 3200000064000000b4000000
+    description: "9mm \uAE30\uAD00\uB2E8\uCD1D"

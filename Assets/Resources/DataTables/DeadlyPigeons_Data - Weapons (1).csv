@@ -1,6 +1,0 @@
-ID,Name,ID:NAME,Tier,Melee/Ranged,Types,BaseDamage,StatScaling,AttackSpeed,CritChance,CritDamage,Range,Knockback,HealthAbsorb,Price,Description
-0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-2001,Longsword,2001 : Longsword,1,Melee,3004|3005,20,,,,,,,,,
-2101,M1911,2101 : M1911,1,Ranged,3006,12,,1,,,,,,,
-2102,AKM,2102 : AKM,1,Ranged,3006,10,,0.3,,,,,,,
-2103,MPX,2103 : MPX,2,Ranged,3006,5,,,,,,,,,

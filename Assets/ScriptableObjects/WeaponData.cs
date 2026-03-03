@@ -28,7 +28,7 @@ public enum DamageTypes
 public struct DamageTypeMultiplier
 {
     public DamageTypes type;
-    public int value;
+    public List<int> value;
 }
 
 [Serializable]
@@ -39,13 +39,14 @@ public struct WeaponStat
     public List<WeaponTypes> types;
     public List<int> baseDamage;
     public List<DamageTypeMultiplier> damageMultipliers;
-    public List<int> attackSpeed;
+    public List<float> attackSpeed;
     public List<int> critChance;
-    public List<int> critDamage;
+    public List<float> critDamage;
     public List<int> range;
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
     public List<int> prices;
+    public string description;
 }
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]

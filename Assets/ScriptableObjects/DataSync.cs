@@ -10,10 +10,10 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset characterCSV;
     [SerializeField] private TextAsset charSubStatsCSV;
     [SerializeField] private TextAsset weaponCSV;
-    [SerializeField] private TextAsset weaponTypesCSV;
+    
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
     [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
-    [SerializeField] private WeaponTypesSO weaponTypesSO;
+
     
     [ContextMenu("Sync Character Data")]
     public void SyncCharDataFromCSV()
@@ -154,9 +154,9 @@ public class DataSync : MonoBehaviour
             if (csvDict.TryGetValue(so.ID, out string[] rowData))
             {
                 var weaponName =  rowData[1];
-                //0: ID, 1:Name, 2: id-name
+                //0: ID, 1:Name, 3: id-name
                 
-                var strArr = rowData[5].Split('|');
+                var strArr = rowData[5].Split('|');//무기 타입
                 List<WeaponTypes> weaponTypes = new();
                 foreach (var str in strArr)
                 {
@@ -167,7 +167,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[6].Split('|');
+                strArr = rowData[6].Split('|'); //기본 데미지(티어마다)
                 List<int> baseDamage = new();
                 foreach (var str in strArr)
                 {
@@ -177,31 +177,116 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[7].Split('|');
+                strArr = rowData[7].Split('/'); //데미지 스탯 배수
                 List<DamageTypeMultiplier> damageTypeMultipliers = new();
                 foreach (var str in strArr)
                 {
                     var tmp = str.Split(':');
                     var type = WeaponData.ToDamageTypes(tmp[0]);
                     if(type == DamageTypes.None) continue;
-                    var multiplier = int.Parse(tmp[1]);
+                    var multiplierStr = tmp[1].Split('|');
+                    List<int> multipliers = new(); //타입 별 데미지 배수
+                    foreach (var mp in multiplierStr) 
+                    {
+                        if (int.TryParse(mp, out int multiplier)) //티어 별
+                        {
+                            multipliers.Add(multiplier);
+                        }
+                    }
+                    
                     var newType = new DamageTypeMultiplier
                     {
                         type = type,
-                        value = multiplier
+                        value = multipliers
                     };
                     damageTypeMultipliers.Add(newType);
                 }
+
+                strArr = rowData[8].Split('|'); //공격속도
+                List<float> attackSpeed = new();
+                foreach (var str in strArr)
+                {
+                    if (float.TryParse(str, out var speed))
+                    {
+                        attackSpeed.Add(speed);
+                    }
+                }
                 
-                ////
+                strArr = rowData[9].Split('|'); //치명확률
+                List<int> critChance = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var crit))
+                    {
+                        critChance.Add(crit);
+                    }
+                }
+                
+                strArr = rowData[10].Split('|'); //치명데미지
+                List<float> critDamage = new();
+                foreach (var str in strArr)
+                {
+                    if (float.TryParse(str, out var crit))
+                    {
+                        critDamage.Add(crit);
+                    }
+                }
+                
+                strArr = rowData[11].Split('|'); //범위
+                List<int> range = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var r))
+                    {
+                        range.Add(r);
+                    }
+                }
+                
+                strArr = rowData[12].Split('|'); //넉백
+                List<int> knockback = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var knock))
+                    {
+                        knockback.Add(knock);
+                    }
+                }
+                
+                strArr = rowData[13].Split('|'); //체력흡수
+                List<int> healthAbsorb = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var health))
+                    {
+                        healthAbsorb.Add(health);
+                    }
+                }
+                
+                strArr = rowData[14].Split('|'); //판매가격
+                List<int> prices = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var price))
+                    {
+                        prices.Add(price);
+                    }
+                }
                 
                 WeaponStat parsed = new WeaponStat
                 {
-                    initTier = int.Parse(rowData[3]),
+                    initTier = int.Parse(rowData[2]),
                     isMelee = rowData[4] == "Melee",
                     types = weaponTypes,
                     baseDamage = baseDamage,
                     damageMultipliers = damageTypeMultipliers,
+                    attackSpeed = attackSpeed,
+                    critChance = critChance,
+                    critDamage = critDamage,
+                    range = range,
+                    knockBack = knockback,
+                    healthAbsorb = healthAbsorb,
+                    prices = prices,
+                    description = rowData[15]
                 };
                 
 #if UNITY_EDITOR
@@ -231,42 +316,5 @@ public class DataSync : MonoBehaviour
 #endif
         Debug.Log("Weapon Data Updated " + weaponUpdateCount + "/" + weapons.Length);
     }
-
-    /*
-    [ContextMenu("Sync Weapon Types")]
-    public void SyncWeaponTypesFromCSV()
-    {
-        string[] lines = weaponTypesCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
-        
-        List<WeaponTypeMapping> parsedTypes = new();
-
-        for (int i = 2; i < lines.Length; i++)
-        {
-            string[] rowData = lines[i].Split(',');
-            
-            int id = int.Parse(rowData[0]);
-            string typeName = rowData[1];
-
-            if (Enum.TryParse<WeaponTypes>(typeName, out var parsedType))
-            {
-                parsedTypes.Add(new WeaponTypeMapping
-                {
-                    id = id,
-                    type =  parsedType
-                });
-            }
-            else
-            {
-                Debug.LogError("Type Name Not Found : " + typeName);
-            }
-        }
-        
-#if UNITY_EDITOR
-       weaponTypesSO.SyncTypes(parsedTypes);
-        
-        EditorUtility.SetDirty(weaponTypesSO);
-        AssetDatabase.SaveAssets();
-#endif
-        
-    }*/
+    
 }
