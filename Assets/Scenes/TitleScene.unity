@@ -1565,8 +1565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5166cbb3aa8e17b438feeb58be52d550, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterCSV: {fileID: 4900000, guid: faf0d09dedafc2d49af0150a76cb35b0, type: 3}
-  charSubStatsCSV: {fileID: 4900000, guid: c8842c8a45b6e444296922642d1f468b, type: 3}
+  characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
   weaponCSV: {fileID: 4900000, guid: b0b006acf52b79e45a91c6320d5339b1, type: 3}
   charPath: Assets/Sprites/Characters/
   weaponPath: Assets/Sprites/Weapons/
@@ -4714,8 +4713,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 75, y: -100}
-  m_SizeDelta: {x: 400, y: 200}
+  m_AnchoredPosition: {x: 150, y: -100}
+  m_SizeDelta: {x: 600, y: 200}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1773320832
 MonoBehaviour:
@@ -4737,7 +4736,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC124\uBA85 \n\n<sprite=\"111\" index=0>"
+  m_text: "\uC124\uBA85(\uC77C<sprite=\"elemental\" index=0>\uC77C<sprite=\"engineering\"
+    index=0>\uC77C<sprite=\"melee\" index=0>\uC77C<sprite=\"ranged\" index=0>\uC77C<sprite=\"tactical\"
+    index=0>\uC77C %80)\uC774\uAC74 <br> \uC124\uBA85 \uC81C\uD558\uD558\uD558\uD558\uD558\u314F "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3cc8c701dae0515478d0dfcc85166eea, type: 2}
   m_sharedMaterial: {fileID: 245665901597782612, guid: 3cc8c701dae0515478d0dfcc85166eea, type: 2}
@@ -4803,7 +4804,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.68518066, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -4926,7 +4927,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -50}
+  m_AnchoredPosition: {x: 0, y: -25}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1906365077

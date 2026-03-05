@@ -166,7 +166,7 @@ public class SelectWindow : MonoBehaviour
         var charData = DataManager.Instance.CharDict[charID];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
-        charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
+        //charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
     }
 
     private void ShowWeaponList(int charID) //개선필요!
@@ -205,7 +205,7 @@ public class SelectWindow : MonoBehaviour
         var charData = DataManager.Instance.CharList[randIdx];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
-        charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
+        //charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
         
         EnterWeaponSelect(charData.ID);
     }

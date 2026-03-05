@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -8,7 +9,6 @@ using UnityEditor;
 public class DataSync : MonoBehaviour
 {
     [SerializeField] private TextAsset characterCSV;
-    [SerializeField] private TextAsset charSubStatsCSV;
     [SerializeField] private TextAsset weaponCSV;
     
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
@@ -27,55 +27,25 @@ public class DataSync : MonoBehaviour
         CharacterData[] characters = Resources.LoadAll<CharacterData>("Data/Characters");
         
         string[] lines = characterCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
-        Dictionary<int, string[]> mainStatsDict = new();
+        Dictionary<int, string[]> charDict = new();
         
         for (int i = 2; i < lines.Length; i++)
         {
             string[] rowData = lines[i].Split(',');
             
             int id = int.Parse(rowData[0]);
-
-            mainStatsDict[id] = rowData;
+            
+            charDict[id] = rowData;
         }
         
-        lines = charSubStatsCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
-        Dictionary<int, string[]> subStatsDict = new();
-
-        for (int i = 2; i < lines.Length; i++)
-        {
-            string[] rowData = lines[i].Split(',');
-
-            int id = int.Parse(rowData[0]);
-
-            subStatsDict[id] = rowData;
-        }
         
         int charUpdateCount = 0;
         foreach (var so in characters)
         {
-            if (mainStatsDict.TryGetValue(so.ID, out string[] rowData) &&
-                subStatsDict.TryGetValue(so.ID, out var subRowData))
+            if (charDict.TryGetValue(so.ID, out var rowData))
             {
                 var characterName = rowData[1];
-                
-                var mainStatsParsed = new CharMainStats
-                {
-                    // 0: ID, 1: Name
-                    maxHealth = int.Parse(rowData[2]),
-                    healthRegen = int.Parse(rowData[3]),
-                    healthAbsorb = int.Parse(rowData[4]),
-                    armor = int.Parse(rowData[5]),
-                    dodgeChance = int.Parse(rowData[6]),
-                    speed = int.Parse(rowData[7]),
-                    damageMultiplier = int.Parse(rowData[8]),
-                    meleeDamage = int.Parse(rowData[9]),
-                    rangedDamage = int.Parse(rowData[10]),
-                    criticalChance = int.Parse(rowData[11]),
-                    luck = int.Parse(rowData[12]),
-                    harvest = int.Parse(rowData[13]),
-                };
-                
-                string initWeapons = rowData[14];
+                string initWeapons = rowData[2];
                 string[] weaponStrArray =  initWeapons.Split('|');
                 List<int> parsedWeaponID = new();
 
@@ -86,22 +56,48 @@ public class DataSync : MonoBehaviour
                         parsedWeaponID.Add(id);
                     }
                 }
-
-                var subStatsParsed = new CharSubStats
+                
+                var description = rowData[3];
+                
+                var statTotal = rowData[4];
+                List<InitStats> initStatsList = new();
+                string[] statStrArray = statTotal.Split('|');
+                
+                foreach (var str in statStrArray)
                 {
-                    consumableHeal = int.Parse(subRowData[2]),
-                    xpGain = int.Parse(subRowData[3]),
-                    itemPrice = int.Parse(subRowData[4]),
-                    pickUpRange = int.Parse(subRowData[5]),
-                    explosiveDamage = int.Parse(subRowData[6]),
-                    explosiveSize = int.Parse(subRowData[7]),
-                    bounces = int.Parse(subRowData[8]),
-                    piercing = int.Parse(subRowData[9]),
-                    freeRerolls = int.Parse(subRowData[10]),
-                    enemies = int.Parse(subRowData[11]),
-                    enemiesSpeed = int.Parse(subRowData[12]),
-                    rerollPrice = int.Parse(subRowData[13])
-                };
+                    Debug.Log(str);
+                    string[] stat = str.Split(':');
+                    
+                    string statStr = stat[0];
+                    int statValue = int.Parse(stat[1]);
+                    
+                    var mainStat = CharacterData.StringToMainStats(statStr);
+                    var subStat = CharacterData.StringToSubStats(statStr);
+                    if (mainStat != MainStats.None)
+                    {
+                        var initStat = new InitStats
+                        {
+                            mainStats = mainStat,
+                            subStats = SubStats.None,
+                            amount = statValue,
+                        };
+                        initStatsList.Add(initStat);
+                    }
+                    else if (subStat != SubStats.None)
+                    {
+                        var initStat = new InitStats
+                        {
+                            mainStats = MainStats.None,
+                            subStats = subStat,
+                            amount = statValue,
+                        };
+                        initStatsList.Add(initStat);
+                    }
+                    else
+                    {
+                        Debug.LogError("Character InitStat Not Found : " + so.ID);
+                    }
+                }
                 
                 
 #if  UNITY_EDITOR
@@ -111,8 +107,8 @@ public class DataSync : MonoBehaviour
                 {
                     Debug.LogError("Character Sprite Not Found : " + so.ID);
                 }
-                
-                so.SyncDataCSV(characterName, mainStatsParsed, subStatsParsed ,charSprite, parsedWeaponID);
+
+                so.SyncDataCSV(characterName, description, parsedWeaponID, initStatsList, charSprite);
                 
                 charUpdateCount++;
                 
