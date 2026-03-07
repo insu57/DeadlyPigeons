@@ -28,8 +28,8 @@ public class SelectWindow : MonoBehaviour
     
     [field: SerializeField] public GameObject Window { get; private set; }
     [SerializeField] private Button backButton;
-    private Dictionary<SelectWindowState, GameObject> _selectWindowDict = new();
-    private Dictionary<SelectWindowState, GameObject> _selectPanelDict = new();
+    private readonly Dictionary<SelectWindowState, GameObject> _selectWindowDict = new();
+    private readonly Dictionary<SelectWindowState, GameObject> _selectPanelDict = new();
     public Selected PlayerSelected { get; private set; }
     
     private SelectWindowState _currentState;
@@ -43,7 +43,7 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private GameObject weaponSelect;
     [SerializeField] private Transform weaponViewportContent;
     private SelectButton _randomWeaponBtn;
-    private List<SelectButton> _weaponSelectList = new();
+    private readonly List<SelectButton> _weaponSelectList = new();
     [SerializeField] private GameObject weaponPanel;
     
     [Header("Stage Select")]
@@ -54,7 +54,7 @@ public class SelectWindow : MonoBehaviour
     [Header("Char Description")] 
     [SerializeField] private Image charImage;
     [SerializeField] private TMP_Text charName;
-    [SerializeField] private TMP_Text charHealth;
+    [SerializeField] private TMP_Text charPassive;
 
     [Header("Weapon Description")]
     [SerializeField] private Image weaponImg;
@@ -166,9 +166,27 @@ public class SelectWindow : MonoBehaviour
         var charData = DataManager.Instance.CharDict[charID];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
-        //charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
+
+        sb.Clear();
+        var passive = charData.InitStatsList;
+        foreach (var init in passive)
+        {
+            if (init.mainStats != MainStats.None)
+            {
+                sb.AppendLine(init.mainStats.GetIcons());
+                sb.Append(init.mainStats.MainStatsToString());
+            }
+            else if (init.subStats != SubStats.None)
+            {
+                
+            }
+        }
+
+        charPassive.text = sb.ToString();
     }
 
+    
+    
     private void ShowWeaponList(int charID) //개선필요!
     {
         foreach (var selectBtn in _weaponSelectList)
@@ -196,7 +214,7 @@ public class SelectWindow : MonoBehaviour
         //Localization 주의.
         charImage.sprite = randomSprite;
         charName.text = "랜덤";
-        charHealth.text = "?";
+        charPassive.text = "?";
     }
 
     private void SelectRandomCharacter()

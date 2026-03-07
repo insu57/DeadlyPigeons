@@ -25,9 +25,9 @@ public enum DamageTypes
 }
 
 [Serializable]
-public struct DamageTypeMultiplier
+public struct StatMultiplier
 {
-    public DamageTypes type;
+    public MainStats stat;
     public List<int> value;
 }
 
@@ -38,7 +38,7 @@ public struct WeaponStat
     public bool isMelee;
     public List<WeaponTypes> types;
     public List<int> baseDamage;
-    public List<DamageTypeMultiplier> damageMultipliers;
+    public List<StatMultiplier> damageMultipliers;
     public List<float> attackSpeed;
     public List<int> critChance;
     public List<float> critDamage;

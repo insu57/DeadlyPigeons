@@ -7,6 +7,7 @@ public class DataManager : Singleton<DataManager>
     public List<CharacterData> CharList { get; } = new();
     public Dictionary<int, WeaponData> WeaponDict { get; } = new();
     public List<WeaponData> WeaponList { get; } = new();
+    public Dictionary<MainStats, string> StatIcon { get; private set; } = new();
     
 
     protected override void Awake()
@@ -14,6 +15,11 @@ public class DataManager : Singleton<DataManager>
         base.Awake();
         
         InitData();
+    }
+
+    private void Start()
+    {
+        StatUtil.Initialize();
     }
 
     private void InitData()

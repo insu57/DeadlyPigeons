@@ -38,53 +38,12 @@ public class CharacterData : ScriptableObject
     [field:SerializeField] public List<InitStats> InitStatsList { get; private set; }
     [field: SerializeField] public Sprite CharacterSprite { get; private set; }
 
-    public static MainStats StringToMainStats(string str)
-    {
-        return str switch
-        {
-            "MaxHP" => MainStats.MaxHP,
-            "HealthRegen" => MainStats.HealthRegen,
-            "HealthAbsorb" => MainStats.HealthAbsorb,
-            "Armor" => MainStats.Armor,
-            "DodgeChance" => MainStats.DodgeChance,
-            "Speed" => MainStats.Speed,
-            "Damage" => MainStats.Damage,
-            "Melee" => MainStats.Melee,
-            "Ranged" => MainStats.Ranged,
-            "Elemental" => MainStats.Elemental,
-            "Engineering" => MainStats.Engineering,
-            "Tactical" => MainStats.Tactical,
-            "AttackSpeed" => MainStats.AttackSpeed,
-            "CritChance" => MainStats.CritChance,
-            "Luck" => MainStats.Luck,
-            "Harvest" => MainStats.Harvest,
-            _ => MainStats.None
-        };
-    }
-
-    public static SubStats StringToSubStats(string str)
-    {
-        return str switch
-        {
-            "ConsumableHeal" => SubStats.ConsumableHeal,
-            "XPGain"         => SubStats.XPGain,
-            "ItemPrice"      => SubStats.ItemPrice,
-            "PickUpRange"    => SubStats.PickUpRange,
-            "ExplosiveDamage"=> SubStats.ExplosiveDamage,
-            "ExplosiveSize"  => SubStats.ExplosiveSize,
-            "Bounces"        => SubStats.Bounces,
-            "Piercing"       => SubStats.Piercing,
-            "FreeRerolls"    => SubStats.FreeRerolls,
-            "Enemies"        => SubStats.Enemies,
-            "EnemiesSpeed"   => SubStats.EnemiesSpeed,
-            "RerollPrice"    => SubStats.RerollPrice, 
-            _ => SubStats.None,
-        };
-    }
-
+    
+    
+    
 #if UNITY_EDITOR
     public void SyncDataCSV(string charName,string description, List<int> weaponIDList,List<InitStats> initStatsList,
-        Sprite sprite )
+        Sprite sprite ) //csv -> so 저장
     {
         CharacterName = charName;
         Description = description;

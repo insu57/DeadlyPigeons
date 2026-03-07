@@ -2900,7 +2900,7 @@ MonoBehaviour:
   stagePanel: {fileID: 354740139}
   charImage: {fileID: 863835748}
   charName: {fileID: 1189795624}
-  charHealth: {fileID: 1956909115}
+  charPassive: {fileID: 1721088239}
   weaponImg: {fileID: 1791472273}
   weaponName: {fileID: 1906365077}
   weaponDescription: {fileID: 1773320832}
@@ -4522,6 +4522,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1717516569}
   m_CullTransparentMesh: 1
+--- !u!114 &1721088239 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2866062336463896825, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+  m_PrefabInstance: {fileID: 6297494520704134380}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1732791340
 GameObject:
   m_ObjectHideFlags: 0
@@ -4736,8 +4747,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC124\uBA85(\uC77C<sprite=\"elemental\" index=0>\uC77C<sprite=\"engineering\"
-    index=0>\uC77C<sprite=\"melee\" index=0>\uC77C<sprite=\"ranged\" index=0>\uC77C<sprite=\"tactical\"
+  m_text: "\uC77C<sprite=\"healthAbsorb\" index=0>\uC77C<sprite=\"speed\" index=0>\uC77C<sprite=\"attackspeed\"
     index=0>\uC77C %80)\uC774\uAC74 <br> \uC124\uBA85 \uC81C\uD558\uD558\uD558\uD558\uD558\u314F "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3cc8c701dae0515478d0dfcc85166eea, type: 2}
@@ -5153,17 +5163,6 @@ MonoBehaviour:
   quitBtn: {fileID: 1359958434}
   selectWindow: {fileID: 1101910826}
   optionWindow: {fileID: 1159524486}
---- !u!114 &1956909115 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1172022969616392905, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
-  m_PrefabInstance: {fileID: 6297494520704134380}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1996726299
 GameObject:
   m_ObjectHideFlags: 0
@@ -5396,6 +5395,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 63223378}
     m_Modifications:
+    - target: {fileID: 2866062336463896825, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2866062336463896825, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 256
+      objectReference: {fileID: 0}
     - target: {fileID: 6474905747331421475, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -5476,12 +5483,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6987603988580926756, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_Name
+      value: Passive
+      objectReference: {fileID: 0}
     - target: {fileID: 7072591452358808438, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
       propertyPath: m_Name
       value: CharcterDescription
       objectReference: {fileID: 0}
+    - target: {fileID: 8501756072652436153, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 680
+      objectReference: {fileID: 0}
+    - target: {fileID: 8501756072652436153, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: 8501756072652436153, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 380
+      objectReference: {fileID: 0}
+    - target: {fileID: 8501756072652436153, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -125
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 4358648265907976199, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
+    - {fileID: 5625453157826313144, guid: 52830c40056947642a602f1e99ad0c32, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7072591452358808438, guid: 52830c40056947642a602f1e99ad0c32, type: 3}

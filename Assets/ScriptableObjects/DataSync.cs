@@ -71,8 +71,8 @@ public class DataSync : MonoBehaviour
                     string statStr = stat[0];
                     int statValue = int.Parse(stat[1]);
                     
-                    var mainStat = CharacterData.StringToMainStats(statStr);
-                    var subStat = CharacterData.StringToSubStats(statStr);
+                    var mainStat = statStr.StringToMainStats();
+                    var subStat = statStr.StringToSubStats();
                     if (mainStat != MainStats.None)
                     {
                         var initStat = new InitStats
@@ -174,12 +174,14 @@ public class DataSync : MonoBehaviour
                 }
                 
                 strArr = rowData[7].Split('/'); //데미지 스탯 배수
-                List<DamageTypeMultiplier> damageTypeMultipliers = new();
+                List<StatMultiplier> damageTypeMultipliers = new();
                 foreach (var str in strArr)
                 {
                     var tmp = str.Split(':');
-                    var type = WeaponData.ToDamageTypes(tmp[0]);
-                    if(type == DamageTypes.None) continue;
+                    //ar type = WeaponData.ToDamageTypes(tmp[0]);
+                    var statStr = tmp[0];
+                    var stat = statStr.StringToMainStats();
+                    if(stat == MainStats.None) continue;
                     var multiplierStr = tmp[1].Split('|');
                     List<int> multipliers = new(); //타입 별 데미지 배수
                     foreach (var mp in multiplierStr) 
@@ -190,9 +192,9 @@ public class DataSync : MonoBehaviour
                         }
                     }
                     
-                    var newType = new DamageTypeMultiplier
+                    var newType = new StatMultiplier
                     {
-                        type = type,
+                        stat = stat,
                         value = multipliers
                     };
                     damageTypeMultipliers.Add(newType);
