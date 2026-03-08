@@ -1547,7 +1547,7 @@ GameObject:
   - component: {fileID: 698695822}
   - component: {fileID: 698695821}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Data Sync(Only Editor)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1566,7 +1566,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
-  weaponCSV: {fileID: 4900000, guid: b0b006acf52b79e45a91c6320d5339b1, type: 3}
+  weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
   charPath: Assets/Sprites/Characters/
   weaponPath: Assets/Sprites/Weapons/
 --- !u!4 &698695822
@@ -4747,7 +4747,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC77C<sprite=\"healthAbsorb\" index=0>\uC77C<sprite=\"speed\" index=0>\uC77C<sprite=\"attackspeed\"
+  m_text: "\uC77C<sprite=\"critchance\" index=0>\uC77C<sprite=\"Harvest\" index=0>\uC77C<sprite=\"attackspeed\"
     index=0>\uC77C %80)\uC774\uAC74 <br> \uC124\uBA85 \uC81C\uD558\uD558\uD558\uD558\uD558\u314F "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3cc8c701dae0515478d0dfcc85166eea, type: 2}

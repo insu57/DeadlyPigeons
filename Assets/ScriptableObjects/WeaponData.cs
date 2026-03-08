@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum WeaponTypes
+public enum WeaponClasses
 {
     Precise,
     Blunt,
@@ -14,6 +15,7 @@ public enum WeaponTypes
     None
 }
 
+/*
 public enum DamageTypes
 {
     Melee,
@@ -22,7 +24,7 @@ public enum DamageTypes
     Engineering,
     Tactical,
     None
-}
+}*/
 
 [Serializable]
 public struct StatMultiplier
@@ -36,7 +38,7 @@ public struct WeaponStat
 {
     public int initTier;
     public bool isMelee;
-    public List<WeaponTypes> types;
+    public List<WeaponClasses> classes;
     public List<int> baseDamage;
     public List<StatMultiplier> damageMultipliers;
     public List<float> attackSpeed;
@@ -58,25 +60,26 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
 
-    public static WeaponTypes ToWeaponTypes(string type)
+    public static WeaponClasses ToWeaponTypes(string type)
     {
         switch (type)
         {
-            case "Blunt": return WeaponTypes.Blunt;
-            case "Precise": return WeaponTypes.Precise;
-            case "Primitive": return WeaponTypes.Primitive;
-            case "Gun": return WeaponTypes.Gun;
-            case "Medieval": return WeaponTypes.Medieval;
-            case "Blade": return WeaponTypes.Blade;
-            case "Heavy": return WeaponTypes.Heavy;
+            case "Blunt": return WeaponClasses.Blunt;
+            case "Precise": return WeaponClasses.Precise;
+            case "Primitive": return WeaponClasses.Primitive;
+            case "Gun": return WeaponClasses.Gun;
+            case "Medieval": return WeaponClasses.Medieval;
+            case "Blade": return WeaponClasses.Blade;
+            case "Heavy": return WeaponClasses.Heavy;
             default:
             {
                 Debug.LogWarning("Weapon Type Can't Find: "+ type);
-                return WeaponTypes.None;
+                return WeaponClasses.None;
             }
         }
     }
 
+    /*
     public static DamageTypes ToDamageTypes(string type)
     {
         switch (type)
@@ -92,7 +95,7 @@ public class WeaponData : ScriptableObject
                 return DamageTypes.None;
             }
         }
-    }
+    }*/
     
 #if UNITY_EDITOR
     public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite) //임시

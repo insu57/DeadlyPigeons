@@ -152,12 +152,12 @@ public class DataSync : MonoBehaviour
                 var weaponName =  rowData[1];
                 //0: ID, 1:Name, 3: id-name
                 
-                var strArr = rowData[5].Split('|');//무기 타입
-                List<WeaponTypes> weaponTypes = new();
+                var strArr = rowData[5].Split('|');//무기 클래스
+                List<WeaponClasses> weaponTypes = new();
                 foreach (var str in strArr)
                 {
                     var newType = WeaponData.ToWeaponTypes(str);
-                    if (newType != WeaponTypes.None)
+                    if (newType != WeaponClasses.None)
                     {
                         weaponTypes.Add(newType);
                     }
@@ -178,7 +178,6 @@ public class DataSync : MonoBehaviour
                 foreach (var str in strArr)
                 {
                     var tmp = str.Split(':');
-                    //ar type = WeaponData.ToDamageTypes(tmp[0]);
                     var statStr = tmp[0];
                     var stat = statStr.StringToMainStats();
                     if(stat == MainStats.None) continue;
@@ -274,7 +273,7 @@ public class DataSync : MonoBehaviour
                 {
                     initTier = int.Parse(rowData[2]),
                     isMelee = rowData[4] == "Melee",
-                    types = weaponTypes,
+                    classes = weaponTypes,
                     baseDamage = baseDamage,
                     damageMultipliers = damageTypeMultipliers,
                     attackSpeed = attackSpeed,

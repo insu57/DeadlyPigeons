@@ -18,10 +18,10 @@ MonoBehaviour:
   <WeaponStat>k__BackingField:
     initTier: 2
     isMelee: 0
-    types: 03000000
+    classes: 03000000
     baseDamage: 080000000b0000000f000000
     damageMultipliers:
-    - type: 1
+    - stat: 8
       value: 460000005f00000078000000
     attackSpeed:
     - 0.2

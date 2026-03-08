@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public static class StatUtil
@@ -110,5 +111,42 @@ public static class StatUtil
     public static string GetIcons(this MainStats stat)
     {
         return mainStatIcons[stat];
+    }
+
+    public static void AppendColorString(this StringBuilder sb, float value)
+    {
+        var format = value.ToString("F2");
+        if (value > 0)
+        {
+            sb.Append(" <color=#55FF55>+");
+            sb.Append(format);
+            sb.Append("</color> ");
+        }
+        else if (value < 0)
+        {
+            sb.Append(" <color=#FF5555>");
+            sb.Append(format);
+            sb.Append("</color> ");
+
+        }
+        else sb.Append(0);
+    }
+    
+    public static void AppendColorString(this StringBuilder sb, int value)
+    {
+        if (value > 0)
+        {
+            sb.Append(" <color=#55FF55>+");
+            sb.Append(value);
+            sb.Append("</color> ");
+        }
+        else if (value < 0)
+        {
+            sb.Append(" <color=#FF5555>");
+            sb.Append(value);
+            sb.Append("</color> ");
+
+        }
+        else sb.Append(0);
     }
 }

@@ -89,7 +89,7 @@ public class SelectWindow : MonoBehaviour
         
         PlayerSelected = new Selected();
 
-        weaponDescription.text = $"<sprite name=\"elemental_icon\">";
+        weaponDescription.text = "<sprite=\"elemental\" index=0>";
 
     }
 
@@ -173,12 +173,14 @@ public class SelectWindow : MonoBehaviour
         {
             if (init.mainStats != MainStats.None)
             {
-                sb.AppendLine(init.mainStats.GetIcons());
-                sb.Append(init.mainStats.MainStatsToString());
+                sb.Append(init.mainStats.GetIcons());
+                sb.AppendColorString(init.amount);
+                sb.AppendLine(init.mainStats.MainStatsToString());
             }
             else if (init.subStats != SubStats.None)
             {
-                
+                sb.AppendColorString(init.amount);
+                sb.AppendLine(init.subStats.SubStatsToString());
             }
         }
 
@@ -223,7 +225,6 @@ public class SelectWindow : MonoBehaviour
         var charData = DataManager.Instance.CharList[randIdx];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
-        //charHealth.text = charData.CharMainStats.maxHealth.ToString(CultureInfo.CurrentCulture);
         
         EnterWeaponSelect(charData.ID);
     }
