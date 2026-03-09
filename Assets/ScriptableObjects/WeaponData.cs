@@ -15,17 +15,6 @@ public enum WeaponClasses
     None
 }
 
-/*
-public enum DamageTypes
-{
-    Melee,
-    Ranged,
-    Elemental,
-    Engineering,
-    Tactical,
-    None
-}*/
-
 [Serializable]
 public struct StatMultiplier
 {
@@ -78,24 +67,7 @@ public class WeaponData : ScriptableObject
             }
         }
     }
-
-    /*
-    public static DamageTypes ToDamageTypes(string type)
-    {
-        switch (type)
-        {
-            case "Melee": return DamageTypes.Melee;
-            case "Ranged": return DamageTypes.Ranged;
-            case "Elemental": return DamageTypes.Elemental;
-            case "Engineering": return DamageTypes.Engineering;
-            case "Tactical": return DamageTypes.Tactical;
-            default:
-            {
-                Debug.LogWarning("Damage Type Can't Find: "+ type);
-                return DamageTypes.None;
-            }
-        }
-    }*/
+    
     
 #if UNITY_EDITOR
     public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite) //임시

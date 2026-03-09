@@ -9,12 +9,15 @@ public class DataManager : Singleton<DataManager>
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<MainStats, string> StatIcon { get; private set; } = new();
     
-
+    private Dictionary<int, string> TierColorDict { get; } = new();
+    private Dictionary<string, Color> HexToColor { get; } = new();
+    
     protected override void Awake()
     {
         base.Awake();
         
         InitData();
+        InitColor();
     }
 
     private void Start()
@@ -38,4 +41,41 @@ public class DataManager : Singleton<DataManager>
             WeaponList.Add(wData);
         }
     }
+
+    private void InitColor()
+    {
+        TierColorDict[1] = StatUtil.Tier1Color;
+        TierColorDict[2] = StatUtil.Tier2Color;
+        TierColorDict[3] = StatUtil.Tier3Color;
+        TierColorDict[4] = StatUtil.Tier4Color;
+
+       SetColorDict(StatUtil.Tier1Color);
+       SetColorDict(StatUtil.Tier2Color);
+       SetColorDict(StatUtil.Tier3Color);
+       SetColorDict(StatUtil.Tier4Color);
+       SetColorDict(StatUtil.DefaultWhite);
+       SetColorDict(StatUtil.YellowColor);
+       SetColorDict(StatUtil.RedColor);
+       SetColorDict(StatUtil.GreenColor);
+        
+    }
+
+    private void SetColorDict(string colorString)
+    {
+        if (ColorUtility.TryParseHtmlString(colorString, out var color))
+        {
+            HexToColor[colorString] = color;
+        }
+        else
+        {
+            HexToColor[colorString] = Color.white;
+        }
+    }
+
+    public Color GetColor(string colorString)
+    {
+        return HexToColor.TryGetValue(colorString, out var color) ? color : Color.white;
+    }
+    
 }
+

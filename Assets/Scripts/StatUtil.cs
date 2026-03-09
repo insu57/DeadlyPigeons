@@ -6,6 +6,15 @@ using UnityEngine;
 public static class StatUtil
 {
     private static Dictionary<MainStats, string> mainStatIcons;
+    public const string Tier1Color = "FFFFFF";
+    public const string Tier2Color = "2EC5FF";
+    public const string Tier3Color = "B52EFF";
+    public const string Tier4Color = "FF0800";
+    public const string YellowColor = "FFE394";
+    public const string RedColor = "FF5555";
+    public const string GreenColor = "55FF55";
+    public const string DefaultWhite = "FFFFFF";
+    
     
     static StatUtil()
     {
@@ -136,13 +145,13 @@ public static class StatUtil
     {
         if (value > 0)
         {
-            sb.Append(" <color=#55FF55>+");
+            sb.Append(" <color=#").Append(GreenColor).Append(">+");
             sb.Append(value);
             sb.Append("</color> ");
         }
         else if (value < 0)
         {
-            sb.Append(" <color=#FF5555>");
+            sb.Append(" <color=#").Append(RedColor).Append(">");
             sb.Append(value);
             sb.Append("</color> ");
 

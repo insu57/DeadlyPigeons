@@ -20,4 +20,9 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler
     {
         OnBtnPointerEnter?.Invoke();
     }
+
+    public void ClearEvent()
+    {
+        OnBtnPointerEnter = null;
+    }
 }

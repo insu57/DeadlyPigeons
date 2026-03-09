@@ -45,6 +45,7 @@ public class SelectWindow : MonoBehaviour
     private SelectButton _randomWeaponBtn;
     private readonly List<SelectButton> _weaponSelectList = new();
     [SerializeField] private GameObject weaponPanel;
+    [SerializeField] private Image weaponPanelBorder;
     
     [Header("Stage Select")]
     [SerializeField] private GameObject stageSelect;
@@ -82,14 +83,12 @@ public class SelectWindow : MonoBehaviour
     {
         backButton.onClick.AddListener(OnBackBtnClick);
         
-        InitCharSelectBtn();
-        
-        _randomWeaponBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        _randomWeaponBtn.transform.SetParent(weaponViewportContent);
+        InitCharSelectBtn(); //버튼 초기화.
+        InitWeaponRandom();
         
         PlayerSelected = new Selected();
 
-        weaponDescription.text = "<sprite=\"elemental\" index=0>";
+        
 
     }
 
@@ -98,8 +97,9 @@ public class SelectWindow : MonoBehaviour
         Window.SetActive(true);
         _currentState = SelectWindowState.CharSelect;
         
-        charSelect.SetActive(true);
+        charSelect.SetActive(true); //개선방안?
         weaponSelect.SetActive(false);
+        weaponPanel.SetActive(false);
         stageSelect.SetActive(false);
     }
 
@@ -128,6 +128,7 @@ public class SelectWindow : MonoBehaviour
             case SelectWindowState.WeaponSelect:
             {
                 SwitchWindow(SelectWindowState.CharSelect);
+                weaponPanel.SetActive(false);
                 break;
             }
             case SelectWindowState.StageSelect:
@@ -141,10 +142,9 @@ public class SelectWindow : MonoBehaviour
     
     private void InitCharSelectBtn()
     {
-        //랜덤 캐릭터 버튼 추가 필요
         var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         randomBtn.transform.SetParent(charViewportContent);
-        randomBtn.OnBtnPointerEnter += ShowRandCharDescription;
+        randomBtn.OnBtnPointerEnter += ShowRandCharDescription; //랜덤 버튼 
         randomBtn.SelectBtn.onClick.AddListener(SelectRandomCharacter);
         
         foreach (var (id, charData) in DataManager.Instance.CharDict)
@@ -154,9 +154,9 @@ public class SelectWindow : MonoBehaviour
             
             newBtn.SetButtonImg(charData.CharacterSprite);
            
-            newBtn.OnBtnPointerEnter += () => ShowCharDescription(id);
+            newBtn.OnBtnPointerEnter += () => ShowCharDescription(id); //포인터 진입 시 캐릭터 설명
 
-            newBtn.SelectBtn.onClick.AddListener(() => EnterWeaponSelect(id));
+            newBtn.SelectBtn.onClick.AddListener(() => EnterWeaponSelect(id)); //클릭 시 무기 선택으로
         }
         
     }
@@ -167,15 +167,15 @@ public class SelectWindow : MonoBehaviour
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
 
-        sb.Clear();
-        var passive = charData.InitStatsList;
+        sb.Clear(); 
+        var passive = charData.InitStatsList; //초기 스탯(패시브) -> 패시브 아이템으로 변경?
         foreach (var init in passive)
         {
             if (init.mainStats != MainStats.None)
             {
-                sb.Append(init.mainStats.GetIcons());
-                sb.AppendColorString(init.amount);
-                sb.AppendLine(init.mainStats.MainStatsToString());
+                sb.Append(init.mainStats.GetIcons()); //스탯 아이콘
+                sb.AppendColorString(init.amount); //증감량
+                sb.AppendLine(init.mainStats.MainStatsToString()); //해당 스탯명
             }
             else if (init.subStats != SubStats.None)
             {
@@ -183,17 +183,26 @@ public class SelectWindow : MonoBehaviour
                 sb.AppendLine(init.subStats.SubStatsToString());
             }
         }
-
-        charPassive.text = sb.ToString();
+        
+        charPassive.SetText(sb);
     }
 
-    
-    
-    private void ShowWeaponList(int charID) //개선필요!
+    private void InitWeaponRandom()
     {
+        var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        randomBtn.transform.SetParent(weaponViewportContent);
+        randomBtn.OnBtnPointerEnter += ShowRandomWeapon;
+    }
+    
+    private void ShowWeaponButtons(int charID) //개선필요!
+    {
+        weaponPanel.SetActive(true);
+        
         foreach (var selectBtn in _weaponSelectList)
         {
-            ObjectPoolingManager.Instance.ReleaseSelectBtn(selectBtn);
+            selectBtn.ClearEvent();//이벤트 구독 해제
+            
+            ObjectPoolingManager.Instance.ReleaseSelectBtn(selectBtn); //Pool Release
             //초과하는 버튼은 이벤트 구독 해제...
         }
         
@@ -208,6 +217,8 @@ public class SelectWindow : MonoBehaviour
             selectBtn.SetButtonImg(DataManager.Instance.WeaponDict[weaponID].Sprite);
             
             _weaponSelectList.Add(selectBtn);
+            
+            selectBtn.OnBtnPointerEnter += () => ShowWeaponDescription(weaponID); //포인터 이벤트(설명 표시)
         }
     }
 
@@ -237,7 +248,7 @@ public class SelectWindow : MonoBehaviour
         SwitchWindow(SelectWindowState.WeaponSelect);
         
         //WEAPON...!
-        ShowWeaponList(charID);
+        ShowWeaponButtons(charID);
     }
 
     private void ShowWeaponDescription(int weaponID)
@@ -247,13 +258,18 @@ public class SelectWindow : MonoBehaviour
         sb.Clear();
 
         weaponName.text = weaponData.Name;
-        
+        weaponImg.sprite = weaponData.Sprite;
+
+        //티어 표시?
     }
     
     
-    private void SelectRandomWeapon()
+    private void ShowRandomWeapon()
     {
-        
+        weaponName.text = "랜덤";
+        weaponImg.sprite = randomSprite;
+        weaponDescription.text = "?";
+        weaponPanelBorder.color = DataManager.Instance.GetColor(StatUtil.DefaultWhite);
     }
 
     private void EnterStageSelect(int charID, int weaponID)
