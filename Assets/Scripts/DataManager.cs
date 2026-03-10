@@ -9,7 +9,7 @@ public class DataManager : Singleton<DataManager>
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<MainStats, string> StatIcon { get; private set; } = new();
     
-    private Dictionary<int, string> TierColorDict { get; } = new();
+    public Dictionary<int, string> TierColorDict { get; } = new();
     private Dictionary<string, Color> HexToColor { get; } = new();
     
     protected override void Awake()
@@ -68,11 +68,12 @@ public class DataManager : Singleton<DataManager>
         }
         else
         {
+            Debug.Log(colorString);
             HexToColor[colorString] = Color.white;
         }
     }
 
-    public Color GetColor(string colorString)
+    public Color GetHexToColor(string colorString)
     {
         return HexToColor.TryGetValue(colorString, out var color) ? color : Color.white;
     }

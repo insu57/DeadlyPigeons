@@ -156,7 +156,7 @@ public class DataSync : MonoBehaviour
                 List<WeaponClasses> weaponTypes = new();
                 foreach (var str in strArr)
                 {
-                    var newType = WeaponData.ToWeaponTypes(str);
+                    var newType = WeaponData.ToWeaponClass(str);
                     if (newType != WeaponClasses.None)
                     {
                         weaponTypes.Add(newType);

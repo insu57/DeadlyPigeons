@@ -12,6 +12,7 @@ public enum WeaponClasses
     Medieval,
     Blade,
     Heavy,
+    Elemental,
     None
 }
 
@@ -49,7 +50,7 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
 
-    public static WeaponClasses ToWeaponTypes(string type)
+    public static WeaponClasses ToWeaponClass(string type)
     {
         switch (type)
         {
@@ -60,6 +61,7 @@ public class WeaponData : ScriptableObject
             case "Medieval": return WeaponClasses.Medieval;
             case "Blade": return WeaponClasses.Blade;
             case "Heavy": return WeaponClasses.Heavy;
+            case "Elemental": return WeaponClasses.Elemental;
             default:
             {
                 Debug.LogWarning("Weapon Type Can't Find: "+ type);
@@ -67,7 +69,22 @@ public class WeaponData : ScriptableObject
             }
         }
     }
-    
+    public static string WeaponClassToString(WeaponClasses weaponClass)
+    {
+        return weaponClass switch
+        {
+            WeaponClasses.Blunt => nameof(WeaponClasses.Blunt),
+            WeaponClasses.Precise => nameof(WeaponClasses.Precise),
+            WeaponClasses.Primitive => nameof(WeaponClasses.Primitive),
+            WeaponClasses.Gun => nameof(WeaponClasses.Gun),
+            WeaponClasses.Medieval => nameof(WeaponClasses.Medieval),
+            WeaponClasses.Blade => nameof(WeaponClasses.Blade),
+            WeaponClasses.Heavy => nameof(WeaponClasses.Heavy),
+            WeaponClasses.Elemental => nameof(WeaponClasses.Elemental),
+            // 예외 처리
+            _ => nameof(WeaponClasses.None)
+        };
+    }
     
 #if UNITY_EDITOR
     public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite) //임시

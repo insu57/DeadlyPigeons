@@ -6,14 +6,14 @@ using UnityEngine;
 public static class StatUtil
 {
     private static Dictionary<MainStats, string> mainStatIcons;
-    public const string Tier1Color = "FFFFFF";
-    public const string Tier2Color = "2EC5FF";
-    public const string Tier3Color = "B52EFF";
-    public const string Tier4Color = "FF0800";
-    public const string YellowColor = "FFE394";
-    public const string RedColor = "FF5555";
-    public const string GreenColor = "55FF55";
-    public const string DefaultWhite = "FFFFFF";
+    public const string Tier1Color = "#FFFFFF";
+    public const string Tier2Color = "#2EC5FF";
+    public const string Tier3Color = "#B52EFF";
+    public const string Tier4Color = "#FF0800";
+    public const string YellowColor = "#FFE394";
+    public const string RedColor = "#FF5555";
+    public const string GreenColor = "#55FF55";
+    public const string DefaultWhite = "#FFFFFF";
     
     
     static StatUtil()
@@ -145,17 +145,24 @@ public static class StatUtil
     {
         if (value > 0)
         {
-            sb.Append(" <color=#").Append(GreenColor).Append(">+");
+            sb.Append(" <color=").Append(GreenColor).Append(">+");
             sb.Append(value);
             sb.Append("</color> ");
         }
         else if (value < 0)
         {
-            sb.Append(" <color=#").Append(RedColor).Append(">");
+            sb.Append(" <color=").Append(RedColor).Append(">");
             sb.Append(value);
             sb.Append("</color> ");
 
         }
         else sb.Append(0);
+    }
+
+    public static void AppendHeadString(this StringBuilder sb, string txt)
+    {
+        sb.Append("<color=").Append(YellowColor).Append(">");
+        sb.Append(txt);
+        sb.Append("</color> ");
     }
 }

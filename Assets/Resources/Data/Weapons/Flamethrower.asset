@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41d54e0e9ea20234c933c2f5bbd29bbb, type: 3}
+  m_Name: Flamethrower
+  m_EditorClassIdentifier: 
+  <ID>k__BackingField: 2104
+  <Name>k__BackingField: Flamethrower
+  <Sprite>k__BackingField: {fileID: -1174951073158842006, guid: ff5bc32ce4f3d1f478b085b47393a502, type: 3}
+  <WeaponStat>k__BackingField:
+    initTier: 2
+    isMelee: 0
+    classes: 0600000007000000
+    baseDamage: 010000000100000001000000
+    damageMultipliers:
+    - stat: 9
+      value: 010000000100000001000000
+    attackSpeed:
+    - 0.12
+    - 0.12
+    - 0.09
+    critChance: 000000000000000000000000
+    critDamage:
+    - 2
+    - 2
+    - 2
+    range: fa0000002c01000090010000
+    knockBack: 000000000000000000000000
+    healthAbsorb: 000000000000000000000000
+    prices: 3800000067000000cf000000
+    description: "\uD654\uC5FC\uBC29\uC0AC\uAE30. \uC124\uBA85\uC740 \uC5B4\uB5BB\uAC8C???"
