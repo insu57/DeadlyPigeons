@@ -259,7 +259,7 @@ public class SelectWindow : MonoBehaviour
         ShowWeaponButtons(charID); //버튼 설정
     }
 
-    private void ShowWeaponDescription(int weaponID)
+    private void ShowWeaponDescription(int weaponID) //재활용??
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
@@ -294,8 +294,25 @@ public class SelectWindow : MonoBehaviour
         }
         sb.AppendLine(")");
         
+        sb.AppendHeadString("치명타:");
+        sb.Append("X").Append(weaponData.WeaponStat.critDamage[0]);
+        sb.Append(" (").Append(weaponData.WeaponStat.critChance[0]).AppendLine("% 확률)");
+        
+        sb.AppendHeadString("쿨타운:");
+        sb.Append(weaponData.WeaponStat.attackSpeed[0]).AppendLine("s");
+        
+        var knockback = weaponData.WeaponStat.knockBack[0];
+        if (knockback > 0)
+        {
+            sb.AppendHeadString("넉백:");
+            sb.Append(knockback).AppendLine();
+        }
+        
+        sb.AppendHeadString("범위:");
+        sb.Append(weaponData.WeaponStat.range[0]).Append("(");
+        sb.AppendLine(weaponData.WeaponStat.isMelee ? "근거리)" : "원거리)");
+
         weaponDescription.SetText(sb);
-        //티어 표시?
     }
 
 
