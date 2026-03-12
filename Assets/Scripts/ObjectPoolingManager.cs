@@ -16,7 +16,13 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private PoolSettings selectBtnSettings;
     private ObjectPool<SelectButton> _selectBtnPool;
-    public SelectButton GetSelectBtn() => _selectBtnPool.Get();
+    public SelectButton GetSelectBtn()
+    {
+        var selectBtn = _selectBtnPool.Get();
+        selectBtn.ClearSelectBtn();
+        return selectBtn;
+    }
+
     public void ReleaseSelectBtn(SelectButton selectBtn) => _selectBtnPool.Release(selectBtn);
     
     

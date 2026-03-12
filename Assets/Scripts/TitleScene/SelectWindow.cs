@@ -10,10 +10,10 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-public class Selected
+public class PlayerSelected
 {
     public int CharID;
-    public List<int> WeaponIDList;
+    public List<int> WeaponIDList = new();
     public int StageID;//?
 }
 
@@ -30,7 +30,7 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private Button backButton;
     private readonly Dictionary<SelectWindowState, GameObject> _selectWindowDict = new();
     private readonly Dictionary<SelectWindowState, GameObject> _selectPanelDict = new();
-    public Selected PlayerSelected { get; private set; }
+    public PlayerSelected PlayerSelected { get; private set; }
 
     private SelectWindowState _currentState;
     StringBuilder sb = new();
@@ -46,12 +46,11 @@ public class SelectWindow : MonoBehaviour
     private SelectButton _randomWeaponBtn;
     private readonly List<SelectButton> _weaponSelectList = new();
 
-
     [Header("Stage Select")] [SerializeField]
     private GameObject stageSelect;
-
     [SerializeField] private Transform stageViewportContent;
     [SerializeField] private GameObject stagePanel;
+    private List<SelectButton> _stageSelectList = new();
 
     [Header("Char Description")] [SerializeField]
     private Image charImage;
@@ -67,6 +66,10 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private TMP_Text weaponClasses;
     [SerializeField] private TMP_Text weaponDescription;
 
+    [Header("Stage Description")] 
+    [SerializeField] private TMP_Text stageTxt;
+    [SerializeField] private TMP_Text stageDescription;
+    
     [Header("Prefabs")] [SerializeField] private Sprite randomSprite;
     [SerializeField] private SelectButton selectButton; //Prefab
 
@@ -89,11 +92,9 @@ public class SelectWindow : MonoBehaviour
 
         InitCharSelectBtn(); //버튼 초기화.
         InitWeaponRandom();
-
-        PlayerSelected = new Selected();
-
-
-
+        InitStageSelect();
+        
+        PlayerSelected = new PlayerSelected();
     }
 
     public void OpenSelectWindow()
@@ -105,6 +106,7 @@ public class SelectWindow : MonoBehaviour
         weaponSelect.SetActive(false);
         weaponPanel.SetActive(false);
         stageSelect.SetActive(false);
+        stagePanel.SetActive(false);
     }
 
     private void SwitchWindow(SelectWindowState nextState)
@@ -112,10 +114,10 @@ public class SelectWindow : MonoBehaviour
         _selectWindowDict[_currentState].SetActive(false);
         _selectWindowDict[nextState].SetActive(true);
 
-        var panel = _selectPanelDict[_currentState];
-        panel?.gameObject.SetActive(false);
-        panel = _selectPanelDict[nextState];
-        panel?.gameObject.SetActive(true);
+        var selectPanel = _selectPanelDict[_currentState];
+        selectPanel?.gameObject.SetActive(false);
+        selectPanel = _selectPanelDict[nextState];
+        selectPanel?.gameObject.SetActive(true);
 
         _currentState = nextState;
     }
@@ -138,6 +140,7 @@ public class SelectWindow : MonoBehaviour
             case SelectWindowState.StageSelect:
             {
                 SwitchWindow(SelectWindowState.WeaponSelect);
+                stagePanel.SetActive(false);
                 break;
             }
             default: return;
@@ -148,6 +151,7 @@ public class SelectWindow : MonoBehaviour
     {
         var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         randomBtn.transform.SetParent(charViewportContent);
+        randomBtn.SetButtonImg(randomSprite);
         randomBtn.OnBtnPointerEnter += ShowRandCharDescription; //랜덤 버튼 
         randomBtn.SelectBtn.onClick.AddListener(SelectRandomCharacter);
 
@@ -163,6 +167,7 @@ public class SelectWindow : MonoBehaviour
             newBtn.SelectBtn.onClick.AddListener(() => EnterWeaponSelect(id)); //클릭 시 무기 선택으로
         }
 
+        ShowRandCharDescription();//초기에는 랜덤으로
     }
 
     private void ShowCharDescription(int charID)
@@ -227,7 +232,10 @@ public class SelectWindow : MonoBehaviour
             _weaponSelectList.Add(selectBtn);
 
             selectBtn.OnBtnPointerEnter += () => ShowWeaponDescription(weaponID); //포인터 이벤트(설명 표시)
+            selectBtn.SelectBtn.onClick.AddListener( () => ShowStageSelect(charID, weaponID));
         }
+        
+        ShowRandomWeapon();
     }
 
     private void ShowRandCharDescription()
@@ -251,7 +259,6 @@ public class SelectWindow : MonoBehaviour
     private void EnterWeaponSelect(int charID) //무기 선택창 진입
     {
         ShowCharDescription(charID); //해당 캐릭터의 설명
-        PlayerSelected.CharID = charID; //캐릭터 선택 완료.
 
         SwitchWindow(SelectWindowState.WeaponSelect); //창 변경
 
@@ -312,6 +319,11 @@ public class SelectWindow : MonoBehaviour
         sb.Append(weaponData.WeaponStat.range[0]).Append("(");
         sb.AppendLine(weaponData.WeaponStat.isMelee ? "근거리)" : "원거리)");
 
+        sb.Append("•").AppendLine(weaponData.WeaponStat.description); 
+        //고유 효과 -> 데이터는 어떤방식으로???
+        // 최소 0개(없음부터) ~ 5?개(상한은 없이?) - 티어 수 만큼의 스탯 배수값...
+        
+        
         weaponDescription.SetText(sb);
     }
 
@@ -327,11 +339,67 @@ public class SelectWindow : MonoBehaviour
 
     private void SelectRandomWeapon(int charID)
     {
+        var weaponList = DataManager.Instance.CharDict[charID].InitWeaponIDList;
+        var randIdx = Random.Range(0, weaponList.Count);
+        var weaponID = weaponList[randIdx];
         
+        ShowStageSelect(charID, weaponID);
     }
 
-private void EnterStageSelect(int charID, int weaponID)
+    private void InitStageSelect()
     {
+        for (int i = 0; i < 5; i++)
+        {
+            var btn = ObjectPoolingManager.Instance.GetSelectBtn();
+            btn.transform.SetParent(stageViewportContent);
+            
+            sb.Clear();
+            sb.Append(i);
+            btn.SetBtnText(sb);
+
+            int idx = i;
+            btn.OnBtnPointerEnter += () => ShowStageDescription(idx);
+            
+            _stageSelectList.Add(btn);
+        }
+    }
+
+    private void ShowStageDescription(int level)
+    {
+        sb.Clear();
+        //
+        sb.Append(level);
+        stageTxt.SetText(sb);
+        stageDescription.SetText(sb);
+    }
+    
+    private void ShowStageSelect(int charID, int weaponID)
+    {
+        ShowWeaponDescription(weaponID);
+        SwitchWindow(SelectWindowState.StageSelect);
+        stagePanel.SetActive(true);
+
+        for (int i = 0; i < 5; i++)
+        {
+            var idx = i;
+            var btn = _stageSelectList[i];
+           btn.SelectBtn.onClick.RemoveAllListeners();
+           btn.SelectBtn.onClick.AddListener( () => LoadMain(charID, weaponID, idx));
+        }
+        
+        
+        //PlayerSelected.CharID = charID; //캐릭터 선택 완료.
+    }
+
+    private void LoadMain(int charID, int weaponID, int stage)
+    {
+        PlayerSelected.CharID = charID;
+        //개선필요.
+        PlayerSelected.WeaponIDList.Add(weaponID);
+        PlayerSelected.StageID = stage;
+        
+        SceneChanger.Instance.LoadScene(SceneName.MainScene);
+        SceneChanger.Instance.SetTitleSelected(PlayerSelected);
         
     }
 }

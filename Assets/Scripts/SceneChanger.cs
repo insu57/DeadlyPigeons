@@ -11,6 +11,8 @@ public enum SceneName
 public class SceneChanger : Singleton<SceneChanger>
 {
     //개선 필요
+    public PlayerSelected PlayerSelected { get; private set; }
+    
     public void LoadScene(SceneName sceneName)
     {
         string sceneString = SceneNameChangeToString(sceneName);
@@ -34,8 +36,7 @@ public class SceneChanger : Singleton<SceneChanger>
             default: return "";
         }
     }
-    
-    
+
     private IEnumerator LoadSceneProcess(string sceneName)
     {
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
@@ -50,5 +51,9 @@ public class SceneChanger : Singleton<SceneChanger>
             yield return null;
         }
     }
-    
+
+    public void SetTitleSelected(PlayerSelected playerSelected)
+    {
+        PlayerSelected = playerSelected;
+    }
 }
