@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine;
 public class StageManager : MonoBehaviour
 {
     //WIP
+    private PlayerManager _playerManager;
     [SerializeField] private TMP_Text stageText;
     private PlayerSelected _playerSelected;
     
@@ -13,29 +15,38 @@ public class StageManager : MonoBehaviour
     [SerializeField] private WeaponData testWeapon;
     [SerializeField] private int testStage;
 
+    private void Awake()
+    {
+        _playerManager = FindFirstObjectByType<PlayerManager>();
+    }
+    
     private void Start()
     {
         InitStage();
 
-        CharacterData charData;
-        WeaponData weaponData;
-        int stage;
-        
         //test
         var sb = new StringBuilder();
         
         if (_playerSelected == null)
         {
-            charData = testChar;
-            weaponData = testWeapon;
-            stage = testStage;
+            _playerSelected = new PlayerSelected
+            {
+                CharID = testChar.ID,
+                WeaponIDList = new List<int>(),
+                StageID = testStage
+            };
+            _playerSelected.WeaponIDList.Add(testWeapon.ID);
+            
+            
         }
-        else
-        {
-            charData = DataManager.Instance.CharDict[_playerSelected.CharID];
-            weaponData = DataManager.Instance.WeaponDict[_playerSelected.WeaponIDList[0]];
-            stage = _playerSelected.StageID;
-        }
+        
+        Debug.Log(_playerSelected.CharID);
+        var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
+        var weaponData = DataManager.Instance.WeaponDict[_playerSelected.WeaponIDList[0]];
+        var stage = _playerSelected.StageID;
+        
+        _playerManager.InitStat(charData);
+        
         
         sb.AppendLine($"Stage: {stage}");
         sb.AppendLine($"Character: {charData.CharacterName}");
@@ -49,6 +60,9 @@ public class StageManager : MonoBehaviour
     {
         _playerSelected = SceneChanger.Instance.PlayerSelected;
         InputManager.Instance.Input.Player.Enable();
+        InputManager.Instance.Input.UI.Disable();
+        InputManager.Instance.Input.Global.Enable();
+        Debug.Log("init stage");
     }
     
 }

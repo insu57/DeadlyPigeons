@@ -26,7 +26,8 @@ public class TitleUI : MonoBehaviour
 
     private void Start()
     {   
-        InputManager.Instance.Input.UI.Enable();
+        InputManager.Instance.Input.Global.Enable();
+        InputManager.Instance.Input.UI.Enable();//패드 조작 추가?
         InputManager.Instance.Input.UI.Cancel.performed += OnCancelAction;
         
         _currentState = TitleState.Title;
