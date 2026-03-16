@@ -8,7 +8,7 @@ public enum MainStats
 {
     MaxHP, HealthRegen, HealthAbsorb, Armor, DodgeChance, Speed, 
     Damage, Melee, Ranged, Elemental ,Engineering, Tactical, AttackSpeed,
-    CritChance, Luck, Harvest,
+    CritChance, Range ,Luck, Harvest,
     None
 }
 

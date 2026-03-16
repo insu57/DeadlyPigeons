@@ -40,7 +40,6 @@ public class StageManager : MonoBehaviour
             
         }
         
-        Debug.Log(_playerSelected.CharID);
         var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
         var weaponData = DataManager.Instance.WeaponDict[_playerSelected.WeaponIDList[0]];
         var stage = _playerSelected.StageID;

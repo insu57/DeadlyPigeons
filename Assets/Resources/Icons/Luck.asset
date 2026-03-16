@@ -43,29 +43,14 @@ MonoBehaviour:
     m_GlyphIndex: 0
     m_Scale: 1
     m_Name: Luck
-  - m_ElementType: 2
-    m_Unicode: 65534
-    m_GlyphIndex: 1
-    m_Scale: 1
-    m_Name: Luck 1_0
-  - m_ElementType: 2
-    m_Unicode: 65534
-    m_GlyphIndex: 2
-    m_Scale: 1
-    m_Name: Luck 1_1
-  - m_ElementType: 2
-    m_Unicode: 65534
-    m_GlyphIndex: 3
-    m_Scale: 1
-    m_Name: Luck 1_2
   m_GlyphTable:
   - m_Index: 0
     m_Metrics:
       m_Width: 460
       m_Height: 419
-      m_HorizontalBearingX: 0.2
+      m_HorizontalBearingX: 7.9
       m_HorizontalBearingY: 333.6
-      m_HorizontalAdvance: 460
+      m_HorizontalAdvance: 403.7
     m_GlyphRect:
       m_X: 0
       m_Y: 0
@@ -75,54 +60,6 @@ MonoBehaviour:
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
     sprite: {fileID: 21300000, guid: b7a6d9dcd5c35684a9057543f5b2114d, type: 3}
-  - m_Index: 1
-    m_Metrics:
-      m_Width: 170
-      m_Height: 279
-      m_HorizontalBearingX: -85
-      m_HorizontalBearingY: 139.5
-      m_HorizontalAdvance: 170
-    m_GlyphRect:
-      m_X: 51
-      m_Y: 15
-      m_Width: 170
-      m_Height: 279
-    m_Scale: 1
-    m_AtlasIndex: 0
-    m_ClassDefinitionType: 0
-    sprite: {fileID: 3027126282726769579, guid: 6f3e3caf8d7cfcd459f58bf991b5e6ce, type: 3}
-  - m_Index: 2
-    m_Metrics:
-      m_Width: 334
-      m_Height: 176
-      m_HorizontalBearingX: -167
-      m_HorizontalBearingY: 88
-      m_HorizontalAdvance: 334
-    m_GlyphRect:
-      m_X: 63
-      m_Y: 229
-      m_Width: 334
-      m_Height: 176
-    m_Scale: 1
-    m_AtlasIndex: 0
-    m_ClassDefinitionType: 0
-    sprite: {fileID: 2582068603966305599, guid: 6f3e3caf8d7cfcd459f58bf991b5e6ce, type: 3}
-  - m_Index: 3
-    m_Metrics:
-      m_Width: 170
-      m_Height: 279
-      m_HorizontalBearingX: -85
-      m_HorizontalBearingY: 139.5
-      m_HorizontalAdvance: 170
-    m_GlyphRect:
-      m_X: 239
-      m_Y: 15
-      m_Width: 170
-      m_Height: 279
-    m_Scale: 1
-    m_AtlasIndex: 0
-    m_ClassDefinitionType: 0
-    sprite: {fileID: -2968470151957789629, guid: 6f3e3caf8d7cfcd459f58bf991b5e6ce, type: 3}
   spriteInfoList: []
   fallbackSpriteAssets: []
 --- !u!21 &206086482789106717

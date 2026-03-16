@@ -47,6 +47,7 @@ public static class StatUtil
             "Tactical" => MainStats.Tactical,
             "AttackSpeed" => MainStats.AttackSpeed,
             "CritChance" => MainStats.CritChance,
+            "Range" =>  MainStats.Range,
             "Luck" => MainStats.Luck,
             "Harvest" => MainStats.Harvest,
             _ => MainStats.None
@@ -71,6 +72,7 @@ public static class StatUtil
             MainStats.Tactical => nameof(MainStats.Tactical),
             MainStats.AttackSpeed => nameof(MainStats.AttackSpeed),
             MainStats.CritChance => nameof(MainStats.CritChance),
+            MainStats.Range => nameof(MainStats.Range),
             MainStats.Luck => nameof(MainStats.Luck),
             MainStats.Harvest => nameof(MainStats.Harvest),
             _ => nameof(MainStats.None) //예외처리

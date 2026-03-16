@@ -11,20 +11,24 @@ public class PlayerManager : MonoBehaviour
         TryGetComponent(out _playerControl);
         TryGetComponent(out _playerStat);
         _playerInfoUI = FindFirstObjectByType<PlayerInfoUI>();
+        
+        _playerStat.OnChangeMainStats += UpdateMainStat;
     }
 
     private void Start()
     {
-        _playerControl.OnShowInfoUI += ShowInfoUI;
+        
     }
 
     public void InitStat(CharacterData charData)
     {
+        Debug.Log("InitStat");
         _playerStat.InitStat(charData);
     }
 
-    public void ShowInfoUI()
+    private void UpdateMainStat(MainStats stat, int value)
     {
-        _playerInfoUI.ShowInfoUI();
+        Debug.Log(value);
+        _playerInfoUI.UpdateMainStat(stat, value);
     }
 }
