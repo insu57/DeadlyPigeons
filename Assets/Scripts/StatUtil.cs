@@ -79,6 +79,22 @@ public static class StatUtil
         };
     }
     
+    public static bool IsPercentageMainStat(this MainStats stat)
+    {
+        return stat switch
+        {
+            // 퍼센트로 계산되는 스탯들만  true 반환
+            MainStats.HealthAbsorb => true,
+            MainStats.Damage => true,
+            MainStats.AttackSpeed => true,
+            MainStats.CritChance => true,
+            MainStats.DodgeChance => true,
+            MainStats.Speed => true,
+            // 나머지는 전부 일반(Flat) 수치이므로 false
+            _ => false
+        };
+    }
+    
     public static SubStats StringToSubStats(this string str)
     {
         return str switch
@@ -116,6 +132,24 @@ public static class StatUtil
             SubStats.EnemiesSpeed    => nameof(SubStats.EnemiesSpeed),
             SubStats.RerollPrice     => nameof(SubStats.RerollPrice),
             _ => nameof(SubStats.None) //예외처리
+        };
+    }
+    
+    public static bool IsPercentageSubStat(this SubStats stat)
+    {
+        return stat switch
+        {
+            // 퍼센트로 계산되는 스탯들만  true 반환
+            SubStats.XPGain => true,
+            SubStats.ItemPrice => true,
+            SubStats.EnemiesSpeed => true,
+            SubStats.Enemies => true,
+            SubStats.RerollPrice => true,
+            SubStats.ExplosiveDamage => true,
+            SubStats.ExplosiveSize => true,
+            SubStats.PickUpRange => true,
+            // 나머지는 전부 일반(Flat) 수치이므로 false
+            _ => false
         };
     }
 

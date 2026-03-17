@@ -13,6 +13,7 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI = FindFirstObjectByType<PlayerInfoUI>();
         
         _playerStat.OnChangeMainStats += UpdateMainStat;
+        _playerStat.OnChangeSubStats += UpdateSubStat;
     }
 
     private void Start()
@@ -28,7 +29,11 @@ public class PlayerManager : MonoBehaviour
 
     private void UpdateMainStat(MainStats stat, int value)
     {
-        Debug.Log(value);
         _playerInfoUI.UpdateMainStat(stat, value);
+    }
+
+    private void UpdateSubStat(SubStats stat, int value)
+    {
+        _playerInfoUI.UpdateSubStat(stat, value);
     }
 }
