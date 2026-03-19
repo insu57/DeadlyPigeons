@@ -49,6 +49,8 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public string Name { get; private set; }
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
+    [SerializeReference] private List<IWeaponEffect> effects;
+    [SerializeReference, SubclassSelector] private IWeaponEffect effect;
 
     public static WeaponClasses ToWeaponClass(string type)
     {

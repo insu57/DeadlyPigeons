@@ -37,3 +37,12 @@ MonoBehaviour:
     healthAbsorb: 000000000000000000000000
     prices: 3800000067000000cf000000
     description: "\uD654\uC5FC\uBC29\uC0AC\uAE30. \uC124\uBA85\uC740 \uC5B4\uB5BB\uAC8C???"
+  effects:
+  - rid: -2
+  effect:
+    rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
