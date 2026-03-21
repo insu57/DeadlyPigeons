@@ -39,3 +39,17 @@ MonoBehaviour:
     healthAbsorb: 00000000000000000000000000000000
     prices: 14000000280000005000000096000000
     description: "\uB871\uC18C\uB4DC"
+  effects: []
+  effect:
+    rid: -2
+  <SpriteScale>k__BackingField: {x: 0.3, y: 0.3, z: 0.3}
+  <SpriteOffset>k__BackingField: {x: 0.691, y: 0.022, z: 0}
+  <SpriteAngle>k__BackingField: {x: 0, y: 0, z: 315}
+  <MuzzleOffset>k__BackingField: {x: -1.5, y: -0.3, z: 0}
+  <ColliderOffset>k__BackingField: {x: 0.71910024, y: 0.011197691}
+  <ColliderSize>k__BackingField: {x: 1.7535018, y: 0.29929638}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

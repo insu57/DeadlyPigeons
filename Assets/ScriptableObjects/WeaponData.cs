@@ -51,6 +51,13 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
     [SerializeReference] private List<IWeaponEffect> effects;
     [SerializeReference, SubclassSelector] private IWeaponEffect effect;
+   
+    [field: SerializeField] public Vector3 SpriteScale { get; private set; }
+    [field: SerializeField] public Vector3 SpriteOffset { get; private set; }
+    [field: SerializeField] public Vector3 SpriteAngle { get; private set; }
+    [field: SerializeField] public Vector3 MuzzleOffset { get; private set; }
+    [field: SerializeField] public Vector2 ColliderOffset { get; private set; }
+    [field: SerializeField] public Vector2 ColliderSize { get; private set; }
 
     public static WeaponClasses ToWeaponClass(string type)
     {
@@ -94,6 +101,16 @@ public class WeaponData : ScriptableObject
         Name = weaponName;
         WeaponStat = weaponStat;
         Sprite = sprite;
+    }
+
+    public void SetWeaponTransform(WeaponTransform weaponTransform)
+    {
+        SpriteScale = weaponTransform.SpriteScale;
+        SpriteOffset = weaponTransform.SpriteOffset;
+        SpriteAngle =  weaponTransform.SpriteAngle;
+        MuzzleOffset = weaponTransform.MuzzleOffest;
+        ColliderSize = weaponTransform.ColliderSize;
+        ColliderOffset = weaponTransform.ColliderOffset;
     }
 #endif
 }

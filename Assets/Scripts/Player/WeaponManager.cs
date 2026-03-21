@@ -1,15 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [field: SerializeField] private List<GameObject> weaponParents;
+    [field: SerializeField] private List<PlayerWeapon> weapons;
+    private int _weaponSlot = 6;
+
+    private void Start()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    private void InitWeaponSlot()
     {
         
     }

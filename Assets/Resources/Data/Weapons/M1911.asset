@@ -39,3 +39,15 @@ MonoBehaviour:
     healthAbsorb: 00000000000000000000000000000000
     prices: 0a000000140000002800000050000000
     description: "45\uAD6C\uACBD\uAD8C\uCD1D"
+  effects: []
+  effect:
+    rid: -2
+  <SpriteScale>k__BackingField: {x: 0.2, y: 0.2, z: 0.2}
+  <SpriteOffset>k__BackingField: {x: 0.15, y: 0.026, z: 0}
+  <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 0}
+  <MuzzleOffset>k__BackingField: {x: 0.302, y: 0.323, z: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
