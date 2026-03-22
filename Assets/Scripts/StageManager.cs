@@ -10,9 +10,12 @@ public class StageManager : MonoBehaviour
     [SerializeField] private TMP_Text stageText;
     private PlayerSelected _playerSelected;
     
+    [field: SerializeField] private List<Transform> activeEnemies = new();
+    private const float MaxFindRange = 100f;
+    
     //test
     [SerializeField] private CharacterData testChar;
-    [SerializeField] private WeaponData testWeapon;
+    [SerializeField] private List<WeaponData> testWeapon;
     [SerializeField] private int testStage;
 
     private void Awake()
@@ -26,7 +29,6 @@ public class StageManager : MonoBehaviour
 
         //test
         var sb = new StringBuilder();
-        
         if (_playerSelected == null)
         {
             _playerSelected = new PlayerSelected
@@ -35,26 +37,41 @@ public class StageManager : MonoBehaviour
                 WeaponIDList = new List<int>(),
                 StageID = testStage
             };
-            _playerSelected.WeaponIDList.Add(testWeapon.ID);
-            
-            
+
+            foreach (var weaponData in testWeapon)
+            {
+                _playerSelected.WeaponIDList.Add(weaponData.ID);
+            }
         }
         
         var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
-        var weaponData = DataManager.Instance.WeaponDict[_playerSelected.WeaponIDList[0]];
+        List<WeaponData> weapons = new();
+        foreach (var weaponID in _playerSelected.WeaponIDList)
+        {
+            weapons.Add(DataManager.Instance.WeaponDict[weaponID]);
+        }
+        
         var stage = _playerSelected.StageID;
         
         _playerManager.InitStat(charData);
-        
+        _playerManager.InitWeapons(weapons);
         
         sb.AppendLine($"Stage: {stage}");
         sb.AppendLine($"Character: {charData.CharacterName}");
-        sb.AppendLine($"Weapon: {weaponData.Name}");
+        sb.Append($"Weapon: ");
+        foreach (var weaponData in weapons)
+        {
+            sb.Append($"{weaponData.Name} ");
+        }
         
         stageText.SetText(sb);
     }
 
-
+    private void Update()
+    {
+        FindClosestEnemy();
+    }
+    
     private void InitStage()
     {
         _playerSelected = SceneChanger.Instance.PlayerSelected;
@@ -63,5 +80,24 @@ public class StageManager : MonoBehaviour
         InputManager.Instance.Input.Global.Enable();
         Debug.Log("init stage");
     }
-    
+
+    private void FindClosestEnemy()
+    {
+        Transform closest = null;
+        float minDistanceSqr = MaxFindRange * MaxFindRange;
+
+        foreach (var activeEnemy in activeEnemies)
+        {
+            Vector3 dir = activeEnemy.position - _playerManager.transform.position;
+            float distSqr = dir.sqrMagnitude;
+
+            if (distSqr < minDistanceSqr)
+            {
+                minDistanceSqr = distSqr;
+                closest = activeEnemy;
+            }
+        }
+        
+        _playerManager.GetClosestEnemy(closest);
+    }
 }

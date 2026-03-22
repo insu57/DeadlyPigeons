@@ -165,6 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6e7f152376060f49808fc9b38ff8e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponSprite: {fileID: 6373404727655751344}
   bullet: {fileID: 0}
 --- !u!70 &710849842659663982
 CapsuleCollider2D:
