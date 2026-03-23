@@ -5,6 +5,7 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - selectBtnPrefab: {fileID: 7143423077175295752, guid: 3906e198cf569d844b5998a6aeb6d7f2, type: 3}
+  - projectilePrefab: {fileID: 229924528183192754, guid: d38e69560f05bb14394a4452e3bcaa67, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

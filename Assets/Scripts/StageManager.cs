@@ -65,6 +65,9 @@ public class StageManager : MonoBehaviour
         }
         
         stageText.SetText(sb);
+        
+        //pooling
+        ObjectPoolingManager.Instance.InitProjectilePool();
     }
 
     private void Update()

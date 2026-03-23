@@ -6,16 +6,22 @@ using UnityEngine.Pool;
 public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 {
     [Serializable]
-    private class PoolSettings
+    public class PoolSettings
     {
         public int initSize = 30;
         public int maxSize = 100;
     }
     
+    //SO에서 받아오는 것으로 수정 필요.
     [Header("TitleSelect")]
     [SerializeField] private SelectButton selectBtnPrefab;
-    [SerializeField] private PoolSettings selectBtnSettings;
+    [SerializeField] private PoolSettings selectBtnSettings; //다른 방식으로?
     private ObjectPool<SelectButton> _selectBtnPool;
+    
+    [SerializeField] private DamageDealer projectilePrefab;
+    [SerializeField] private PoolSettings projectileSettings;
+    private  ObjectPool<DamageDealer> _projectilePool;
+    
     public SelectButton GetSelectBtn()
     {
         var selectBtn = _selectBtnPool.Get();
@@ -62,5 +68,9 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
         
         return pool;
     }
-    
+
+    public void InitProjectilePool()
+    {
+        _projectilePool = InitPool(projectilePrefab, projectileSettings);
+    }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class PlayerStat : MonoBehaviour
+public class PlayerStat : MonoBehaviour, IDamageable
 {
     //기본스탯. 
     //캐릭터 패시브
@@ -65,5 +65,15 @@ public class PlayerStat : MonoBehaviour
         {
             OnChangeSubStats?.Invoke(subStat, value);
         }
+    }
+
+    public void Damage(int damage)
+    {
+        
+    }
+
+    public void Heal(int healAmount)
+    {
+        
     }
 }
