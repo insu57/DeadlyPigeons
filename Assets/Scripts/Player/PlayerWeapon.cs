@@ -73,6 +73,8 @@ public class PlayerWeapon : MonoBehaviour
 
     private void Attack()
     {
+        if(!_target) return;
+        
         if(_weaponData.WeaponStat.isMelee) MeleeAttack();
         else RangedAttack();
     }
@@ -87,7 +89,8 @@ public class PlayerWeapon : MonoBehaviour
     private void RangedAttack()
     {
         //투사체 만큼 발사.
-        
-        
+        var projectile = ObjectPoolingManager.Instance.GetProjectile();
+        projectile.Fire(_target.position);
+
     }
 }

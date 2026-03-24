@@ -23,6 +23,10 @@ public class TitleUI : MonoBehaviour
     [Header("Option")]
     [SerializeField] private OptionWindow optionWindow;
 
+    private void Awake()
+    {
+        ObjectPoolingManager.Instance.InitSelectBtnPool();
+    }
 
     private void Start()
     {   

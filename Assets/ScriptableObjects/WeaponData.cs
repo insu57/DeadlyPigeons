@@ -28,6 +28,7 @@ public struct WeaponStat
 {
     public int initTier;
     public bool isMelee;
+    public AttackType attackType;
     public List<WeaponClasses> classes;
     public List<int> baseDamage;
     public List<StatMultiplier> damageMultipliers;
@@ -38,6 +39,7 @@ public struct WeaponStat
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
     public List<int> prices;
+    public List<int> piercing;
     public string description;
 }
 

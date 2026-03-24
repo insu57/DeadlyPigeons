@@ -3,46 +3,46 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
+public enum Pooling
+{
+    SelectBtn,
+    Projectile,
+}
+
 public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 {
-    [Serializable]
-    public class PoolSettings
-    {
-        public int initSize = 30;
-        public int maxSize = 100;
-    }
-    
     //SO에서 받아오는 것으로 수정 필요.
-    [Header("TitleSelect")]
-    [SerializeField] private SelectButton selectBtnPrefab;
-    [SerializeField] private PoolSettings selectBtnSettings; //다른 방식으로?
+    [Header("TitleSelect")] 
+    private PoolingSetting _selectBtnSetting;
     private ObjectPool<SelectButton> _selectBtnPool;
     
-    [SerializeField] private DamageDealer projectilePrefab;
-    [SerializeField] private PoolSettings projectileSettings;
+    private PoolingSetting _projectileSetting;
     private  ObjectPool<DamageDealer> _projectilePool;
     
-    public SelectButton GetSelectBtn()
-    {
-        var selectBtn = _selectBtnPool.Get();
-        selectBtn.ClearSelectBtn();
-        return selectBtn;
-    }
-
-    public void ReleaseSelectBtn(SelectButton selectBtn) => _selectBtnPool.Release(selectBtn);
-    
-    
-    //[Header("Main")] -> Bullet
 
     protected override void Awake()
     {
         base.Awake();
         
-        _selectBtnPool = InitPool(selectBtnPrefab, selectBtnSettings);
+        LoadPoolSettings();
     }
 
+    private void LoadPoolSettings()
+    {
+        PoolingSetting[] settings = Resources.LoadAll<PoolingSetting>("Pooling");
+
+        foreach (var poolingSetting in settings)
+        {
+            switch (poolingSetting.Pooling)
+            {
+                case Pooling.SelectBtn: _selectBtnSetting = poolingSetting; break;
+                case Pooling.Projectile: _projectileSetting = poolingSetting; break;
+            }
+        }
+    }
+    
     //wip
-    private ObjectPool<T> InitPool<T>(T prefab, PoolSettings settings) where T : Component
+    private ObjectPool<T> InitPool<T>(T prefab, PoolingSetting settings) where T : Component
     {
         var pool = new ObjectPool<T>(
             createFunc: () => Instantiate(prefab),
@@ -50,12 +50,12 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
             actionOnRelease: component => component.gameObject.SetActive(false),
             actionOnDestroy: component => Destroy(component.gameObject),
             collectionCheck: false,
-            defaultCapacity: settings.initSize,
-            maxSize: settings.maxSize
+            defaultCapacity: settings.InitSize,
+            maxSize: settings.MaxSize
             );
 
         var tempList = new List<T>();
-        for (var i = 0; i < settings.initSize; i++)
+        for (var i = 0; i < settings.InitSize; i++)
         {
             var obj = pool.Get();
             tempList.Add(obj);
@@ -68,9 +68,40 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
         
         return pool;
     }
+    
+    public SelectButton GetSelectBtn()
+    {
+        var selectBtn = _selectBtnPool.Get();
+        selectBtn.ClearSelectBtn();
+        return selectBtn;
+    }
 
+    public void ReleaseSelectBtn(SelectButton selectBtn) => _selectBtnPool.Release(selectBtn);
+
+    public void InitSelectBtnPool()
+    {
+        if (_selectBtnSetting.Prefab.TryGetComponent(out SelectButton selectBtn))
+        {
+            _selectBtnPool = InitPool(selectBtn, _selectBtnSetting);
+        }
+        else
+        {
+            Debug.LogError("Can't find selectBtn");
+        }
+    }
+    
     public void InitProjectilePool()
     {
-        _projectilePool = InitPool(projectilePrefab, projectileSettings);
+        if (_projectileSetting.Prefab.TryGetComponent(out DamageDealer projectile))
+        {
+            _projectilePool = InitPool(projectile, _projectileSetting);
+        }
+        else
+        {
+            Debug.LogError("Can't find projectile");
+        }
     }
+
+    public DamageDealer GetProjectile() => _projectilePool.Get();
+    public void ReleaseProjectile(DamageDealer projectile ) => _projectilePool.Release(projectile);
 }
