@@ -12,7 +12,9 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private SpriteRenderer weaponSprite;
     private WeaponData _weaponData;
     private Transform _target;
-    [SerializeField] private GameObject bullet; //풀링으로 변경
+    private int _currentTier;
+    private float _currentTimer;
+    private const int RangeScaler = 100;
     
     private CapsuleCollider2D _collider;
 
@@ -27,7 +29,7 @@ public class PlayerWeapon : MonoBehaviour
         Attack();
     }
 
-    public void SetWeaponData(WeaponData weaponData)
+    public void SetWeaponData(WeaponData weaponData, int tier)
     {
         _weaponData = weaponData;
 
@@ -38,6 +40,8 @@ public class PlayerWeapon : MonoBehaviour
 
         _collider.size = weaponData.ColliderSize;
         _collider.offset = weaponData.ColliderOffset;
+        
+        _currentTier = tier;
         
         if(!weaponData.WeaponStat.isMelee) _collider.enabled = false; //원거리면 비활성.
     }
@@ -88,9 +92,21 @@ public class PlayerWeapon : MonoBehaviour
 
     private void RangedAttack()
     {
-        //투사체 만큼 발사.
-        var projectile = ObjectPoolingManager.Instance.GetProjectile();
-        projectile.Fire(_target.position);
+        if (_currentTimer > 0)
+        {
+            _currentTimer -= Time.deltaTime;
+        }
+        else
+        {
+            //투사체 만큼 발사.
+            var projectile = ObjectPoolingManager.Instance.GetProjectile();
+            projectile.transform.position = transform.position;//
+            var dir = _target.position - transform.position;
+            float range = (float)_weaponData.WeaponStat.range[_currentTier] /  RangeScaler;
+            projectile.Fire(dir, range);
 
+            _currentTimer = _weaponData.WeaponStat.attackSpeed[_currentTier];
+        }
+        
     }
 }

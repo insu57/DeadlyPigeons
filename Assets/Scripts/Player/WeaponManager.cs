@@ -34,7 +34,7 @@ public class WeaponManager : MonoBehaviour
         {
             if(i >= _weaponSlot) break;
             
-            weapons[i].SetWeaponData(weaponList[i]); // 초기 무기 장착
+            weapons[i].SetWeaponData(weaponList[i], weaponList[i].WeaponStat.initTier); // 초기 무기 장착
             weapons[i].gameObject.SetActive(true);
         }
     }

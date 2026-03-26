@@ -17,7 +17,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     private ObjectPool<SelectButton> _selectBtnPool;
     
     private PoolingSetting _projectileSetting;
-    private  ObjectPool<DamageDealer> _projectilePool;
+    private  ObjectPool<Projectile> _projectilePool;
     
 
     protected override void Awake()
@@ -92,7 +92,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     
     public void InitProjectilePool()
     {
-        if (_projectileSetting.Prefab.TryGetComponent(out DamageDealer projectile))
+        if (_projectileSetting.Prefab.TryGetComponent(out Projectile projectile))
         {
             _projectilePool = InitPool(projectile, _projectileSetting);
         }
@@ -102,6 +102,6 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
         }
     }
 
-    public DamageDealer GetProjectile() => _projectilePool.Get();
-    public void ReleaseProjectile(DamageDealer projectile ) => _projectilePool.Release(projectile);
+    public Projectile GetProjectile() => _projectilePool.Get();
+    public void ReleaseProjectile(Projectile projectile ) => _projectilePool.Release(projectile);
 }
