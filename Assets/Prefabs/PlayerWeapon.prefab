@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4061532029598312673}
   - component: {fileID: 6373404727655751344}
+  - component: {fileID: 2512540836300108074}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -87,6 +88,43 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!70 &2512540836300108074
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4603690083091695209}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.45274442, y: 0.0111977225}
+  m_Size: {x: 1.2207788, y: 0.29929486}
+  m_Direction: 1
 --- !u!1 &8853892252606955681
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,7 +166,7 @@ GameObject:
   m_Component:
   - component: {fileID: 867934971491431444}
   - component: {fileID: 451088450194281399}
-  - component: {fileID: 710849842659663982}
+  - component: {fileID: 3073850331995280873}
   m_Layer: 0
   m_Name: PlayerWeapon
   m_TagString: Untagged
@@ -166,40 +204,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponSprite: {fileID: 6373404727655751344}
---- !u!70 &710849842659663982
-CapsuleCollider2D:
+  meleeCollider: {fileID: 2512540836300108074}
+  attackDuration: 0.2
+  sweepAngle: 60
+  thrustDist: 2
+--- !u!114 &3073850331995280873
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9151009793121495448}
   m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.45274442, y: 0.0111977225}
-  m_Size: {x: 1.2207788, y: 0.29929486}
-  m_Direction: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72f67806d8d14247b1c29e45fa58cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
