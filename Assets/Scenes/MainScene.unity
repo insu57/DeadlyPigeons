@@ -638,6 +638,7 @@ MonoBehaviour:
   testWeapon:
   - {fileID: 11400000, guid: abcae219d22494f41bbb159dd8edef8f, type: 2}
   - {fileID: 11400000, guid: 97380fb8d84f6234aa7d53399a2d8de4, type: 2}
+  - {fileID: 11400000, guid: b8461bd226a71bc4ba6af9abd11b7261, type: 2}
   testStage: 0
 --- !u!1 &519420028
 GameObject:
@@ -2154,6 +2155,54 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1255188285
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1255188287}
+  - component: {fileID: 1255188286}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1255188286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255188285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5166cbb3aa8e17b438feeb58be52d550, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
+  weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
+  charPath: Assets/Sprites/Characters/
+  weaponPath: Assets/Sprites/Weapons/
+--- !u!4 &1255188287
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255188285}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.01831, y: 19.842993, z: -0.36662313}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1335103991
 GameObject:
   m_ObjectHideFlags: 0
@@ -8622,3 +8671,4 @@ SceneRoots:
   - {fileID: 607085414}
   - {fileID: 1810053345}
   - {fileID: 8364473821589745460}
+  - {fileID: 1255188287}

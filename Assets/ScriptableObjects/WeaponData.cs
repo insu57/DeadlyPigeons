@@ -75,7 +75,7 @@ public class WeaponData : ScriptableObject
             case "Elemental": return WeaponClasses.Elemental;
             default:
             {
-                Debug.LogWarning("Weapon Type Can't Find: "+ type);
+                Debug.LogWarning("Weapon Class Can't Find: "+ type);
                 return WeaponClasses.None;
             }
         }

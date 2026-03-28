@@ -152,7 +152,11 @@ public class DataSync : MonoBehaviour
                 var weaponName =  rowData[1];
                 //0: ID, 1:Name, 3: id-name
                 
-                var strArr = rowData[5].Split('|');//무기 클래스
+                var attackType = AttackType.None;
+                if (rowData[5] == nameof(AttackType.Sweep)) attackType = AttackType.Sweep;
+                else if (rowData[5] == nameof(AttackType.Thrust)) attackType = AttackType.Thrust;
+                
+                var strArr = rowData[6].Split('|');//무기 클래스
                 List<WeaponClasses> weaponTypes = new();
                 foreach (var str in strArr)
                 {
@@ -163,7 +167,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[6].Split('|'); //기본 데미지(티어마다)
+                strArr = rowData[7].Split('|'); //기본 데미지(티어마다)
                 List<int> baseDamage = new();
                 foreach (var str in strArr)
                 {
@@ -173,7 +177,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[7].Split('/'); //데미지 스탯 배수
+                strArr = rowData[8].Split('/'); //데미지 스탯 배수
                 List<StatMultiplier> damageTypeMultipliers = new();
                 foreach (var str in strArr)
                 {
@@ -199,7 +203,7 @@ public class DataSync : MonoBehaviour
                     damageTypeMultipliers.Add(newType);
                 }
 
-                strArr = rowData[8].Split('|'); //공격속도
+                strArr = rowData[9].Split('|'); //공격속도
                 List<float> attackSpeed = new();
                 foreach (var str in strArr)
                 {
@@ -209,7 +213,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[9].Split('|'); //치명확률
+                strArr = rowData[10].Split('|'); //치명확률
                 List<int> critChance = new();
                 foreach (var str in strArr)
                 {
@@ -219,7 +223,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[10].Split('|'); //치명데미지
+                strArr = rowData[11].Split('|'); //치명데미지
                 List<float> critDamage = new();
                 foreach (var str in strArr)
                 {
@@ -229,7 +233,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[11].Split('|'); //범위
+                strArr = rowData[12].Split('|'); //범위
                 List<int> range = new();
                 foreach (var str in strArr)
                 {
@@ -239,7 +243,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[12].Split('|'); //넉백
+                strArr = rowData[13].Split('|'); //넉백
                 List<int> knockback = new();
                 foreach (var str in strArr)
                 {
@@ -249,7 +253,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[13].Split('|'); //체력흡수
+                strArr = rowData[14].Split('|'); //체력흡수
                 List<int> healthAbsorb = new();
                 foreach (var str in strArr)
                 {
@@ -259,7 +263,7 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[14].Split('|'); //판매가격
+                strArr = rowData[15].Split('|'); //판매가격
                 List<int> prices = new();
                 foreach (var str in strArr)
                 {
@@ -273,6 +277,7 @@ public class DataSync : MonoBehaviour
                 {
                     initTier = int.Parse(rowData[2]),
                     isMelee = rowData[4] == "Melee",
+                    attackType = attackType,
                     classes = weaponTypes,
                     baseDamage = baseDamage,
                     damageMultipliers = damageTypeMultipliers,
@@ -283,7 +288,7 @@ public class DataSync : MonoBehaviour
                     knockBack = knockback,
                     healthAbsorb = healthAbsorb,
                     prices = prices,
-                    description = rowData[15]
+                    description = rowData[16]
                 };
                 
 #if UNITY_EDITOR

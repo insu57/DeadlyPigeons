@@ -18,6 +18,7 @@ MonoBehaviour:
   <WeaponStat>k__BackingField:
     initTier: 2
     isMelee: 0
+    attackType: 0
     classes: 0600000007000000
     baseDamage: 010000000100000001000000
     damageMultipliers:
@@ -36,6 +37,7 @@ MonoBehaviour:
     knockBack: 000000000000000000000000
     healthAbsorb: 000000000000000000000000
     prices: 3800000067000000cf000000
+    piercing: 
     description: "\uD654\uC5FC\uBC29\uC0AC\uAE30. \uC124\uBA85\uC740 \uC5B4\uB5BB\uAC8C???"
   effects: []
   effect:
@@ -44,6 +46,8 @@ MonoBehaviour:
   <SpriteOffset>k__BackingField: {x: 0.354, y: 0.037, z: 0}
   <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 0}
   <MuzzleOffset>k__BackingField: {x: 1.3270001, y: -0.13000001, z: 0}
+  <ColliderOffset>k__BackingField: {x: 0, y: 0}
+  <ColliderSize>k__BackingField: {x: 0, y: 0}
   references:
     version: 2
     RefIds:

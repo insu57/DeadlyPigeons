@@ -18,6 +18,7 @@ MonoBehaviour:
   <WeaponStat>k__BackingField:
     initTier: 1
     isMelee: 1
+    attackType: 1
     classes: 0400000005000000
     baseDamage: 14000000190000001e00000028000000
     damageMultipliers:
@@ -38,6 +39,7 @@ MonoBehaviour:
     knockBack: 14000000140000001400000014000000
     healthAbsorb: 00000000000000000000000000000000
     prices: 14000000280000005000000096000000
+    piercing: 
     description: "\uB871\uC18C\uB4DC"
   effects: []
   effect:

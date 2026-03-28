@@ -46,4 +46,29 @@ public class WeaponManager : MonoBehaviour
             playerWeapon.SetTarget(target);
         }
     }
+
+    public void UpdateMainStats(MainStats stat, int value)
+    {
+        foreach (var playerWeapon in weapons)
+        {
+            if (playerWeapon.WeaponData)
+            {
+                playerWeapon.UpdateMainStats(stat, value);
+            }
+        }
+    }
+
+    public void UpdateSubStats(SubStats stat, int value)
+    {
+        foreach (var playerWeapon in weapons)
+        {
+            if (playerWeapon.WeaponData)
+            {
+                playerWeapon.UpdateSubStats(stat, value);
+            }
+        }
+    }
+    
+    //현재 Weapon Class는 여기서 관리...
+    //무기 추가, 제거 -> 클래스 변경 -> PlayerManage 추가필요.
 }

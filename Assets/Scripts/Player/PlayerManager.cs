@@ -44,11 +44,13 @@ public class PlayerManager : MonoBehaviour
     private void UpdateMainStat(MainStats stat, int value)
     {
         _playerInfoUI.UpdateMainStat(stat, value);
+        _weaponManager.UpdateMainStats(stat, value);        
     }
 
     private void UpdateSubStat(SubStats stat, int value)
     {
         _playerInfoUI.UpdateSubStat(stat, value);
+        _weaponManager.UpdateSubStats(stat, value);
     }
 
     public void GetClosestEnemy(Transform enemy)

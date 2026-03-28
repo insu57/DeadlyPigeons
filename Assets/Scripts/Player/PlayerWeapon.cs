@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum AttackType
@@ -11,7 +12,7 @@ public class PlayerWeapon : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer weaponSprite;
     [SerializeField] private CapsuleCollider2D meleeCollider;
-    private WeaponData _weaponData;
+    public WeaponData WeaponData{get; private set;}
     private Transform _target;
     private int _currentTier;
     private float _currentTimer;
@@ -20,10 +21,12 @@ public class PlayerWeapon : MonoBehaviour
     private MeleeAttack _meleeAttack;
     private bool _isAttacking;
     private float _animTimer;
-    [SerializeField] private float attackDuration;//근거리 - 찌르기/휩쓸기를 하는 시간 <- 무기마다 수정필요?
-    [SerializeField] private float sweepAngle;
-    [SerializeField] private float thrustDist;
-    
+    [SerializeField] private float attackDuration = 1;//근거리 - 찌르기/휩쓸기를 하는 시간 <- 무기마다 수정필요?
+    [SerializeField] private float sweepAngle = 60;
+    [SerializeField] private float thrustDist = 2;
+
+    private Dictionary<MainStats, int> _mainStats = new();
+    private Dictionary<SubStats, int> _subStats = new();
     //private CapsuleCollider2D _collider;
 
     private void Awake()
@@ -40,7 +43,7 @@ public class PlayerWeapon : MonoBehaviour
 
     public void SetWeaponData(WeaponData weaponData, int tier)
     {
-        _weaponData = weaponData;
+        WeaponData = weaponData;
 
         weaponSprite.sprite = weaponData.Sprite;
         weaponSprite.transform.localPosition = weaponData.SpriteOffset;
@@ -59,6 +62,16 @@ public class PlayerWeapon : MonoBehaviour
     public void SetTarget(Transform target)
     {
         _target = target;
+    }
+
+    public void UpdateMainStats(MainStats stat, int value)
+    {
+        _mainStats[stat] = value;
+    }
+
+    public void UpdateSubStats(SubStats stat, int value)
+    {
+        _subStats[stat] = value;
     }
 
     private void RotateWeapon()
@@ -92,7 +105,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         if(!_target) return; //타겟이 있을 때만.
         if(_isAttacking) return;
-        if(_weaponData.WeaponStat.isMelee) MeleeAttack();
+        if(WeaponData.WeaponStat.isMelee) MeleeAttack();
         else RangedAttack();
     }
 
@@ -125,14 +138,14 @@ public class PlayerWeapon : MonoBehaviour
         if (percent >= 1f)
         {
             _isAttacking = false;
-            _currentTimer = _weaponData.WeaponStat.attackSpeed[_currentTier];
+            _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTier];
             weaponSprite.transform.localPosition = Vector3.zero;
             weaponSprite.transform.localRotation = Quaternion.identity;
             meleeCollider.enabled = false;
             return;
         }
 
-        var attackType = _weaponData.WeaponStat.attackType;
+        var attackType = WeaponData.WeaponStat.attackType;
         if (attackType == AttackType.Sweep)
         {
             float startAngle = sweepAngle / 2f;
@@ -149,6 +162,10 @@ public class PlayerWeapon : MonoBehaviour
 
     private void RangedAttack()
     {
+        float weaponRange = (float)WeaponData.WeaponStat.range[_currentTier] /  RangeScaler;
+        
+        
+        
         if (_currentTimer > 0)
         {
             _currentTimer -= Time.deltaTime;
@@ -159,10 +176,10 @@ public class PlayerWeapon : MonoBehaviour
             var projectile = ObjectPoolingManager.Instance.GetProjectile();
             projectile.transform.position = transform.position;//
             var dir = _target.position - transform.position;
-            float range = (float)_weaponData.WeaponStat.range[_currentTier] /  RangeScaler;
-            projectile.Fire(dir, range);
+            
+            projectile.Fire(dir, weaponRange);
 
-            _currentTimer = _weaponData.WeaponStat.attackSpeed[_currentTier];
+            _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTier];
         }
         
     }
