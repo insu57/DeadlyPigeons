@@ -7,7 +7,7 @@ public class PlayerManager : MonoBehaviour
     private PlayerStat _playerStat;
     private PlayerInfoUI _playerInfoUI;
     private WeaponManager _weaponManager;
-    private Transform _closestEnemy;
+    private TargetInfo _closestEnemy;
 
     private void Awake()
     {
@@ -53,7 +53,7 @@ public class PlayerManager : MonoBehaviour
         _weaponManager.UpdateSubStats(stat, value);
     }
 
-    public void GetClosestEnemy(Transform enemy)
+    public void GetClosestEnemy(TargetInfo enemy)
     {
         _closestEnemy = enemy;
         _weaponManager.SetTarget(enemy);

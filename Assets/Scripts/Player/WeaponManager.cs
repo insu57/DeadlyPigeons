@@ -39,7 +39,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void SetTarget(Transform target)
+    public void SetTarget(TargetInfo target)
     {
         foreach (var playerWeapon in weapons)
         {

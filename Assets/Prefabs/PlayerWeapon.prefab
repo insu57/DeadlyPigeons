@@ -237,6 +237,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponSprite: {fileID: 6373404727655751344}
   meleeCollider: {fileID: 8889656384669366958}
+  muzzle: {fileID: 3781457325111053710}
   attackDuration: 0.2
   sweepAngle: 60
   thrustDist: 2

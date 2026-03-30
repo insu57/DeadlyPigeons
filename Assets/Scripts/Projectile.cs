@@ -20,10 +20,10 @@ public class Projectile : MonoBehaviour, IDealer
         ProjectileRange();
     }
     
-    public void Fire(Vector3 direction, float range)
+    public void Fire(Vector3 direction, float range)//발사
     {
         _rigidbody2D.linearVelocity = direction.normalized * _speed;
-        _lifeTimer = range / _speed;
+        _lifeTimer = range / _speed; //거리/속도 = 시간
     }
 
     private void ProjectileRange()

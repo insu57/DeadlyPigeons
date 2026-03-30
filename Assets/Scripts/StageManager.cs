@@ -3,6 +3,18 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
+public struct TargetInfo
+{
+    public Transform Target;
+    public float SqrDistance;
+    public bool IsValid => Target;
+    public  TargetInfo(Transform target, float sqrDistance)
+    {
+        Target = target;
+        SqrDistance = sqrDistance;
+    }
+}
+
 public class StageManager : MonoBehaviour
 {
     //WIP
@@ -53,8 +65,8 @@ public class StageManager : MonoBehaviour
         
         var stage = _playerSelected.StageID;
         
-        _playerManager.InitStat(charData);
         _playerManager.InitWeapons(weapons);
+        _playerManager.InitStat(charData);
         
         sb.AppendLine($"Stage: {stage}");
         sb.AppendLine($"Character: {charData.CharacterName}");
@@ -100,7 +112,10 @@ public class StageManager : MonoBehaviour
                 closest = activeEnemy;
             }
         }
+
+        var newTarget = new TargetInfo(closest, minDistanceSqr);
         
-        _playerManager.GetClosestEnemy(closest);
+        
+        _playerManager.GetClosestEnemy(newTarget);
     }
 }
