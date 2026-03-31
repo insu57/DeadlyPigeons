@@ -24,6 +24,7 @@ public class WeaponManager : MonoBehaviour
         {
             var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform);
             weapons.Add(playerWeapon);
+            playerWeapon.SetCenter(transform);
             playerWeapon.gameObject.SetActive(false);
         }
     }
