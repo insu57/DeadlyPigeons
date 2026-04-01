@@ -31,7 +31,9 @@ public class PlayerWeapon : MonoBehaviour
     private float _startAngle;
     private float _endAngle;
     [SerializeField] private float thrustDist = 2;
+    private float _thrustDist;
     private const float MinMeleeRange = .5f;
+    private float _meleeRange;
     
     private Dictionary<MainStats, int> _mainStats = new();
     private Dictionary<SubStats, int> _subStats = new();
@@ -134,6 +136,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         var finalRange = (WeaponData.WeaponStat.range[_currentTierIdx] 
                           + _mainStats[MainStats.Range] * MeleeRangeMultiplier) / RangeScaler;
+        //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
         
         if(finalRange * finalRange < _targetInfo.SqrDistance) return; //범위 밖
         
@@ -153,17 +156,18 @@ public class PlayerWeapon : MonoBehaviour
             //공격 유형
             //None Sweep Thrust..
             //특수한 공격(근접무기) 인 경우 None으로
-            float range = MathF.Max(MinMeleeRange, _targetDist - 1); //1유닛 여유(스프라이트 크기고려) -> 스프라이트마다 변경?            
+            _meleeRange = MathF.Max(MinMeleeRange, _targetDist - 1); //1유닛 여유(스프라이트 크기고려) -> 개선 방안?   
+            Vector3 dirToTarget = _targetInfo.Target.position - _center.position; //방향벡터
+            float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
+            hitbox.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
+            
             var attackType = WeaponData.WeaponStat.attackType;
             if (attackType == AttackType.Sweep)
             {
-                Vector3 dirToTarget = _targetInfo.Target.position - transform.position;
-                float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg;
                 float halfAngle = sweepAngle / 2f;
-                //y축 보정
-                hitbox.localPosition = new Vector3(range, 0, 0);
-
-                if (Mathf.Abs(centerAngle) > 90f)
+                
+                
+                if (Mathf.Abs(centerAngle) > 90f) //시작-끝 각도 계산(중심각 기준)
                 {
                     _startAngle = centerAngle - halfAngle;
                     _endAngle = centerAngle + halfAngle;
@@ -173,20 +177,19 @@ public class PlayerWeapon : MonoBehaviour
                     _startAngle = centerAngle + halfAngle;
                     _endAngle = centerAngle - halfAngle;
                 }
-                
-                
             }
-
             else if (attackType == AttackType.Thrust)
             {
+                transform.localRotation = Quaternion.Euler(0, 0, centerAngle);
                 
+                //
             }
         }
         
         
     }
 
-    private void MeleeAnimation() //수정 필요...
+    private void MeleeAnimation()//근거리 무기 공격 애니메이션
     {
         if(!_isAttacking) return;
         
@@ -206,18 +209,16 @@ public class PlayerWeapon : MonoBehaviour
         }
 
         var attackType = WeaponData.WeaponStat.attackType;
-        //1.Range제한.
-        //호를 그리기.
-        if (attackType == AttackType.Sweep) //가장 가까운 적(target)
+        if (attackType == AttackType.Sweep) 
         {
-            
             //대략 1유닛 정도 앞에서 호를 그리기.
             float currentAngle = Mathf.LerpAngle(_startAngle, _endAngle, percent);
             transform.localRotation = Quaternion.Euler(0, 0, currentAngle);
         }
         else if (attackType == AttackType.Thrust)
         {
-            
+            float moveFactor = Mathf.PingPong(percent * 2f, attackDuration);
+            hitbox.localPosition = new Vector3(moveFactor * _meleeRange, 0, 0);
         }
     }
 
@@ -225,6 +226,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         float finalRange = (float)(WeaponData.WeaponStat.range[_currentTierIdx] + _mainStats[MainStats.Range] )
                             /  RangeScaler;
+        //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
         
         if (finalRange * finalRange < _targetInfo.SqrDistance)
         {
