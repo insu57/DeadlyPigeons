@@ -59,7 +59,7 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private TMP_Text charPassive;
 
     [Header("Weapon Description")] 
-    [SerializeField] private GameObject weaponPanel;
+    [SerializeField] private WeaponInfoPanel weaponPanel;
     [SerializeField] private Image weaponPanelBorder;
     [SerializeField] private Image weaponImg;
     [SerializeField] private TMP_Text weaponName;
@@ -82,7 +82,7 @@ public class SelectWindow : MonoBehaviour
         _selectWindowDict.Add(SelectWindowState.StageSelect, stageSelect);
 
         _selectPanelDict.Add(SelectWindowState.CharSelect, null);
-        _selectPanelDict.Add(SelectWindowState.WeaponSelect, weaponPanel);
+        _selectPanelDict.Add(SelectWindowState.WeaponSelect, weaponPanel.gameObject);
         _selectPanelDict.Add(SelectWindowState.StageSelect, stagePanel);
     }
 
@@ -104,7 +104,7 @@ public class SelectWindow : MonoBehaviour
 
         charSelect.SetActive(true); //개선방안?
         weaponSelect.SetActive(false);
-        weaponPanel.SetActive(false);
+        weaponPanel.gameObject.SetActive(false);
         stageSelect.SetActive(false);
         stagePanel.SetActive(false);
     }
@@ -134,7 +134,7 @@ public class SelectWindow : MonoBehaviour
             case SelectWindowState.WeaponSelect:
             {
                 SwitchWindow(SelectWindowState.CharSelect);
-                weaponPanel.SetActive(false);
+                weaponPanel.gameObject.SetActive(false);
                 break;
             }
             case SelectWindowState.StageSelect:
@@ -205,7 +205,7 @@ public class SelectWindow : MonoBehaviour
 
     private void ShowWeaponButtons(int charID) //개선필요!
     {
-        weaponPanel.SetActive(true);
+        weaponPanel.gameObject.SetActive(true);
 
         _randomWeaponBtn.SelectBtn.onClick.RemoveAllListeners();
         _randomWeaponBtn.SelectBtn.onClick.AddListener(() => SelectRandomWeapon(charID)); 
@@ -270,6 +270,9 @@ public class SelectWindow : MonoBehaviour
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
+        weaponPanel.ShowInfo(weaponData, sb);
+        
+        /*
         sb.Clear();
 
         weaponName.text = weaponData.Name;
@@ -324,7 +327,7 @@ public class SelectWindow : MonoBehaviour
         // 최소 0개(없음부터) ~ 5?개(상한은 없이?) - 티어 수 만큼의 스탯 배수값...
         
         
-        weaponDescription.SetText(sb);
+        weaponDescription.SetText(sb);*/
     }
 
 

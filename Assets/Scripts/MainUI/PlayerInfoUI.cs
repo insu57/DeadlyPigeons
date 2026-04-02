@@ -26,11 +26,20 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private GameObject subStatPanel;
     [SerializeField] private GameObject subStatGrid;
     [SerializeField] private Button subStatBtn;
+
+    [Header("Weapons")] 
+    [SerializeField] private SelectButton selectBtnPrefab;
+    [SerializeField] private Transform weaponGrid;
+    [SerializeField] private Transform itemGrid;
+    [SerializeField] private Transform selectBtnParent;
+    private int _weaponSlot;
+    public event Action<int> OnShowWeaponInfo; //ID
     
     private void Awake()
     {
         sb = new StringBuilder();
         InitStatGrid();
+        ObjectPoolingManager.Instance.InitSelectBtnPool();
     }
     
     private void Start()
@@ -145,4 +154,29 @@ public class PlayerInfoUI : MonoBehaviour
         subStatPanel.SetActive(true);
         mainStatPanel.SetActive(false);
     }
+
+    public void SetWeaponSlots(int slots)
+    {
+        _weaponSlot = slots;
+        if (_weaponSlot <= 0)
+        {
+            weaponGrid.gameObject.SetActive(false);
+        }
+    }
+    
+    public void AddWeapon(Sprite sprite, int index)
+    {
+        var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        selectBtn.SetButtonImg(sprite);
+        selectBtn.transform.SetParent(weaponGrid);
+        selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index);
+    }
+
+    public void ShowWeaponInfo(WeaponData weaponData)
+    {
+        Debug.Log(weaponData.Name);
+        
+        //
+    }
+    
 }

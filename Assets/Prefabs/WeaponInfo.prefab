@@ -224,6 +224,7 @@ GameObject:
   - component: {fileID: 7352244668368303399}
   - component: {fileID: 2384240112631492304}
   - component: {fileID: 3013612033961622333}
+  - component: {fileID: 6211748217451619634}
   m_Layer: 5
   m_Name: WeaponInfo
   m_TagString: Untagged
@@ -250,11 +251,11 @@ RectTransform:
   - {fileID: 2750461292978633983}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 50}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 900, y: 450}
-  m_Pivot: {x: 0, y: 0.5}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &2384240112631492304
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -293,6 +294,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6211748217451619634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3692854540360748949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eb27cc6e7dfa4f48a19c05e7db45165, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  img: {fileID: 4540876329084445234}
+  nameTxt: {fileID: 5057003450868186285}
+  classesTxt: {fileID: 6005240532509502193}
+  panelBorder: {fileID: 8660810218940858108}
+  descriptionTxt: {fileID: 7183626244325728124}
 --- !u!1 &3961740105739374421
 GameObject:
   m_ObjectHideFlags: 0

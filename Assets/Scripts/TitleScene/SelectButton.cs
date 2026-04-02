@@ -11,6 +11,7 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler
     [SerializeField] private Image btnImage;
     [SerializeField] private TMP_Text btnText;
     [SerializeField] private Button selectBtn;
+    [field: SerializeField] public Transform InfoPanelParent { get; private set; }
     public Button SelectBtn => selectBtn;
     public event Action OnBtnPointerEnter;
 

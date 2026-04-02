@@ -11,7 +11,6 @@ public enum Pooling
 
 public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 {
-    //SO에서 받아오는 것으로 수정 필요.
     [Header("TitleSelect")] 
     private PoolingSetting _selectBtnSetting;
     private ObjectPool<SelectButton> _selectBtnPool;

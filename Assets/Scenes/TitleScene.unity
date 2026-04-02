@@ -2634,7 +2634,7 @@ MonoBehaviour:
   charImage: {fileID: 863835748}
   charName: {fileID: 1189795624}
   charPassive: {fileID: 1721088239}
-  weaponPanel: {fileID: 1302756696}
+  weaponPanel: {fileID: 1302756698}
   weaponPanelBorder: {fileID: 1810501602}
   weaponImg: {fileID: 1791472273}
   weaponName: {fileID: 1906365077}
@@ -2706,16 +2706,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1302756696 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3692854540360748949, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
-  m_PrefabInstance: {fileID: 4779790736316195325}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1302756697 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7352244668368303399, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
   m_PrefabInstance: {fileID: 4779790736316195325}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1302756698 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6211748217451619634, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
+  m_PrefabInstance: {fileID: 4779790736316195325}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eb27cc6e7dfa4f48a19c05e7db45165, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1328942250
 GameObject:
   m_ObjectHideFlags: 0

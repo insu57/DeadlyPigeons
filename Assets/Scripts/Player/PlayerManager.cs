@@ -8,6 +8,7 @@ public class PlayerManager : MonoBehaviour
     private PlayerInfoUI _playerInfoUI;
     private WeaponManager _weaponManager;
     private TargetInfo _closestEnemy;
+    private int _weaponSlotCount = 6;
 
     private void Awake()
     {
@@ -18,6 +19,8 @@ public class PlayerManager : MonoBehaviour
         
         _playerStat.OnChangeMainStats += UpdateMainStat;
         _playerStat.OnChangeSubStats += UpdateSubStat;
+
+        _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
 
     private void Start()
@@ -38,7 +41,16 @@ public class PlayerManager : MonoBehaviour
 
     public void InitWeapons(List<WeaponData> weapons)
     {
+        _weaponManager.InitWeaponSlot(_weaponSlotCount);
         _weaponManager.SetInitWeapons(weapons);
+
+        _playerInfoUI.SetWeaponSlots(_weaponSlotCount);
+
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            var sprite = weapons[i].Sprite;
+            _playerInfoUI.AddWeapon(sprite, i);
+        }
     }
 
     private void UpdateMainStat(MainStats stat, int value)
@@ -57,5 +69,11 @@ public class PlayerManager : MonoBehaviour
     {
         _closestEnemy = enemy;
         _weaponManager.SetTarget(enemy);
+    }
+
+    private void HandleOnShowWeaponInfo(int index)
+    {
+        var weaponData = _weaponManager.GetWeaponInfo(index);
+        _playerInfoUI.ShowWeaponInfo(weaponData);
     }
 }

@@ -6,11 +6,11 @@ public class WeaponManager : MonoBehaviour
     [field: SerializeField] private List<GameObject> weaponParents;
     [field: SerializeField] private List<PlayerWeapon> weapons;
     [SerializeField] private PlayerWeapon playerWeaponPrefab;
-    private int _weaponSlot = 6;
+    private int _weaponSlotCount;
 
     private void Awake()
     {
-        InitWeaponSlot();
+        //InitWeaponSlot();
     }
     
     private void Start()
@@ -18,9 +18,11 @@ public class WeaponManager : MonoBehaviour
         
     }
 
-    private void InitWeaponSlot()
+    public void InitWeaponSlot(int slots)
     {
-        for (int i = 0; i < _weaponSlot; i++) //무기 슬롯 초기화.
+        _weaponSlotCount = slots;
+        
+        for (int i = 0; i < _weaponSlotCount; i++) //무기 슬롯 초기화.
         {
             var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform);
             weapons.Add(playerWeapon);
@@ -33,7 +35,7 @@ public class WeaponManager : MonoBehaviour
     {
         for (int i = 0; i < weaponList.Count; i++)
         {
-            if(i >= _weaponSlot) break;
+            if(i >= _weaponSlotCount) break;
             
             weapons[i].SetWeaponData(weaponList[i], weaponList[i].WeaponStat.initTier); // 초기 무기 장착
             weapons[i].gameObject.SetActive(true);
@@ -68,6 +70,11 @@ public class WeaponManager : MonoBehaviour
                 playerWeapon.UpdateSubStats(stat, value);
             }
         }
+    }
+
+    public WeaponData GetWeaponInfo(int idx)
+    {
+        return weapons[idx].WeaponData;
     }
     
     //현재 Weapon Class는 여기서 관리...
