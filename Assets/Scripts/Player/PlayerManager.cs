@@ -71,9 +71,9 @@ public class PlayerManager : MonoBehaviour
         _weaponManager.SetTarget(enemy);
     }
 
-    private void HandleOnShowWeaponInfo(int index)
+    private void HandleOnShowWeaponInfo(int index, SelectButton selectBtn)
     {
         var weaponData = _weaponManager.GetWeaponInfo(index);
-        _playerInfoUI.ShowWeaponInfo(weaponData);
+        _playerInfoUI.ShowWeaponInfo(weaponData, selectBtn, index);
     }
 }

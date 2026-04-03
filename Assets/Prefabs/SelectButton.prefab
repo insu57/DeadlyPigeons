@@ -75,6 +75,41 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2185310348450002932
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7597942778326887268}
+  m_Layer: 5
+  m_Name: InfoParentRight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7597942778326887268
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2185310348450002932}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7860320133371250310}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -125}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 1, y: 1}
 --- !u!1 &3573936785005108642
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,7 +257,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8447586919055524755}
   m_Layer: 5
-  m_Name: InfoParent
+  m_Name: InfoParentLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -282,6 +317,7 @@ RectTransform:
   - {fileID: 1336608165155896988}
   - {fileID: 7707697605275918510}
   - {fileID: 8447586919055524755}
+  - {fileID: 7597942778326887268}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -386,4 +422,5 @@ MonoBehaviour:
   btnImage: {fileID: 4105155184221719934}
   btnText: {fileID: 6394998350343102071}
   selectBtn: {fileID: 3499409352049314906}
-  <InfoPanelParent>k__BackingField: {fileID: 8447586919055524755}
+  <InfoPanelParentLeft>k__BackingField: {fileID: 8447586919055524755}
+  <InfoPanelParentRight>k__BackingField: {fileID: 7597942778326887268}

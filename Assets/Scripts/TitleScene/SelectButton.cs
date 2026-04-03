@@ -6,14 +6,16 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class SelectButton : MonoBehaviour, IPointerEnterHandler
+public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image btnImage;
     [SerializeField] private TMP_Text btnText;
     [SerializeField] private Button selectBtn;
-    [field: SerializeField] public Transform InfoPanelParent { get; private set; }
+    [field: SerializeField] public Transform InfoPanelParentLeft { get; private set; }
+    [field: SerializeField] public Transform InfoPanelParentRight { get; private set; }
     public Button SelectBtn => selectBtn;
     public event Action OnBtnPointerEnter;
+    public event Action OnBtnPointerExit;
 
     public void ClearSelectBtn()
     {
@@ -43,6 +45,12 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler
     public void ClearEvent()
     {
         OnBtnPointerEnter = null;
+        OnBtnPointerExit = null;
         SelectBtn.onClick.RemoveAllListeners();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        OnBtnPointerExit?.Invoke();
     }
 }

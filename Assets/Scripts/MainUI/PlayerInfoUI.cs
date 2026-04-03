@@ -29,11 +29,14 @@ public class PlayerInfoUI : MonoBehaviour
 
     [Header("Weapons")] 
     [SerializeField] private SelectButton selectBtnPrefab;
-    [SerializeField] private Transform weaponGrid;
+    [SerializeField] private GridLayoutGroup weaponGrid;
     [SerializeField] private Transform itemGrid;
     [SerializeField] private Transform selectBtnParent;
+    private Transform _weaponInfoPanelParent;
+    [SerializeField] private WeaponInfoPanel weaponInfoPanel;
+    [SerializeField] private WeaponClassInfo weaponClassInfo;
     private int _weaponSlot;
-    public event Action<int> OnShowWeaponInfo; //ID
+    public event Action<int, SelectButton> OnShowWeaponInfo; //ID
     
     private void Awake()
     {
@@ -168,15 +171,26 @@ public class PlayerInfoUI : MonoBehaviour
     {
         var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         selectBtn.SetButtonImg(sprite);
-        selectBtn.transform.SetParent(weaponGrid);
-        selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index);
+        selectBtn.transform.SetParent(weaponGrid.transform);
+        
+        selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index, selectBtn);
+        selectBtn.OnBtnPointerExit += CloseWeaponInfo;
     }
 
-    public void ShowWeaponInfo(WeaponData weaponData)
+    public void ShowWeaponInfo(WeaponData weaponData, SelectButton selectButton, int idx)
     {
-        Debug.Log(weaponData.Name);
-        
-        //
+        int cols = weaponGrid.constraintCount;
+        Transform panelParent;
+        if (idx < cols / 2) panelParent = selectButton.InfoPanelParentLeft;
+        else  panelParent = selectButton.InfoPanelParentRight;
+        weaponInfoPanel.transform.position = panelParent.position;
+        weaponInfoPanel.gameObject.SetActive(true);
+        weaponInfoPanel.ShowInfo(weaponData, sb);
+    }
+
+    private void CloseWeaponInfo()
+    {
+        weaponInfoPanel.gameObject.SetActive(false);
     }
     
 }
