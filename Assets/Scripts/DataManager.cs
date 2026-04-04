@@ -7,7 +7,8 @@ public class DataManager : Singleton<DataManager>
     public List<CharacterData> CharList { get; } = new();
     public Dictionary<int, WeaponData> WeaponDict { get; } = new();
     public List<WeaponData> WeaponList { get; } = new();
-    public Dictionary<MainStats, string> StatIcon { get; private set; } = new();
+    //public Dictionary<MainStats, string> StatIcon { get; private set; } = new();
+    public Dictionary<WeaponClasses, List<WeaponClassEffect>> WeaponClassDict {get;} = new();
     
     public Dictionary<int, string> TierColorDict { get; } = new();
     private Dictionary<string, Color> HexToColor { get; } = new();
@@ -39,6 +40,12 @@ public class DataManager : Singleton<DataManager>
         {
             WeaponDict.Add(wData.ID, wData);
             WeaponList.Add(wData);
+        }
+        var weaponClassData = Resources.Load<WeaponClassEffectData>("Data");
+        foreach (var weaponClassValue in weaponClassData.WeaponClassEffects)
+        {
+            var weaponClass = weaponClassValue.weaponClass;
+            WeaponClassDict[weaponClass] = weaponClassValue.statsValues;
         }
     }
 

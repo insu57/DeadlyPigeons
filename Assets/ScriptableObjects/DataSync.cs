@@ -10,10 +10,11 @@ public class DataSync : MonoBehaviour
 {
     [SerializeField] private TextAsset characterCSV;
     [SerializeField] private TextAsset weaponCSV;
+    [SerializeField] private TextAsset weaponClassCSV;
     
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
     [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
-
+    [SerializeField] private WeaponClassEffectData classEffectData;
     
     [ContextMenu("Sync Character Data")]
     public void SyncCharDataFromCSV()
@@ -318,5 +319,87 @@ public class DataSync : MonoBehaviour
 #endif
         Debug.Log("Weapon Data Updated " + weaponUpdateCount + "/" + weapons.Length);
     }
-    
+
+    [ContextMenu("Sync WeaponClasses Effect Data")]
+    public void SyncWeaponClassEffectFromCSV()
+    {
+        string[] lines = weaponClassCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<string, string[]> csvDict = new();
+        
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            
+            string className = rowData[0];
+            
+            csvDict[className] = rowData;
+        }
+
+        List<WeaponClassKeyValue> effects = new();
+        
+        foreach (var (className, rowData) in csvDict)
+        {
+            //var mainStat = className.String
+            var weaponClass = WeaponData.ToWeaponClass(className);
+            if(weaponClass == WeaponClasses.None) continue;
+            int startIdx = 1;
+            int colsPerEffect = 6;
+            int maxEffects = 3;
+            
+            List<WeaponClassEffect> effectStats = new();
+            for (int i = 0; i < maxEffects; i++)
+            {
+                int statIdx = startIdx + i * colsPerEffect;
+                if (statIdx >= rowData.Length || string.IsNullOrWhiteSpace(rowData[statIdx]))
+                    break;
+
+                string statString = rowData[statIdx].Trim();
+                var effectStatValue = new WeaponClassEffect();
+                
+                if (statString.StringToMainStats() != MainStats.None)
+                {
+                    effectStatValue.mainStat =  statString.StringToMainStats();
+                    effectStatValue.subStat = SubStats.None;
+                }
+                else
+                {
+                    if (statString.StringToSubStats() == SubStats.None) break;
+                    effectStatValue.mainStat = MainStats.None;
+                    effectStatValue.subStat = statString.StringToSubStats();
+                }
+                
+                List<int> values = new();
+                for (int v = 0; v < 5; v ++)//2단계~6단계
+                {
+                    int valueIdx = statIdx + v + 1;
+                    if (valueIdx < rowData.Length && int.TryParse(rowData[valueIdx], out int value))
+                    {
+                        values.Add(value);
+                    }
+                    else
+                    {
+                        values.Add(0);
+                    }
+                }
+                effectStatValue.values = values;
+                
+                effectStats.Add(effectStatValue);
+            }
+
+            var weaponClassValue = new WeaponClassKeyValue
+            {
+                weaponClass = weaponClass,
+                statsValues = effectStats
+            };
+            
+            effects.Add(weaponClassValue);
+        }
+        
+#if UNITY_EDITOR
+        classEffectData.SyncCSVData(effects);
+        EditorUtility.SetDirty(classEffectData);
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Sync WeaponClass Data");
+    }
 }
