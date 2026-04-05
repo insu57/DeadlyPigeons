@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -10,7 +11,8 @@ public class WeaponInfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text classesTxt;
     [SerializeField] private Image panelBorder;
     [SerializeField] private TMP_Text descriptionTxt;
-
+    [SerializeField] private WeaponClassInfo weaponClassInfo;
+    
     public void ShowInfo(WeaponData weaponData, StringBuilder sb)
     {
         sb.Clear();
@@ -68,5 +70,10 @@ public class WeaponInfoPanel : MonoBehaviour
         
         
         descriptionTxt.SetText(sb);
+    }
+
+    public void ShowWeaponClassInfo(List<WeaponClasses> weaponClasses, StringBuilder sb)
+    {
+        weaponClassInfo.ShowClassInfo(weaponClasses, sb);
     }
 }

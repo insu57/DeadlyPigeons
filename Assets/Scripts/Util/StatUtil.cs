@@ -14,7 +14,7 @@ public static class StatUtil
     public const string RedColor = "#FF5555";
     public const string GreenColor = "#55FF55";
     public const string DefaultWhite = "#FFFFFF";
-    
+    public const string GrayColor = "#808080";
     
     static StatUtil()
     {

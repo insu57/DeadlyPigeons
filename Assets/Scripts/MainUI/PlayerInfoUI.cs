@@ -181,11 +181,22 @@ public class PlayerInfoUI : MonoBehaviour
     {
         int cols = weaponGrid.constraintCount;
         Transform panelParent;
-        if (idx < cols / 2) panelParent = selectButton.InfoPanelParentLeft;
-        else  panelParent = selectButton.InfoPanelParentRight;
+        var panelRT = (RectTransform)weaponInfoPanel.transform;
+        if (idx < cols / 2)
+        {
+            panelParent = selectButton.InfoPanelParentLeft;
+            panelRT.pivot = new Vector2(0, 1);
+        }
+        else
+        {
+            panelParent = selectButton.InfoPanelParentRight;
+            panelRT.pivot = new Vector2(1, 1);
+        }
         weaponInfoPanel.transform.position = panelParent.position;
         weaponInfoPanel.gameObject.SetActive(true);
         weaponInfoPanel.ShowInfo(weaponData, sb);
+        var classes = weaponData.WeaponStat.classes;
+        weaponInfoPanel.ShowWeaponClassInfo(classes, sb);
     }
 
     private void CloseWeaponInfo()

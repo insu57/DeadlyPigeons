@@ -41,7 +41,7 @@ public class DataManager : Singleton<DataManager>
             WeaponDict.Add(wData.ID, wData);
             WeaponList.Add(wData);
         }
-        var weaponClassData = Resources.Load<WeaponClassEffectData>("Data");
+        var weaponClassData = Resources.LoadAll<WeaponClassEffectData>("")[0];//Error
         foreach (var weaponClassValue in weaponClassData.WeaponClassEffects)
         {
             var weaponClass = weaponClassValue.weaponClass;
@@ -64,7 +64,7 @@ public class DataManager : Singleton<DataManager>
        SetColorDict(StatUtil.YellowColor);
        SetColorDict(StatUtil.RedColor);
        SetColorDict(StatUtil.GreenColor);
-        
+       SetColorDict(StatUtil.GrayColor);
     }
 
     private void SetColorDict(string colorString)
