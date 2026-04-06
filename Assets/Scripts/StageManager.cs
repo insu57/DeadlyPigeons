@@ -65,8 +65,7 @@ public class StageManager : MonoBehaviour
         
         var stage = _playerSelected.StageID;
         
-        _playerManager.InitWeapons(weapons);
-        _playerManager.InitStat(charData);
+        _playerManager.InitStatWeapons(charData, weapons);
         
         sb.AppendLine($"Stage: {stage}");
         sb.AppendLine($"Character: {charData.CharacterName}");
@@ -114,7 +113,6 @@ public class StageManager : MonoBehaviour
         }
 
         var newTarget = new TargetInfo(closest, minDistanceSqr);
-        
         
         _playerManager.GetClosestEnemy(newTarget);
     }

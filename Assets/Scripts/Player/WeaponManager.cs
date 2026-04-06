@@ -7,15 +7,15 @@ public class WeaponManager : MonoBehaviour
     [field: SerializeField] private List<PlayerWeapon> weapons;
     [SerializeField] private PlayerWeapon playerWeaponPrefab;
     private int _weaponSlotCount;
+    public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
 
     private void Awake()
     {
-        //InitWeaponSlot();
-    }
-    
-    private void Start()
-    {
-        
+        for (int i = 0; i < (int)WeaponClasses.None; i++)
+        {
+            var weaponClass = (WeaponClasses)i;
+            WeaponClassDict[weaponClass] = 0;
+        }
     }
 
     public void InitWeaponSlot(int slots)
@@ -39,6 +39,12 @@ public class WeaponManager : MonoBehaviour
             
             weapons[i].SetWeaponData(weaponList[i], weaponList[i].WeaponStat.initTier); // 초기 무기 장착
             weapons[i].gameObject.SetActive(true);
+
+            var classes = weaponList[i].WeaponStat.classes;
+            foreach (var weaponClass in classes)
+            {
+                WeaponClassDict[weaponClass]++; //무기 클래스 보너스 추가
+            }
         }
     }
 
@@ -50,7 +56,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void UpdateMainStats(MainStats stat, int value)
+    public void UpdateStat(MainStats stat, int value)
     {
         foreach (var playerWeapon in weapons)
         {
@@ -61,7 +67,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void UpdateSubStats(SubStats stat, int value)
+    public void UpdateStat(SubStats stat, int value)
     {
         foreach (var playerWeapon in weapons)
         {

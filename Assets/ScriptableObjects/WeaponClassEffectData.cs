@@ -4,18 +4,22 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [Serializable]
-public struct WeaponClassKeyValue
+public struct WeaponClassKeyValue 
 {
-    public WeaponClasses weaponClass;
-    public List<WeaponClassEffect> statsValues;
+    public WeaponClasses weaponClass; //키 - 무기 클래스
+    public List<WeaponClassEffect> statsValues; //스탯(메인, 서브) - 수치 리스트(2~6 보너스)
 }
 
 [Serializable]
 public struct WeaponClassEffect
 {
     public MainStats mainStat;
-    public SubStats subStat;
-    public List<int> values;
+    public SubStats subStat; //스탯
+    public List<int> values; //수치 2~6 보너스
+    
+    public bool IsMain => mainStat != MainStats.None;
+    public bool IsSub => subStat != SubStats.None;
+    public bool IsUnavailable => !IsMain && !IsSub;
 }
 
 [CreateAssetMenu(fileName = "WeaponClassEffect", menuName = "Scriptable Objects/WeaponClassEffect")]

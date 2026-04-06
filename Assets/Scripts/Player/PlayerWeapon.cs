@@ -68,7 +68,7 @@ public class PlayerWeapon : MonoBehaviour
 
         if (!weaponData.WeaponStat.isMelee)
         {
-            muzzle.position = weaponData.MuzzleOffset;
+            muzzle.localPosition = weaponData.MuzzleOffset;
         }
         
         _currentTierIdx = tier - 1;//인덱스은 0부터(1감소)

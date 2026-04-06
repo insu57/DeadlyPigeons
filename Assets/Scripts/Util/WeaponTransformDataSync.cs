@@ -36,7 +36,7 @@ public class WeaponTransformDataSync : MonoBehaviour
             SpriteScale = spriteTransform.localScale,
             SpriteOffset = spriteTransform.localPosition,
             SpriteAngle = spriteTransform.localEulerAngles,
-            MuzzleOffest = muzzlePosition.position,
+            MuzzleOffest = muzzlePosition.localPosition,
             ColliderOffset = weaponCollider.offset,
             ColliderSize = weaponCollider.size
         };

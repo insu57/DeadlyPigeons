@@ -6,11 +6,11 @@ using UnityEngine.Serialization;
 public class PlayerStat : MonoBehaviour, IDamageable
 {
     //기본스탯. 
-    //캐릭터 패시브
+    //캐릭터 패시브, 아이템
     //무기 클래스 조합 효과
-    //아이템
     //레벨업 시 최대체력 증가 + 메인스탯 하나 선택(무작위, 등급 존재)
 
+    [field: SerializeField] private int currentLevel;
     [field: SerializeField] private int currentHP;
     [field: SerializeField] private int money;
     [field: SerializeField] private int defaultMaxHP = 10;
@@ -22,7 +22,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
         
     private void Start()
     {
-        
+        currentLevel = 1;
     }
 
     public void InitStat(CharacterData charData)
@@ -67,6 +67,18 @@ public class PlayerStat : MonoBehaviour, IDamageable
         }
     }
 
+    public void UpdateStat(MainStats mainStats, int amount)
+    {
+        _defaultMainStats[mainStats] += amount;
+        OnChangeMainStats?.Invoke(mainStats, _defaultMainStats[mainStats]);
+    }
+
+    public void UpdateStat(SubStats subStats, int amount)
+    {
+        _defaultSubStats[subStats] += amount;
+        OnChangeSubStats?.Invoke(subStats, _defaultSubStats[subStats]);
+    }
+    
     public void Damage(int damage)
     {
         

@@ -177,6 +177,11 @@ public class PlayerInfoUI : MonoBehaviour
         selectBtn.OnBtnPointerExit += CloseWeaponInfo;
     }
 
+    public void SetWeaponClassBonus(Dictionary<WeaponClasses, int> weaponsBonusDict)
+    {
+        weaponClassInfo.SetWeaponClassBonusDict(weaponsBonusDict);
+    }
+
     public void ShowWeaponInfo(WeaponData weaponData, SelectButton selectButton, int idx)
     {
         int cols = weaponGrid.constraintCount;
