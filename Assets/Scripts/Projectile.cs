@@ -5,7 +5,9 @@ using Object = System.Object;
 public class Projectile : MonoBehaviour, IDealer
 {
     private int _damage;
-    public void SetDamage(int damage) => _damage = damage;
+    private int _piercing;
+    private int _piercingDmgPer;
+    public void SetDamage(int damage) => _damage = damage; //수정필
     private float _lifeTimer;
     private float _speed = 10f; //temp
     private Rigidbody2D _rigidbody2D;
@@ -18,6 +20,14 @@ public class Projectile : MonoBehaviour, IDealer
     private void Update()
     {
         ProjectileRange();
+    }
+
+    public void Initialize(int damage, int piercing, int piercingDmgPer, int layer)
+    {
+        _damage = damage;
+        _piercing = piercing;
+        _piercingDmgPer = piercingDmgPer;
+        gameObject.layer = layer;
     }
     
     public void Fire(Vector3 direction, float range)//발사
@@ -35,6 +45,19 @@ public class Projectile : MonoBehaviour, IDealer
             if (_lifeTimer <= 0f)
             {
                 
+                ObjectPoolingManager.Instance.ReleaseProjectile(this);
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.TryGetComponent(out IDamageable target))
+        {
+            target.Damage(_damage);
+            _piercing--;
+            if (_piercing < 0)
+            {
                 ObjectPoolingManager.Instance.ReleaseProjectile(this);
             }
         }

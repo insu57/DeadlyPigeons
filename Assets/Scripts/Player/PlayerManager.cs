@@ -53,6 +53,8 @@ public class PlayerManager : MonoBehaviour
             var sprite = weapons[i].Sprite;
             _playerInfoUI.AddWeapon(sprite, i);
         }
+        
+        _playerStat.SyncStatData();
     }
 
     private void UpdateStat(MainStats stat, int value)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public enum AttackType
@@ -24,6 +25,10 @@ public class PlayerWeapon : MonoBehaviour
     private const float MeleeRangeMultiplier = 0.5f;
     private MeleeAttack _meleeAttack;
     private float _targetDist;
+    //private int _playerHitboxLayer;
+    private int _finalDamage;
+    
+    //Melee
     private bool _isAttacking;
     private float _animTimer;
     [SerializeField] private float attackDuration = 1;//근거리 - 찌르기/휩쓸기를 하는 시간 <- 무기마다 수정필요?
@@ -35,6 +40,12 @@ public class PlayerWeapon : MonoBehaviour
     private const float MinMeleeRange = .5f;
     private float _meleeRange;
     
+    //Ranged
+    private int _piercing = 0; //기본
+    private int _piercingDmgPer = -50;
+    private int bounces = 0;
+    
+    
     private Dictionary<MainStats, int> _mainStats = new();
     private Dictionary<SubStats, int> _subStats = new();
     
@@ -44,10 +55,21 @@ public class PlayerWeapon : MonoBehaviour
     {
         TryGetComponent(out _meleeAttack);
         //_center = transform.parent;
+        for (int i = 0; i < (int)MainStats.None; i++)
+        {
+            _mainStats[(MainStats)i] = 0;
+        }
+
+        for (int i = 0; i < (int)SubStats.None; i++)
+        {
+            _subStats[(SubStats)i] = 0;
+        }
+        
     }
     
     private void Update()
     {
+        if(!WeaponData) return;
         RotateWeapon();
         Attack();
         MeleeAnimation();
@@ -65,13 +87,14 @@ public class PlayerWeapon : MonoBehaviour
         meleeCollider.size = weaponData.ColliderSize;
         meleeCollider.offset = weaponData.ColliderOffset;
         meleeCollider.enabled = false;
+        meleeCollider.gameObject.layer = DataManager.Instance.PlayerHitboxLayer;
 
         if (!weaponData.WeaponStat.isMelee)
         {
             muzzle.localPosition = weaponData.MuzzleOffset;
         }
         
-        _currentTierIdx = tier - 1;//인덱스은 0부터(1감소)
+        _currentTierIdx = tier - weaponData.WeaponStat.initTier;//인덱스은 0부터 초기 티어 만큼 차감
         
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
     }
@@ -84,11 +107,13 @@ public class PlayerWeapon : MonoBehaviour
     public void UpdateMainStats(MainStats stat, int value)
     {
         _mainStats[stat] = value;
+        _finalDamage = GetDamage();
     }
 
     public void UpdateSubStats(SubStats stat, int value)
     {
         _subStats[stat] = value;
+        _finalDamage = GetDamage();
     }
 
     public void SetCenter(Transform center)
@@ -180,13 +205,9 @@ public class PlayerWeapon : MonoBehaviour
             }
             else if (attackType == AttackType.Thrust)
             {
-                transform.localRotation = Quaternion.Euler(0, 0, centerAngle);
-                
-                //
+                transform.localRotation = Quaternion.Euler(0, 0, centerAngle); //타겟 조준
             }
         }
-        
-        
     }
 
     private void MeleeAnimation()//근거리 무기 공격 애니메이션
@@ -244,11 +265,34 @@ public class PlayerWeapon : MonoBehaviour
             var projectile = ObjectPoolingManager.Instance.GetProjectile();
             projectile.transform.position = muzzle.position;//
             var dir = _targetInfo.Target.position - muzzle.position;
-            
+            projectile.Initialize(_finalDamage,_piercing,_piercingDmgPer, DataManager.Instance.PlayerHitboxLayer);
             projectile.Fire(dir, finalRange);
 
             _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
         }
         
+    }
+
+    private int GetDamage()
+    {
+        //(기본 데미지 + (스탯 * 계수 + ...)) * 데미지 배율 + 고유효과 적용
+        StringBuilder sb = new StringBuilder();
+        
+        int baseDamage = WeaponData.WeaponStat.baseDamage[_currentTierIdx]; //기본데미지(티어별)
+        int statDamageSum = 0;//총 스탯 추가 데미지
+        
+        foreach (var statMultiplier in WeaponData.WeaponStat.damageMultipliers)
+        {
+            var stat = statMultiplier.stat; //스탯 종류
+            var value = statMultiplier.value[_currentTierIdx]; //계수(티어별)
+            var statAmount = _mainStats[stat]; //현재 스탯
+            int statDamage =  Mathf.FloorToInt(statAmount * (value / 100f)); //소수점 이하는 버림
+            statDamageSum += statDamage;
+        }
+        
+        float finalDamage = (baseDamage + statDamageSum) * (1f + _mainStats[MainStats.Damage] / 100f);
+        //최종 데미지 배율 적용
+        Debug.Log(WeaponData.Name +' '+finalDamage);
+        return Mathf.FloorToInt(finalDamage);
     }
 }

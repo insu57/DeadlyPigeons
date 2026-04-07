@@ -12,6 +12,10 @@ public class DataManager : Singleton<DataManager>
     
     public Dictionary<int, string> TierColorDict { get; } = new();
     private Dictionary<string, Color> HexToColor { get; } = new();
+
+    public int PlayerHitboxLayer {get; private set;}
+    public int EnemyHitboxLayer  {get; private set;}
+    
     
     protected override void Awake()
     {
@@ -19,6 +23,9 @@ public class DataManager : Singleton<DataManager>
         
         InitData();
         InitColor();
+        
+        PlayerHitboxLayer = LayerMask.NameToLayer("PlayerHitbox");
+        EnemyHitboxLayer = LayerMask.NameToLayer("EnemyHitbox");
     }
 
     private void Start()

@@ -78,6 +78,21 @@ public class PlayerStat : MonoBehaviour, IDamageable
         _defaultSubStats[subStats] += amount;
         OnChangeSubStats?.Invoke(subStats, _defaultSubStats[subStats]);
     }
+
+    public void SyncStatData()
+    {
+        for (int i = 0; i < (int)MainStats.None; i++)
+        {
+            var mainStat = (MainStats)i;
+            OnChangeMainStats?.Invoke(mainStat, _defaultMainStats[mainStat]);
+        }
+
+        for (int i = 0; i < (int)SubStats.None; i++)
+        {
+            var subStat = (SubStats)i;
+            OnChangeSubStats?.Invoke(subStat, _defaultSubStats[subStat]);
+        }
+    }
     
     public void Damage(int damage)
     {

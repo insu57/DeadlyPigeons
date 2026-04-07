@@ -9,6 +9,11 @@ public class WeaponManager : MonoBehaviour
     private int _weaponSlotCount;
     public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
 
+    //ranged
+    private int _globalPiercing = 0;
+    private int _globalPiercingDmgPer = 0;
+    
+    
     private void Awake()
     {
         for (int i = 0; i < (int)WeaponClasses.None; i++)
@@ -31,7 +36,9 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    public void SetInitWeapons(List<WeaponData> weaponList)
+    //초기화...Stat -> Weapon...(무기 생성 전에 초기화된 스탯 미적용) - 업데이트 해야 적용
+    //PlayerManager로 통합?
+    public void SetInitWeapons(List<WeaponData> weaponList) 
     {
         for (int i = 0; i < weaponList.Count; i++)
         {

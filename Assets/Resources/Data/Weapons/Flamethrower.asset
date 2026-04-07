@@ -45,9 +45,9 @@ MonoBehaviour:
   <SpriteScale>k__BackingField: {x: 0.07, y: 0.07, z: 0.07}
   <SpriteOffset>k__BackingField: {x: 0.354, y: 0.037, z: 0}
   <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 0}
-  <MuzzleOffset>k__BackingField: {x: 1.3270001, y: -0.13000001, z: 0}
-  <ColliderOffset>k__BackingField: {x: 0, y: 0}
-  <ColliderSize>k__BackingField: {x: 0, y: 0}
+  <MuzzleOffset>k__BackingField: {x: 0.843, y: 0.113, z: 0}
+  <ColliderOffset>k__BackingField: {x: 0.45274442, y: 0.0111977225}
+  <ColliderSize>k__BackingField: {x: 1.2207788, y: 0.29929486}
   references:
     version: 2
     RefIds:
