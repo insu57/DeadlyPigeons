@@ -3,34 +3,38 @@ using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
+    //Weapons
+    [field: SerializeField] private List<GameObject> weaponParents;
+    [field: SerializeField] private List<PlayerWeapon> playerWeapons;
+    [SerializeField] private PlayerWeapon playerWeaponPrefab;
+    private Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
+    private int _weaponSlotCount = 6;
+    
     private PlayerControl _playerControl;
     private PlayerStat _playerStat;
     private PlayerInfoUI _playerInfoUI;
-    private WeaponManager _weaponManager;
-    private TargetInfo _closestEnemy;
-    private int _weaponSlotCount = 6;
+    //private WeaponManager _weaponManager;
+    
+    //ranged -> playerStat으로?
+    private int _globalPiercing = 0;
+    private int _globalPiercingDmgPer = 0;
 
     private void Awake()
     {
         TryGetComponent(out _playerControl);
         TryGetComponent(out _playerStat);
         _playerInfoUI = FindFirstObjectByType<PlayerInfoUI>();
-        _weaponManager = GetComponentInChildren<WeaponManager>();
+        
+        for (int i = 0; i < (int)WeaponClasses.None; i++)
+        {
+            var weaponClass = (WeaponClasses)i;
+            WeaponClassDict[weaponClass] = 0;
+        }
         
         _playerStat.OnChangeMainStats += UpdateStat;
         _playerStat.OnChangeSubStats += UpdateStat;
 
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
-    }
-
-    private void Start()
-    {
-        
-    }
-
-    private void Update()
-    {
-        
     }
 
     public void InitStatWeapons(CharacterData charData, List<WeaponData> weapons)
@@ -40,17 +44,37 @@ public class PlayerManager : MonoBehaviour
         InitWeapons(weapons);
     }
 
-    private void InitWeapons(List<WeaponData> weapons)
+    private void InitWeapons(List<WeaponData> initWeaponList)
     {
-        _weaponManager.InitWeaponSlot(_weaponSlotCount);
-        _weaponManager.SetInitWeapons(weapons);
+        for (int i = 0; i < _weaponSlotCount; i++) //무기 슬롯 초기화.
+        {
+            var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform);
+            playerWeapons.Add(playerWeapon);
+            playerWeapon.SetCenter(transform);
+            playerWeapon.gameObject.SetActive(false);
+        }
+        
+        for (int i = 0; i < initWeaponList.Count; i++)
+        {
+            if(i >= _weaponSlotCount) break;
+            
+            playerWeapons[i].SetWeaponData(initWeaponList[i], initWeaponList[i].WeaponStat.initTier); // 초기 무기 장착
+            playerWeapons[i].gameObject.SetActive(true);
+
+            var classes = initWeaponList[i].WeaponStat.classes;
+            foreach (var weaponClass in classes)
+            {
+                WeaponClassDict[weaponClass]++; //무기 클래스 보너스 추가
+            }
+        }
+        
         SetWeaponClassBonus();
 
         _playerInfoUI.SetWeaponSlots(_weaponSlotCount);
 
-        for (int i = 0; i < weapons.Count; i++)
+        for (int i = 0; i < initWeaponList.Count; i++)
         {
-            var sprite = weapons[i].Sprite;
+            var sprite = initWeaponList[i].Sprite;
             _playerInfoUI.AddWeapon(sprite, i);
         }
         
@@ -60,32 +84,48 @@ public class PlayerManager : MonoBehaviour
     private void UpdateStat(MainStats stat, int value)
     {
         _playerInfoUI.UpdateMainStat(stat, value);
-        _weaponManager.UpdateStat(stat, value);        
+      
+        foreach (var playerWeapon in playerWeapons)
+        {
+            if (playerWeapon.WeaponData)
+            {
+                playerWeapon.UpdateMainStats(stat, value);
+            }
+        }
     }
 
     private void UpdateStat(SubStats stat, int value)
     {
         _playerInfoUI.UpdateSubStat(stat, value);
-        _weaponManager.UpdateStat(stat, value);
+        
+        foreach (var playerWeapon in playerWeapons)
+        {
+            if (playerWeapon.WeaponData)
+            {
+                playerWeapon.UpdateSubStats(stat, value);
+            }
+        }
     }
 
     public void GetClosestEnemy(TargetInfo enemy)
     {
-        _closestEnemy = enemy;
-        _weaponManager.SetTarget(enemy);
+        foreach (var playerWeapon in playerWeapons)
+        {
+            playerWeapon.SetTarget(enemy);
+        }
     }
 
     private void HandleOnShowWeaponInfo(int index, SelectButton selectBtn)
     {
-        var weaponData = _weaponManager.GetWeaponInfo(index);
+        var weaponData = playerWeapons[index].WeaponData;
         _playerInfoUI.ShowWeaponInfo(weaponData, selectBtn, index);
     }
 
     private void SetWeaponClassBonus()
     {
-        _playerInfoUI.SetWeaponClassBonus(_weaponManager.WeaponClassDict);
+        _playerInfoUI.SetWeaponClassBonus(WeaponClassDict);
         
-        foreach (var (weaponClass,bonus) in _weaponManager.WeaponClassDict)
+        foreach (var (weaponClass,bonus) in WeaponClassDict)
         {
             if(bonus <= 1) continue; //1이하는 보너스 x
             var effectList = DataManager.Instance.WeaponClassBonusDict[weaponClass];

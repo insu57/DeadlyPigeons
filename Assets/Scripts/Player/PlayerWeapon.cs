@@ -43,7 +43,7 @@ public class PlayerWeapon : MonoBehaviour
     //Ranged
     private int _piercing = 0; //기본
     private int _piercingDmgPer = -50;
-    private int bounces = 0;
+    private int _bounces = 0;
     
     
     private Dictionary<MainStats, int> _mainStats = new();

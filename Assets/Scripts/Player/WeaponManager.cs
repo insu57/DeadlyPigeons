@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    [field: SerializeField] private List<GameObject> weaponParents;
-    [field: SerializeField] private List<PlayerWeapon> weapons;
-    [SerializeField] private PlayerWeapon playerWeaponPrefab;
-    private int _weaponSlotCount;
-    public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
+    //[field: SerializeField] private List<GameObject> weaponParents;
+    //[field: SerializeField] private List<PlayerWeapon> weapons;
+    //[SerializeField] private PlayerWeapon playerWeaponPrefab;
+    //private int _weaponSlotCount;
+    //public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
 
     //ranged
     private int _globalPiercing = 0;
     private int _globalPiercingDmgPer = 0;
     
-    
+    /*
     private void Awake()
     {
         for (int i = 0; i < (int)WeaponClasses.None; i++)
@@ -21,8 +21,9 @@ public class WeaponManager : MonoBehaviour
             var weaponClass = (WeaponClasses)i;
             WeaponClassDict[weaponClass] = 0;
         }
-    }
+    }*/
 
+    /*
     public void InitWeaponSlot(int slots)
     {
         _weaponSlotCount = slots;
@@ -34,10 +35,11 @@ public class WeaponManager : MonoBehaviour
             playerWeapon.SetCenter(transform);
             playerWeapon.gameObject.SetActive(false);
         }
-    }
+    }*/
 
     //초기화...Stat -> Weapon...(무기 생성 전에 초기화된 스탯 미적용) - 업데이트 해야 적용
     //PlayerManager로 통합?
+    /*
     public void SetInitWeapons(List<WeaponData> weaponList) 
     {
         for (int i = 0; i < weaponList.Count; i++)
@@ -53,16 +55,16 @@ public class WeaponManager : MonoBehaviour
                 WeaponClassDict[weaponClass]++; //무기 클래스 보너스 추가
             }
         }
-    }
-
+    }*/
+    /*
     public void SetTarget(TargetInfo target)
     {
         foreach (var playerWeapon in weapons)
         {
             playerWeapon.SetTarget(target);
         }
-    }
-
+    }*/
+    /*
     public void UpdateStat(MainStats stat, int value)
     {
         foreach (var playerWeapon in weapons)
@@ -83,12 +85,12 @@ public class WeaponManager : MonoBehaviour
                 playerWeapon.UpdateSubStats(stat, value);
             }
         }
-    }
-
+    }*/
+    /*
     public WeaponData GetWeaponInfo(int idx)
     {
         return weapons[idx].WeaponData;
-    }
+    }*/
     
     //현재 Weapon Class는 여기서 관리...
     //무기 추가, 제거 -> 클래스 변경 -> PlayerManage 추가필요.
