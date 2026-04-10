@@ -5669,15 +5669,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8b5a293e43e0c24cad5917e07b589d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponParents:
-  - {fileID: 187802551}
-  - {fileID: 896819029}
-  - {fileID: 709926003}
-  - {fileID: 1335103991}
-  - {fileID: 2143671486}
-  - {fileID: 1307921}
-  weapons: []
-  playerWeaponPrefab: {fileID: 451088450194281399, guid: 5e0b10e4d9d1dcd4483c7444a86d3a11, type: 3}
 --- !u!1 &1673933074
 GameObject:
   m_ObjectHideFlags: 0
@@ -11446,6 +11437,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007362065bb3a9a42b204e6b2bb056a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponParents:
+  - {fileID: 187802551}
+  - {fileID: 896819029}
+  - {fileID: 709926003}
+  - {fileID: 1335103991}
+  - {fileID: 2143671486}
+  - {fileID: 1307921}
+  playerWeapons: []
+  playerWeaponPrefab: {fileID: 451088450194281399, guid: 5e0b10e4d9d1dcd4483c7444a86d3a11, type: 3}
 --- !u!114 &1810053350
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -37,11 +37,18 @@ MonoBehaviour:
     knockBack: 000000000000000000000000
     healthAbsorb: 000000000000000000000000
     prices: 3800000067000000cf000000
-    piercing: 
     description: "\uD654\uC5FC\uBC29\uC0AC\uAE30. \uC124\uBA85\uC740 \uC5B4\uB5BB\uAC8C???"
-  effects: []
-  effect:
-    rid: 7205223276539281539
+  <Effects>k__BackingField:
+  - rid: 3867232191622152280
+  <WeaponEffectValues>k__BackingField:
+  - effect:
+      rid: 3867232216674467926
+    effectType: 0
+    effectValues: 00000000
+  - effect:
+      rid: 3867232216674467926
+    effectType: 0
+    effectValues: 00000000
   <SpriteScale>k__BackingField: {x: 0.07, y: 0.07, z: 0.07}
   <SpriteOffset>k__BackingField: {x: 0.354, y: 0.037, z: 0}
   <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 0}
@@ -51,6 +58,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 7205223276539281539
-      type: {class: FlamethrowerEffect, ns: , asm: Assembly-CSharp}
+    - rid: 3867232191622152280
+      type: {class: Burning, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3867232216674467926
+      type: {class: Burning, ns: , asm: Assembly-CSharp}
       data: 

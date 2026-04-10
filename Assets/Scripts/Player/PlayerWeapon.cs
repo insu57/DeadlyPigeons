@@ -27,6 +27,7 @@ public class PlayerWeapon : MonoBehaviour
     private float _targetDist;
     //private int _playerHitboxLayer;
     private int _finalDamage;
+    private List<IWeaponEffect> _weaponEffects = new();
     
     //Melee
     private bool _isAttacking;
@@ -43,7 +44,20 @@ public class PlayerWeapon : MonoBehaviour
     //Ranged
     private int _piercing = 0; //기본
     private int _piercingDmgPer = -50;
+
+    public void SetPiercing(int piercing, int piercingDmg)
+    {
+        _piercing = piercing;
+        _piercingDmgPer = piercingDmg;
+    }
+    //public void 
+    
     private int _bounces = 0;
+
+    public void SetBounces(int bounces)
+    {
+        _bounces = bounces;
+    }
     
     
     private Dictionary<MainStats, int> _mainStats = new();
@@ -95,6 +109,22 @@ public class PlayerWeapon : MonoBehaviour
         }
         
         _currentTierIdx = tier - weaponData.WeaponStat.initTier;//인덱스은 0부터 초기 티어 만큼 차감
+
+        var weaponEffectList = weaponData.WeaponEffectValues;
+        foreach (var weaponEffectData in weaponEffectList)
+        {
+            var effect =  weaponEffectData.effect.Clone();
+            _weaponEffects.Add(effect);
+            List<float> initValues = new();
+            foreach (var effectValues in weaponEffectData.initValuesList)
+            {
+                initValues.Add(effectValues.values[_currentTierIdx]); 
+            }
+            effect.Init(this, initValues);
+            //effect.Init(this, weaponEffectData.valuesList[0].values);
+            //개선 필요........................
+            //초기 티어 값들 -> 라스트 -> ... (범용으로????
+        }
         
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
     }
@@ -292,7 +322,7 @@ public class PlayerWeapon : MonoBehaviour
         
         float finalDamage = (baseDamage + statDamageSum) * (1f + _mainStats[MainStats.Damage] / 100f);
         //최종 데미지 배율 적용
-        Debug.Log(WeaponData.Name +' '+finalDamage);
+        //Debug.Log(WeaponData.Name +' '+finalDamage);
         return Mathf.FloorToInt(finalDamage);
     }
 }

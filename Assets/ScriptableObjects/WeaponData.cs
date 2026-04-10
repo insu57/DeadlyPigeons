@@ -16,6 +16,15 @@ public enum WeaponClasses
     None
 }
 
+public enum WeaponEffectType
+{
+    Burning,
+    Explosive,
+    Piercing,
+    Bounces,
+    None
+}
+
 [Serializable]
 public struct StatMultiplier
 {
@@ -39,8 +48,23 @@ public struct WeaponStat
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
     public List<int> prices;
-    public List<int> piercing;
+    //public List<int> piercing;
     public string description;
+}
+
+[Serializable]
+public struct WeaponEffectData
+{
+    [SerializeReference, SubclassSelector] public IWeaponEffect effect;
+    public WeaponEffectType effectType;
+    public List<EffectValues> initValuesList; //각 항목 리스트 -> 티어 수치 리스트
+    public List<EffectValues> executeValuesList;
+}
+
+[Serializable]
+public struct EffectValues //티어 수치 리스트 : 초기 티어 ~ 4 티어
+{
+    public List<int> values;
 }
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]
@@ -51,9 +75,9 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public string Name { get; private set; }
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
-    [SerializeReference] private List<IWeaponEffect> effects;
-    [SerializeReference, SubclassSelector] private IWeaponEffect effect;
-   
+    [field: SerializeReference,SubclassSelector] public List<IWeaponEffect> Effects { get; private set; }
+    [field: SerializeField] public List<WeaponEffectData> WeaponEffectValues {get; private set;}
+    
     [field: SerializeField] public Vector3 SpriteScale { get; private set; }
     [field: SerializeField] public Vector3 SpriteOffset { get; private set; }
     [field: SerializeField] public Vector3 SpriteAngle { get; private set; }
@@ -63,22 +87,14 @@ public class WeaponData : ScriptableObject
 
     public static WeaponClasses ToWeaponClass(string type)
     {
-        switch (type)
+        // 입력된 type 문자열과 일치하는 Enum이 있으면 반환
+        if (Enum.TryParse(type, out WeaponClasses result))
         {
-            case "Blunt": return WeaponClasses.Blunt;
-            case "Precise": return WeaponClasses.Precise;
-            case "Primitive": return WeaponClasses.Primitive;
-            case "Gun": return WeaponClasses.Gun;
-            case "Medieval": return WeaponClasses.Medieval;
-            case "Blade": return WeaponClasses.Blade;
-            case "Heavy": return WeaponClasses.Heavy;
-            case "Elemental": return WeaponClasses.Elemental;
-            default:
-            {
-                Debug.LogWarning("Weapon Class Can't Find: "+ type);
-                return WeaponClasses.None;
-            }
+            return result;
         }
+        // 일치하는 값이 없을 경우 예외 처리
+        Debug.LogWarning($"Weapon Class Can't Find: {type}");
+        return WeaponClasses.None;
     }
     public static string WeaponClassToString(WeaponClasses weaponClass)
     {
@@ -96,6 +112,20 @@ public class WeaponData : ScriptableObject
             _ => nameof(WeaponClasses.None)
         };
     }
+
+    public static WeaponEffectType WeaponEffectTypeToString(string effectType)
+    {
+        return effectType switch
+        {
+            nameof(WeaponEffectType.Burning) => WeaponEffectType.Burning,
+            nameof(WeaponEffectType.Explosive) => WeaponEffectType.Explosive,
+            nameof(WeaponEffectType.Piercing) => WeaponEffectType.Piercing,
+            nameof(WeaponEffectType.Bounces) =>  WeaponEffectType.Bounces,
+            //None
+            _ => WeaponEffectType.None
+        };
+    }
+    
     
 #if UNITY_EDITOR
     public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite) //임시

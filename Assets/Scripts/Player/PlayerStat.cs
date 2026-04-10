@@ -103,4 +103,9 @@ public class PlayerStat : MonoBehaviour, IDamageable
     {
         
     }
+
+    public void DotDamage(int duration, int damage, float tick)
+    {
+        
+    }
 }

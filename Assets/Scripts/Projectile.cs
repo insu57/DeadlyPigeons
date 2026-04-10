@@ -1,16 +1,18 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = System.Object;
 
-public class Projectile : MonoBehaviour, IDealer
+public class Projectile : MonoBehaviour
 {
     private int _damage;
     private int _piercing;
     private int _piercingDmgPer;
-    public void SetDamage(int damage) => _damage = damage; //수정필
+    //public void SetDamage(int damage) => _damage = damage; //수정필
     private float _lifeTimer;
     private float _speed = 10f; //temp
     private Rigidbody2D _rigidbody2D;
+    private List<IWeaponEffect> _weaponEffects;
     
     private void Awake()
     {
@@ -28,6 +30,7 @@ public class Projectile : MonoBehaviour, IDealer
         _piercing = piercing;
         _piercingDmgPer = piercingDmgPer;
         gameObject.layer = layer;
+        //_weaponEffects = effects;
     }
     
     public void Fire(Vector3 direction, float range)//발사
@@ -55,6 +58,10 @@ public class Projectile : MonoBehaviour, IDealer
         if (collision.TryGetComponent(out IDamageable target))
         {
             target.Damage(_damage);
+            if (_weaponEffects.Count > 0)
+            {
+               
+            }
             _piercing--;
             if (_piercing < 0)
             {
