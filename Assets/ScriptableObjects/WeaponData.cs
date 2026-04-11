@@ -64,7 +64,10 @@ public struct WeaponEffectData
 [Serializable]
 public struct EffectValues //티어 수치 리스트 : 초기 티어 ~ 4 티어
 {
-    public List<int> values;
+    public List<float> values;
+    public MainStats mainStat;
+    public SubStats subStat;
+    public List<int> multipliers; //해당 스탯 값 만큼 추가(티어별 수치에 맞게)
 }
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]

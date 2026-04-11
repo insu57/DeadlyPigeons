@@ -18,5 +18,7 @@ public class Piercing : IWeaponEffect
         Debug.Log($"관통: {piercing}, 관통 데미지: {piercingDmg}");
     }
 
-    public void Execute(IDamageable target, List<float> values) { }
+    public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values) { }
+
+    public void Execute(IDamageable target) { }
 }

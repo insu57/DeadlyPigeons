@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = System.Object;
 
+public struct ProjectileInitData
+{
+    public int Damage;
+    public int Piercing;
+    public int PiercingDmgPer;
+    public int Bounces;
+    public int HitLayer;
+}
+
 public class Projectile : MonoBehaviour
 {
     private int _damage;
     private int _piercing;
     private int _piercingDmgPer;
+    private int _bounces;
     //public void SetDamage(int damage) => _damage = damage; //수정필
     private float _lifeTimer;
     private float _speed = 10f; //temp
@@ -24,12 +34,13 @@ public class Projectile : MonoBehaviour
         ProjectileRange();
     }
 
-    public void Initialize(int damage, int piercing, int piercingDmgPer, int layer)
+    public void Initialize(ProjectileInitData data)
     {
-        _damage = damage;
-        _piercing = piercing;
-        _piercingDmgPer = piercingDmgPer;
-        gameObject.layer = layer;
+        _damage = data.Damage;
+        _piercing = data.Piercing;
+        _piercingDmgPer = data.PiercingDmgPer;
+        _bounces = data.Bounces;
+        gameObject.layer = data.HitLayer;
         //_weaponEffects = effects;
     }
     

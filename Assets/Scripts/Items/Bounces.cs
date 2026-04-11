@@ -15,5 +15,7 @@ public class Bounces : IWeaponEffect
         playerWeapon.SetBounces((int)value[0]);
     }
 
-    public void Execute(IDamageable target, List<float> values) { }
+    public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values) { }
+
+    public void Execute(IDamageable target) { }
 }

@@ -25,7 +25,7 @@ public class PlayerWeapon : MonoBehaviour
     private const float MeleeRangeMultiplier = 0.5f;
     private MeleeAttack _meleeAttack;
     private float _targetDist;
-    //private int _playerHitboxLayer;
+
     private int _finalDamage;
     private List<IWeaponEffect> _weaponEffects = new();
     
@@ -44,6 +44,9 @@ public class PlayerWeapon : MonoBehaviour
     //Ranged
     private int _piercing = 0; //기본
     private int _piercingDmgPer = -50;
+    
+    //Both
+    public float BurningTick { get; private set; } = 1f;
 
     public void SetPiercing(int piercing, int piercingDmg)
     {
@@ -116,14 +119,24 @@ public class PlayerWeapon : MonoBehaviour
             var effect =  weaponEffectData.effect.Clone();
             _weaponEffects.Add(effect);
             List<float> initValues = new();
-            foreach (var effectValues in weaponEffectData.initValuesList)
+            foreach (var effectValues in weaponEffectData.initValuesList) //무기 초기화 시 효과
             {
-                initValues.Add(effectValues.values[_currentTierIdx]); 
+                var value = effectValues.values[_currentTierIdx]; //무기 효과 해당 티어 값
+                int multiplier; //스탯 계수(티어 값)
+                if (effectValues.mainStat != MainStats.None)
+                {
+                    multiplier = effectValues.multipliers[_currentTierIdx];
+                    value += (int)( _mainStats[effectValues.mainStat] * multiplier / 100f);
+                }
+                else if (effectValues.subStat != SubStats.None)
+                {
+                    multiplier = effectValues.multipliers[_currentTierIdx];
+                    value += (int)(_subStats[effectValues.subStat] * multiplier / 100f);
+                }
+                
+                initValues.Add(value); //현재 티어 효과 수치 + 스탯 계수
             }
-            effect.Init(this, initValues);
-            //effect.Init(this, weaponEffectData.valuesList[0].values);
-            //개선 필요........................
-            //초기 티어 값들 -> 라스트 -> ... (범용으로????
+            effect.Init(this, initValues); //수치 주입
         }
         
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
@@ -295,7 +308,39 @@ public class PlayerWeapon : MonoBehaviour
             var projectile = ObjectPoolingManager.Instance.GetProjectile();
             projectile.transform.position = muzzle.position;//
             var dir = _targetInfo.Target.position - muzzle.position;
-            projectile.Initialize(_finalDamage,_piercing,_piercingDmgPer, DataManager.Instance.PlayerHitboxLayer);
+            
+            List<float> currentExecuteValues = new();
+            for (int i = 0; i < _weaponEffects.Count; i++)
+            {
+                var weaponEffect = _weaponEffects[i];
+                var weaponEffectData = WeaponData.WeaponEffectValues[i];
+                var effectValues = weaponEffectData.executeValuesList;
+                foreach (var effectValue in effectValues)
+                {
+                    var value = effectValue.values[_currentTierIdx];
+                    if (effectValue.mainStat != MainStats.None)
+                    {
+                        var multiplier = effectValue.multipliers[_currentTierIdx];
+                        value += (int)(_mainStats[effectValue.mainStat] * multiplier / 100f);
+                    }
+                    else if (effectValue.subStat != SubStats.None)
+                    {
+                        var multiplier = effectValue.multipliers[_currentTierIdx];
+                        value += (int)(_subStats[effectValue.subStat] * multiplier / 100f);
+                    }
+                    currentExecuteValues.Add(value);
+                }
+                weaponEffect.SetExecuteData(this, currentExecuteValues);
+            }
+            
+            var projectileInitData = new ProjectileInitData
+            {
+                Damage = _finalDamage,
+                Piercing =  _piercing,
+                PiercingDmgPer =  _piercingDmgPer,
+                Bounces = _bounces,
+            };
+            projectile.Initialize(projectileInitData);
             projectile.Fire(dir, finalRange);
 
             _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
@@ -322,7 +367,7 @@ public class PlayerWeapon : MonoBehaviour
         
         float finalDamage = (baseDamage + statDamageSum) * (1f + _mainStats[MainStats.Damage] / 100f);
         //최종 데미지 배율 적용
-        //Debug.Log(WeaponData.Name +' '+finalDamage);
+        
         return Mathf.FloorToInt(finalDamage);
     }
 }

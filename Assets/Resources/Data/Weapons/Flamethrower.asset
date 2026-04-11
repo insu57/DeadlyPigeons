@@ -44,11 +44,16 @@ MonoBehaviour:
   - effect:
       rid: 3867232216674467926
     effectType: 0
-    effectValues: 00000000
+    initValuesList: []
+    executeValuesList:
+    - values: 010000000300000005000000
+    - values: 030000000500000008000000
   - effect:
-      rid: 3867232216674467926
-    effectType: 0
-    effectValues: 00000000
+      rid: 3867232216674467949
+    effectType: 2
+    initValuesList:
+    - values: 630000006300000063000000
+    executeValuesList: []
   <SpriteScale>k__BackingField: {x: 0.07, y: 0.07, z: 0.07}
   <SpriteOffset>k__BackingField: {x: 0.354, y: 0.037, z: 0}
   <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 0}
@@ -63,4 +68,7 @@ MonoBehaviour:
       data: 
     - rid: 3867232216674467926
       type: {class: Burning, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3867232216674467949
+      type: {class: Piercing, ns: , asm: Assembly-CSharp}
       data: 
