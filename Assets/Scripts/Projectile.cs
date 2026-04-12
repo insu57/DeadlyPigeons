@@ -10,6 +10,8 @@ public struct ProjectileInitData
     public int PiercingDmgPer;
     public int Bounces;
     public int HitLayer;
+    public bool IsCrit;
+    public List<IWeaponEffect> WeaponEffects;
 }
 
 public class Projectile : MonoBehaviour
@@ -18,6 +20,7 @@ public class Projectile : MonoBehaviour
     private int _piercing;
     private int _piercingDmgPer;
     private int _bounces;
+    private bool _isCrit;
     //public void SetDamage(int damage) => _damage = damage; //수정필
     private float _lifeTimer;
     private float _speed = 10f; //temp
@@ -41,7 +44,8 @@ public class Projectile : MonoBehaviour
         _piercingDmgPer = data.PiercingDmgPer;
         _bounces = data.Bounces;
         gameObject.layer = data.HitLayer;
-        //_weaponEffects = effects;
+        _isCrit = data.IsCrit;
+        _weaponEffects = data.WeaponEffects;
     }
     
     public void Fire(Vector3 direction, float range)//발사
@@ -68,10 +72,11 @@ public class Projectile : MonoBehaviour
     {
         if (collision.TryGetComponent(out IDamageable target))
         {
-            target.Damage(_damage);
-            if (_weaponEffects.Count > 0)
+            target.Damage(_damage, _isCrit);
+            foreach (var weaponEffect in _weaponEffects)
             {
-               
+                Debug.Log("EXECUTE");
+                weaponEffect.Execute(target);
             }
             _piercing--;
             if (_piercing < 0)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public enum AttackType
 {
@@ -32,8 +33,8 @@ public class PlayerWeapon : MonoBehaviour
     //Melee
     private bool _isAttacking;
     private float _animTimer;
-    [SerializeField] private float attackDuration = 1;//근거리 - 찌르기/휩쓸기를 하는 시간 <- 무기마다 수정필요?
-    [SerializeField] private float sweepAngle = 120;
+    [SerializeField] private float attackDuration = 0.3f;//근거리 - 찌르기/휩쓸기를 하는 시간 <- 무기마다 수정필요?
+    [SerializeField] private float sweepAngle = 90;
     private float _startAngle;
     private float _endAngle;
     [SerializeField] private float thrustDist = 2;
@@ -46,7 +47,7 @@ public class PlayerWeapon : MonoBehaviour
     private int _piercingDmgPer = -50;
     
     //Both
-    public float BurningTick { get; private set; } = 1f;
+    public float BurningTick { get; private set; } = 1f; //아이템 반영 생각
 
     public void SetPiercing(int piercing, int piercingDmg)
     {
@@ -70,8 +71,8 @@ public class PlayerWeapon : MonoBehaviour
     
     private void Awake()
     {
-        TryGetComponent(out _meleeAttack);
-        //_center = transform.parent;
+        _meleeAttack = GetComponentInChildren<MeleeAttack>();
+        
         for (int i = 0; i < (int)MainStats.None; i++)
         {
             _mainStats[(MainStats)i] = 0;
@@ -229,6 +230,10 @@ public class PlayerWeapon : MonoBehaviour
             float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
             hitbox.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
             
+            var critChance = WeaponData.WeaponStat.critChance[_currentTierIdx] + _mainStats[MainStats.CritChance];
+            bool isCrit = Random.value < critChance / 100f;
+            _meleeAttack.SetDamage(_finalDamage, isCrit, _weaponEffects);
+            
             var attackType = WeaponData.WeaponStat.attackType;
             if (attackType == AttackType.Sweep)
             {
@@ -332,6 +337,9 @@ public class PlayerWeapon : MonoBehaviour
                 }
                 weaponEffect.SetExecuteData(this, currentExecuteValues);
             }
+
+            var critChance = WeaponData.WeaponStat.critChance[_currentTierIdx] + _mainStats[MainStats.CritChance];
+            bool isCrit = Random.value < critChance / 100f;
             
             var projectileInitData = new ProjectileInitData
             {
@@ -339,6 +347,9 @@ public class PlayerWeapon : MonoBehaviour
                 Piercing =  _piercing,
                 PiercingDmgPer =  _piercingDmgPer,
                 Bounces = _bounces,
+                HitLayer = DataManager.Instance.PlayerHitboxLayer,
+                IsCrit = isCrit,
+                WeaponEffects = _weaponEffects
             };
             projectile.Initialize(projectileInitData);
             projectile.Fire(dir, finalRange);

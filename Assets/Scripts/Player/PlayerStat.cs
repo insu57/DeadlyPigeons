@@ -94,7 +94,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
         }
     }
     
-    public void Damage(int damage)
+    public void Damage(int damage, bool isCrit)
     {
         
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -7,6 +8,7 @@ public enum Pooling
 {
     SelectBtn,
     Projectile,
+    DamageTxt,
 }
 
 public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
@@ -18,11 +20,16 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     private PoolingSetting _projectileSetting;
     private  ObjectPool<Projectile> _projectilePool;
     
+    private PoolingSetting _damageTxtSetting;
+    private ObjectPool<DamageTxt> _damageTxtPool;
+    
+    private StringBuilder _sb;
 
     protected override void Awake()
     {
         base.Awake();
-        
+
+        _sb = new StringBuilder();
         LoadPoolSettings();
     }
 
@@ -36,6 +43,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
             {
                 case Pooling.SelectBtn: _selectBtnSetting = poolingSetting; break;
                 case Pooling.Projectile: _projectileSetting = poolingSetting; break;
+                case Pooling.DamageTxt: _damageTxtSetting = poolingSetting; break;
             }
         }
     }
@@ -100,7 +108,26 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
             Debug.LogError("Can't find projectile");
         }
     }
-
     public Projectile GetProjectile() => _projectilePool.Get();
     public void ReleaseProjectile(Projectile projectile ) => _projectilePool.Release(projectile);
+    
+    public void InitDamageTxtPool()
+    {
+        if (_damageTxtSetting.Prefab.TryGetComponent(out DamageTxt damageTxt))
+        {
+            _damageTxtPool = InitPool(damageTxt, _damageTxtSetting);
+        }
+        else
+        {
+            Debug.LogError("Can't find damageTxt");
+        }
+    }
+
+    public DamageTxt GetDamageTxt()
+    {
+        var dmgTxt = _damageTxtPool.Get();
+        dmgTxt.Init(_sb);
+        return dmgTxt;
+    } 
+    public void ReleaseDamageTxt(DamageTxt damageTxt) => _damageTxtPool.Release(damageTxt);
 }

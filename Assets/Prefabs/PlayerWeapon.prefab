@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8157914489208972609}
   - component: {fileID: 3164926723998325265}
-  m_Layer: 0
+  - component: {fileID: 5149411764432345978}
+  m_Layer: 9
   m_Name: Hitbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,6 +71,18 @@ CapsuleCollider2D:
   m_Offset: {x: 0.45274442, y: 0.0111977225}
   m_Size: {x: 1.2207788, y: 0.29929486}
   m_Direction: 1
+--- !u!114 &5149411764432345978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3378511531343409554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72f67806d8d14247b1c29e45fa58cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4603690083091695209
 GameObject:
   m_ObjectHideFlags: 0
@@ -198,7 +211,6 @@ GameObject:
   m_Component:
   - component: {fileID: 867934971491431444}
   - component: {fileID: 451088450194281399}
-  - component: {fileID: 3073850331995280873}
   m_Layer: 0
   m_Name: PlayerWeapon
   m_TagString: Untagged
@@ -239,18 +251,6 @@ MonoBehaviour:
   hitbox: {fileID: 8157914489208972609}
   meleeCollider: {fileID: 3164926723998325265}
   muzzle: {fileID: 3781457325111053710}
-  attackDuration: 1
-  sweepAngle: 120
+  attackDuration: 0.5
+  sweepAngle: 90
   thrustDist: 2
---- !u!114 &3073850331995280873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9151009793121495448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f72f67806d8d14247b1c29e45fa58cc6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

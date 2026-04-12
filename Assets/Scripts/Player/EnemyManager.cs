@@ -11,13 +11,15 @@ public class EnemyManager : MonoBehaviour, IDamageable
     
     private Coroutine _activeDotCoroutine;
     
-    public void Damage(int damage)
+    public void Damage(int damage, bool isCrit)
     {
-        
         health -= damage;
-        
-        Debug.Log(health);
 
+        var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
+        dmgTxt.transform.position = transform.position;
+        dmgTxt.SetText(damage, isCrit);
+        
+        
         if (health <= 0)
         {
             Debug.Log("DEAD");
@@ -35,11 +37,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
         {
             StopCoroutine(_activeDotCoroutine);
         }
-        
+        //지속시간, 데미지는 큰 값으로 갱신 틱은 가장 짧은 것으로)
         _activeDotCoroutine = StartCoroutine(DotDamageCoroutine(duration, damage, tick));
     }
 
-    private IEnumerator DotDamageCoroutine(int duration, int damage, float tick)
+    private IEnumerator DotDamageCoroutine(float duration, int damage, float tick)
     {
         float elapsedTime = 0f;
         
@@ -51,8 +53,9 @@ public class EnemyManager : MonoBehaviour, IDamageable
             {
                 yield break;
             }
-            
-            Damage(damage);
+
+            Debug.Log("Dot Damage:" + damage);
+            Damage(damage, false);
             
             yield return waitTick;
 
