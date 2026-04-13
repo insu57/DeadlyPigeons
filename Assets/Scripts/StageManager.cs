@@ -80,6 +80,7 @@ public class StageManager : MonoBehaviour
         //pooling
         ObjectPoolingManager.Instance.InitProjectilePool();
         ObjectPoolingManager.Instance.InitDamageTxtPool();
+        ObjectPoolingManager.Instance.InitExplosivePool();
     }
 
     private void Update()

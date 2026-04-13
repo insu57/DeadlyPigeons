@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c149338cf3e54504a91559f362b6f0f5, type: 3}
-  m_Name: DamageTxtPool
+  m_Name: ExplosionPoolSetting
   m_EditorClassIdentifier: 
-  <Pooling>k__BackingField: 2
-  <Prefab>k__BackingField: {fileID: 7538404121709190549, guid: a00ac329e6d5ae346b4228561b0a730e, type: 3}
-  <InitSize>k__BackingField: 50
-  <MaxSize>k__BackingField: 150
+  <Pooling>k__BackingField: 3
+  <Prefab>k__BackingField: {fileID: 1129113916181702241, guid: d0dbb264bcae94f4e952606e72c8599a, type: 3}
+  <InitSize>k__BackingField: 30
+  <MaxSize>k__BackingField: 100

@@ -107,6 +107,7 @@ public static class StatUtil
             "ExplosiveSize"  => SubStats.ExplosiveSize,
             "Bounces"        => SubStats.Bounces,
             "Piercing"       => SubStats.Piercing,
+            "PiercingDamage" => SubStats.PiercingDamage,
             "FreeRerolls"    => SubStats.FreeRerolls,
             "Enemies"        => SubStats.Enemies,
             "EnemiesSpeed"   => SubStats.EnemiesSpeed,
@@ -127,6 +128,7 @@ public static class StatUtil
             SubStats.ExplosiveSize   => nameof(SubStats.ExplosiveSize),
             SubStats.Bounces         => nameof(SubStats.Bounces),
             SubStats.Piercing        => nameof(SubStats.Piercing),
+            SubStats.PiercingDamage  => nameof(SubStats.PiercingDamage),
             SubStats.FreeRerolls     => nameof(SubStats.FreeRerolls),
             SubStats.Enemies         => nameof(SubStats.Enemies),
             SubStats.EnemiesSpeed    => nameof(SubStats.EnemiesSpeed),
@@ -148,6 +150,7 @@ public static class StatUtil
             SubStats.ExplosiveDamage => true,
             SubStats.ExplosiveSize => true,
             SubStats.PickUpRange => true,
+            SubStats.PiercingDamage => true,
             // 나머지는 전부 일반(Flat) 수치이므로 false
             _ => false
         };

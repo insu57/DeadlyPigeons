@@ -39,11 +39,14 @@ MonoBehaviour:
     knockBack: 14000000140000001400000014000000
     healthAbsorb: 00000000000000000000000000000000
     prices: 14000000280000005000000096000000
-    piercing: 
     description: "\uB871\uC18C\uB4DC"
-  effects: []
-  effect:
-    rid: -2
+  <Effects>k__BackingField: []
+  <WeaponEffectValues>k__BackingField:
+  - effect:
+      rid: 3867232283734311002
+    effectType: 1
+    initValuesList: []
+    executeValuesList: []
   <SpriteScale>k__BackingField: {x: 0.3, y: 0.3, z: 0.3}
   <SpriteOffset>k__BackingField: {x: 0.691, y: 0.022, z: 0}
   <SpriteAngle>k__BackingField: {x: 0, y: 0, z: 315}
@@ -53,5 +56,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 3867232283734311002
+      type: {class: Explosion, ns: , asm: Assembly-CSharp}
+      data: 

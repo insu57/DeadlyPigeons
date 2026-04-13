@@ -5,6 +5,7 @@ using UnityEngine;
 [Serializable]
 public class Bounces : IWeaponEffect
 {
+    private int _bounces;
     public IWeaponEffect Clone()
     {
         return new Bounces();
@@ -12,10 +13,15 @@ public class Bounces : IWeaponEffect
 
     public void Init(PlayerWeapon playerWeapon, List<float> value)
     {
-        playerWeapon.SetBounces((int)value[0]);
+        _bounces = (int)value[0];
+        playerWeapon.SetBounces(_bounces);
     }
 
     public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values) { }
 
     public void Execute(IDamageable target) { }
+    public void Remove(PlayerWeapon playerWeapon)
+    {
+        playerWeapon.SetBounces(-_bounces);
+    }
 }

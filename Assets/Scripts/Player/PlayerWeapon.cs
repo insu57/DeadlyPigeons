@@ -24,10 +24,23 @@ public class PlayerWeapon : MonoBehaviour
     private float _currentTimer;
     private const int RangeScaler = 75;
     private const float MeleeRangeMultiplier = 0.5f;
-    private MeleeAttack _meleeAttack;
+    private Hitbox _hitbox;
     private float _targetDist;
 
-    private int _finalDamage;
+    private Dictionary<MainStats, int> _mainStats = new();
+    private Dictionary<SubStats, int> _subStats = new();
+
+    public int FinalDamage {get; private set;}
+
+    private (bool isCrit, int damage) CritDamage()
+    {
+        var critChance = WeaponData.WeaponStat.critChance[_currentTierIdx] + _mainStats[MainStats.CritChance];
+        bool isCrit = Random.value < critChance / 100f;
+        var damage = FinalDamage;
+        if (isCrit) damage = Mathf.FloorToInt(damage * WeaponData.WeaponStat.critDamage[_currentTierIdx]);
+        
+        return (isCrit, damage);
+    }
     private List<IWeaponEffect> _weaponEffects = new();
     
     //Melee
@@ -49,29 +62,25 @@ public class PlayerWeapon : MonoBehaviour
     //Both
     public float BurningTick { get; private set; } = 1f; //아이템 반영 생각
 
+    public int ExplosiveDmgPer => _subStats[SubStats.ExplosiveDamage];
+    
+    public int GetStat(MainStats stat) => _mainStats[stat];
+    public int GetStat(SubStats stat) => _subStats[stat];
+
     public void SetPiercing(int piercing, int piercingDmg)
     {
         _piercing = piercing;
         _piercingDmgPer = piercingDmg;
     }
-    //public void 
     
     private int _bounces = 0;
+    public void SetBounces(int bounces) =>  _bounces = bounces;
 
-    public void SetBounces(int bounces)
-    {
-        _bounces = bounces;
-    }
-    
-    
-    private Dictionary<MainStats, int> _mainStats = new();
-    private Dictionary<SubStats, int> _subStats = new();
-    
     //스탯별 처리(음수 처리 따로)
     
     private void Awake()
     {
-        _meleeAttack = GetComponentInChildren<MeleeAttack>();
+        _hitbox = GetComponentInChildren<Hitbox>();
         
         for (int i = 0; i < (int)MainStats.None; i++)
         {
@@ -122,25 +131,31 @@ public class PlayerWeapon : MonoBehaviour
             List<float> initValues = new();
             foreach (var effectValues in weaponEffectData.initValuesList) //무기 초기화 시 효과
             {
-                var value = effectValues.values[_currentTierIdx]; //무기 효과 해당 티어 값
-                int multiplier; //스탯 계수(티어 값)
-                if (effectValues.mainStat != MainStats.None)
-                {
-                    multiplier = effectValues.multipliers[_currentTierIdx];
-                    value += (int)( _mainStats[effectValues.mainStat] * multiplier / 100f);
-                }
-                else if (effectValues.subStat != SubStats.None)
-                {
-                    multiplier = effectValues.multipliers[_currentTierIdx];
-                    value += (int)(_subStats[effectValues.subStat] * multiplier / 100f);
-                }
-                
+                var value = GetEffectValueStatMultiplier(effectValues); //무기 효과 해당 티어 값
                 initValues.Add(value); //현재 티어 효과 수치 + 스탯 계수
             }
             effect.Init(this, initValues); //수치 주입
         }
         
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
+    }
+
+    private float GetEffectValueStatMultiplier(EffectValues effectValues)
+    {
+        var value = effectValues.values[_currentTierIdx];
+        if (effectValues.multipliers.Count == 0) return value;
+        
+        var multiplier = effectValues.multipliers[_currentTierIdx];
+        //스탯 계수(티어 값)
+        if (effectValues.mainStat != MainStats.None)
+        {
+            value += (int)( _mainStats[effectValues.mainStat] * multiplier / 100f);
+        }
+        else if (effectValues.subStat != SubStats.None)
+        {
+            value += (int)(_subStats[effectValues.subStat] * multiplier / 100f);
+        }
+        return value;
     }
 
     public void SetTarget(TargetInfo target)
@@ -151,13 +166,13 @@ public class PlayerWeapon : MonoBehaviour
     public void UpdateMainStats(MainStats stat, int value)
     {
         _mainStats[stat] = value;
-        _finalDamage = GetDamage();
+        FinalDamage = GetDamage();
     }
 
     public void UpdateSubStats(SubStats stat, int value)
     {
         _subStats[stat] = value;
-        _finalDamage = GetDamage();
+        FinalDamage = GetDamage();
     }
 
     public void SetCenter(Transform center)
@@ -229,10 +244,11 @@ public class PlayerWeapon : MonoBehaviour
             Vector3 dirToTarget = _targetInfo.Target.position - _center.position; //방향벡터
             float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
             hitbox.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
+
+            var (isCrit, damage) = CritDamage();
             
-            var critChance = WeaponData.WeaponStat.critChance[_currentTierIdx] + _mainStats[MainStats.CritChance];
-            bool isCrit = Random.value < critChance / 100f;
-            _meleeAttack.SetDamage(_finalDamage, isCrit, _weaponEffects);
+            WeaponEffectsSetExecute();
+            _hitbox.SetDamage(damage, isCrit, _weaponEffects);
             
             var attackType = WeaponData.WeaponStat.attackType;
             if (attackType == AttackType.Sweep)
@@ -314,39 +330,15 @@ public class PlayerWeapon : MonoBehaviour
             projectile.transform.position = muzzle.position;//
             var dir = _targetInfo.Target.position - muzzle.position;
             
-            List<float> currentExecuteValues = new();
-            for (int i = 0; i < _weaponEffects.Count; i++)
-            {
-                var weaponEffect = _weaponEffects[i];
-                var weaponEffectData = WeaponData.WeaponEffectValues[i];
-                var effectValues = weaponEffectData.executeValuesList;
-                foreach (var effectValue in effectValues)
-                {
-                    var value = effectValue.values[_currentTierIdx];
-                    if (effectValue.mainStat != MainStats.None)
-                    {
-                        var multiplier = effectValue.multipliers[_currentTierIdx];
-                        value += (int)(_mainStats[effectValue.mainStat] * multiplier / 100f);
-                    }
-                    else if (effectValue.subStat != SubStats.None)
-                    {
-                        var multiplier = effectValue.multipliers[_currentTierIdx];
-                        value += (int)(_subStats[effectValue.subStat] * multiplier / 100f);
-                    }
-                    currentExecuteValues.Add(value);
-                }
-                weaponEffect.SetExecuteData(this, currentExecuteValues);
-            }
-
-            var critChance = WeaponData.WeaponStat.critChance[_currentTierIdx] + _mainStats[MainStats.CritChance];
-            bool isCrit = Random.value < critChance / 100f;
+            WeaponEffectsSetExecute();
             
+            var (isCrit, damage) = CritDamage();
             var projectileInitData = new ProjectileInitData
             {
-                Damage = _finalDamage,
-                Piercing =  _piercing,
-                PiercingDmgPer =  _piercingDmgPer,
-                Bounces = _bounces,
+                Damage = damage,
+                Piercing =  _piercing + _subStats[SubStats.Piercing],
+                PiercingDmgPer =  _piercingDmgPer + _subStats[SubStats.PiercingDamage],
+                Bounces = _bounces + _subStats[SubStats.Bounces],
                 HitLayer = DataManager.Instance.PlayerHitboxLayer,
                 IsCrit = isCrit,
                 WeaponEffects = _weaponEffects
@@ -356,7 +348,26 @@ public class PlayerWeapon : MonoBehaviour
 
             _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
         }
-        
+    }
+
+    private void WeaponEffectsSetExecute()
+    {
+        for (int i = 0; i < _weaponEffects.Count; i++)
+        {
+            List<float> currentExecuteValues = new();
+            
+            var weaponEffect = _weaponEffects[i];
+            var weaponEffectData = WeaponData.WeaponEffectValues[i];
+            var effectValues = weaponEffectData.executeValuesList;
+                
+            foreach (var effectValue in effectValues)
+            {
+                var value = GetEffectValueStatMultiplier(effectValue);
+                currentExecuteValues.Add(value);
+            }
+            
+            weaponEffect.SetExecuteData(this, currentExecuteValues);
+        }
     }
 
     private int GetDamage()
@@ -379,6 +390,6 @@ public class PlayerWeapon : MonoBehaviour
         float finalDamage = (baseDamage + statDamageSum) * (1f + _mainStats[MainStats.Damage] / 100f);
         //최종 데미지 배율 적용
         
-        return Mathf.FloorToInt(finalDamage);
+        return Mathf.FloorToInt(finalDamage);//소수점 이하 버리기
     }
 }

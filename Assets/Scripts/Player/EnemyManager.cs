@@ -47,19 +47,16 @@ public class EnemyManager : MonoBehaviour, IDamageable
         
         WaitForSeconds waitTick = new WaitForSeconds(tick);
 
-        while (elapsedTime < duration)
+        while (elapsedTime < duration) //지속 시간 동안
         {
             if (!this)
             {
                 yield break;
             }
-
-            Debug.Log("Dot Damage:" + damage);
-            Damage(damage, false);
-            
             yield return waitTick;
-
-            elapsedTime += tick;
+            //일정 틱 이후 도트 데미지
+            Damage(damage, false);
+            elapsedTime += tick;//틱 만큼 추가
         }
         
         _activeDotCoroutine = null;

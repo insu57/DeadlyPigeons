@@ -9,6 +9,7 @@ public enum Pooling
     SelectBtn,
     Projectile,
     DamageTxt,
+    Explosion
 }
 
 public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
@@ -22,6 +23,11 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     
     private PoolingSetting _damageTxtSetting;
     private ObjectPool<DamageTxt> _damageTxtPool;
+
+    private PoolingSetting _explosionSetting;
+    private ObjectPool<Hitbox> _explosionPool;
+    
+    //늘어나는 풀링 오브젝트 -> 개선 방안?
     
     private StringBuilder _sb;
 
@@ -44,6 +50,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
                 case Pooling.SelectBtn: _selectBtnSetting = poolingSetting; break;
                 case Pooling.Projectile: _projectileSetting = poolingSetting; break;
                 case Pooling.DamageTxt: _damageTxtSetting = poolingSetting; break;
+                case Pooling.Explosion: _explosionSetting =  poolingSetting; break;
             }
         }
     }
@@ -130,4 +137,16 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
         return dmgTxt;
     } 
     public void ReleaseDamageTxt(DamageTxt damageTxt) => _damageTxtPool.Release(damageTxt);
+
+    public void InitExplosivePool()
+    {
+        if (_explosionSetting.Prefab.TryGetComponent(out Hitbox explosion))
+        {
+            _explosionPool = InitPool(explosion, _explosionSetting);
+        }
+        else
+        {
+            Debug.LogError("Can't find Explosion");
+        }
+    }
 }
