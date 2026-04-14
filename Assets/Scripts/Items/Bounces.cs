@@ -20,6 +20,11 @@ public class Bounces : IWeaponEffect
     public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values) { }
 
     public void Execute(IDamageable target) { }
+    public void AttackEnd()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Remove(PlayerWeapon playerWeapon)
     {
         playerWeapon.SetBounces(-_bounces);

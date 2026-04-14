@@ -61,4 +61,6 @@ public class EnemyManager : MonoBehaviour, IDamageable
         
         _activeDotCoroutine = null;
     }
+    
+    public Transform GetTransform() => transform;
 }

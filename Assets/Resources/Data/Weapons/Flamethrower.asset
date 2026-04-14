@@ -38,8 +38,7 @@ MonoBehaviour:
     healthAbsorb: 000000000000000000000000
     prices: 3800000067000000cf000000
     description: "\uD654\uC5FC\uBC29\uC0AC\uAE30. \uC124\uBA85\uC740 \uC5B4\uB5BB\uAC8C???"
-  <Effects>k__BackingField:
-  - rid: 3867232191622152280
+  <Effects>k__BackingField: []
   <WeaponEffectValues>k__BackingField:
   - effect:
       rid: 3867232216674467926
@@ -47,18 +46,18 @@ MonoBehaviour:
     initValuesList: []
     executeValuesList:
     - values:
-      - 1
+      - 2
       - 3
       - 5
       mainStat: 17
-      subStat: 12
+      subStat: 13
       multipliers: 
     - values:
       - 3
       - 5
       - 8
       mainStat: 9
-      subStat: 12
+      subStat: 13
       multipliers: 640000006400000064000000
   - effect:
       rid: 3867232216674467949
@@ -69,14 +68,14 @@ MonoBehaviour:
       - 99
       - 99
       mainStat: 17
-      subStat: 12
+      subStat: 13
       multipliers: 
     - values:
       - 100
       - 100
       - 100
       mainStat: 17
-      subStat: 12
+      subStat: 13
       multipliers: 
     executeValuesList: []
   <SpriteScale>k__BackingField: {x: 0.07, y: 0.07, z: 0.07}
@@ -88,9 +87,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3867232191622152280
-      type: {class: Burning, ns: , asm: Assembly-CSharp}
-      data: 
     - rid: 3867232216674467926
       type: {class: Burning, ns: , asm: Assembly-CSharp}
       data: 

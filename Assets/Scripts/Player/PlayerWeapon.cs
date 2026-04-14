@@ -247,8 +247,8 @@ public class PlayerWeapon : MonoBehaviour
 
             var (isCrit, damage) = CritDamage();
             
-            WeaponEffectsSetExecute();
-            _hitbox.SetDamage(damage, isCrit, _weaponEffects);
+            WeaponEffectsSetExecute(); //무기 효과 실행효과 데이터 주입
+            _hitbox.AttackInit(damage, isCrit, _weaponEffects);
             
             var attackType = WeaponData.WeaponStat.attackType;
             if (attackType == AttackType.Sweep)
@@ -330,18 +330,18 @@ public class PlayerWeapon : MonoBehaviour
             projectile.transform.position = muzzle.position;//
             var dir = _targetInfo.Target.position - muzzle.position;
             
-            WeaponEffectsSetExecute();
+            WeaponEffectsSetExecute(); //무기효과: 실행 효과 데이터 주입
             
-            var (isCrit, damage) = CritDamage();
-            var projectileInitData = new ProjectileInitData
+            var (isCrit, damage) = CritDamage(); //최종 데미지(치명 포함)
+            var projectileInitData = new ProjectileInitData //투사체 초기화 정보 
             {
                 Damage = damage,
-                Piercing =  _piercing + _subStats[SubStats.Piercing],
-                PiercingDmgPer =  _piercingDmgPer + _subStats[SubStats.PiercingDamage],
-                Bounces = _bounces + _subStats[SubStats.Bounces],
-                HitLayer = DataManager.Instance.PlayerHitboxLayer,
+                Piercing =  _piercing + _subStats[SubStats.Piercing], //무기 관통 + 관통 스탯
+                PiercingDmgPer =  _piercingDmgPer + _subStats[SubStats.PiercingDamage],//관통 데미지 + 스탯
+                Bounces = _bounces + _subStats[SubStats.Bounces], //무기 도탄 + 스탯
+                HitLayer = DataManager.Instance.PlayerHitboxLayer, //Layer : 플레이어 히트 박스
                 IsCrit = isCrit,
-                WeaponEffects = _weaponEffects
+                WeaponEffects = _weaponEffects //  효과 리스트
             };
             projectile.Initialize(projectileInitData);
             projectile.Fire(dir, finalRange);

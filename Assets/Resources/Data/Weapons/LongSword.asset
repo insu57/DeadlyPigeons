@@ -43,10 +43,39 @@ MonoBehaviour:
   <Effects>k__BackingField: []
   <WeaponEffectValues>k__BackingField:
   - effect:
-      rid: 3867232283734311002
+      rid: 3867232283734311015
     effectType: 1
     initValuesList: []
-    executeValuesList: []
+    executeValuesList:
+    - values:
+      - 100
+      - 100
+      - 100
+      - 100
+      mainStat: 17
+      subStat: 13
+      multipliers: 
+  - effect:
+      rid: 3867232283734311017
+    effectType: 0
+    initValuesList: []
+    executeValuesList:
+    - values:
+      - 2
+      - 3
+      - 5
+      - 5
+      mainStat: 17
+      subStat: 13
+      multipliers: 
+    - values:
+      - 3
+      - 5
+      - 8
+      - 8
+      mainStat: 9
+      subStat: 13
+      multipliers: 64000000640000006400000064000000
   <SpriteScale>k__BackingField: {x: 0.3, y: 0.3, z: 0.3}
   <SpriteOffset>k__BackingField: {x: 0.691, y: 0.022, z: 0}
   <SpriteAngle>k__BackingField: {x: 0, y: 0, z: 315}
@@ -56,6 +85,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3867232283734311002
-      type: {class: Explosion, ns: , asm: Assembly-CSharp}
+    - rid: 3867232283734311015
+      type: {class: Explosive, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3867232283734311017
+      type: {class: Burning, ns: , asm: Assembly-CSharp}
       data: 

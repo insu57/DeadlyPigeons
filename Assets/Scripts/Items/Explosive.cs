@@ -22,7 +22,6 @@ public class Explosive : IWeaponEffect
     public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values)
     {
         //폭발 크기 배율
-        Debug.Log("Explosive SetExecuteData:" + values[0]);
         _explosionSize = values[0];
         _explosionSize *= 1f + playerWeapon.GetStat(SubStats.ExplosiveSize) / 100f;
         _damage = Mathf.FloorToInt(playerWeapon.FinalDamage
@@ -32,8 +31,16 @@ public class Explosive : IWeaponEffect
     public void Execute(IDamageable damageable)
     {
         //착탄 시 폭발 오브젝트 활성.
-        Debug.Log("Explosive");
+        //Debug.Log("Explosive");
+        var explosion = ObjectPoolingManager.Instance.GetExplosion(_damage, _explosionSize / 100f);
+        explosion.transform.position = damageable.GetTransform().position;
     }
+
+    public void AttackEnd()
+    {
+        throw new NotImplementedException();
+    }
+
 
     public void Remove(PlayerWeapon playerWeapon)
     {

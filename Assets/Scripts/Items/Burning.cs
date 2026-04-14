@@ -28,9 +28,14 @@ public class Burning : IWeaponEffect
 
     public void Execute(IDamageable target)
     {
-       //타겟에 화상효과 적용.
-        Debug.Log($"Burning! damage:{_damage},  tick:{_tick}, duration:{_duration}");
-       target.DotDamage(_duration, _damage, _tick); //도트 데미지(화상), 화상을 제외한 도트 데미지가 생긴다면 enum으로 구분
+        //타겟에 화상효과 적용.
+        //Debug.Log($"Burning! damage:{_damage},  tick:{_tick}, duration:{_duration}");
+        target.DotDamage(_duration, _damage, _tick); //도트 데미지(화상), 화상을 제외한 도트 데미지가 생긴다면 enum으로 구분
+    }
+
+    public void AttackEnd()
+    {
+        throw new NotImplementedException();
     }
 
     public void Remove(PlayerWeapon playerWeapon)

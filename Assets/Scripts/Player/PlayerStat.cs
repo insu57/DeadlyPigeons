@@ -108,4 +108,6 @@ public class PlayerStat : MonoBehaviour, IDamageable
     {
         
     }
+    
+    public Transform GetTransform() => transform;
 }

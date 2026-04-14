@@ -149,4 +149,13 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
             Debug.LogError("Can't find Explosion");
         }
     }
+
+    public Hitbox GetExplosion(int damage, float scale)
+    {
+        var explosion = _explosionPool.Get();
+        explosion.SetScale(scale);
+        explosion.AttackInit(damage, false, null);
+        return explosion;
+    }
 }
+

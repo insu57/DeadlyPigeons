@@ -24,6 +24,11 @@ public class Piercing : IWeaponEffect
     public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values) { }
 
     public void Execute(IDamageable target) { }
+    public void AttackEnd()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Remove(PlayerWeapon playerWeapon)
     {
         playerWeapon.SetPiercing(-_piercing, -_piercingDmg);
