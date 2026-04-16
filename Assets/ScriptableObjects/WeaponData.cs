@@ -48,21 +48,19 @@ public struct WeaponStat
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
     public List<int> prices;
-    //public List<int> piercing;
     public string description;
 }
 
 [Serializable]
 public struct WeaponEffectData
 {
-    [SerializeReference, SubclassSelector] public IWeaponEffect effect;
     public WeaponEffectType effectType;
-    public List<EffectValues> initValuesList; //각 항목 리스트 -> 티어 수치 리스트
-    public List<EffectValues> executeValuesList;
+    public List<WeaponEffectValues> valuesList; //각 항목 리스트 -> 티어 수치 리스트
+    //public List<EffectValues> executeValuesList;
 }
 
 [Serializable]
-public struct EffectValues //티어 수치 리스트 : 초기 티어 ~ 4 티어
+public struct WeaponEffectValues //티어 수치 리스트 : 초기 티어 ~ 4 티어
 {
     public List<float> values;
     public MainStats mainStat;
@@ -78,8 +76,7 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public string Name { get; private set; }
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
-    [field: SerializeReference,SubclassSelector] public List<IWeaponEffect> Effects { get; private set; }
-    [field: SerializeField] public List<WeaponEffectData> WeaponEffectValues {get; private set;}
+    [field: SerializeField] public List<WeaponEffectData> WeaponEffectDataList {get; private set;}
     
     [field: SerializeField] public Vector3 SpriteScale { get; private set; }
     [field: SerializeField] public Vector3 SpriteOffset { get; private set; }
@@ -116,7 +113,7 @@ public class WeaponData : ScriptableObject
         };
     }
 
-    public static WeaponEffectType WeaponEffectTypeToString(string effectType)
+    public static WeaponEffectType StringToEffectType(string effectType)
     {
         return effectType switch
         {
@@ -126,6 +123,18 @@ public class WeaponData : ScriptableObject
             nameof(WeaponEffectType.Bounces) =>  WeaponEffectType.Bounces,
             //None
             _ => WeaponEffectType.None
+        };
+    }
+
+    public static IWeaponEffect GetWeaponEffect(WeaponEffectType effectType)
+    {
+        return effectType switch
+        {
+            WeaponEffectType.Burning => new Burning(),
+            WeaponEffectType.Explosive => new Explosive(),
+            WeaponEffectType.Bounces => new Bounces(),
+            WeaponEffectType.Piercing => new Piercing(),
+            _ => null
         };
     }
     
@@ -146,6 +155,12 @@ public class WeaponData : ScriptableObject
         MuzzleOffset = weaponTransform.MuzzleOffest;
         ColliderSize = weaponTransform.ColliderSize;
         ColliderOffset = weaponTransform.ColliderOffset;
+    }
+
+
+    public void SetWeaponEffectData(List<WeaponEffectData> effectDataList)
+    {
+        WeaponEffectDataList = effectDataList;
     }
 #endif
 }

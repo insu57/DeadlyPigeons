@@ -157,5 +157,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
         explosion.AttackInit(damage, false, null);
         return explosion;
     }
+
+    public void ReleaseExplosion(Hitbox explosion) => _explosionPool.Release(explosion);
 }
 

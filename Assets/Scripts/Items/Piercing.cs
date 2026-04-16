@@ -7,14 +7,12 @@ public class Piercing : IWeaponEffect
 {
     private int _piercing;
     private int _piercingDmg;
-    
-    public IWeaponEffect Clone()
-    {
-        return new Piercing();
-    }
+
+    public bool IsExecuteType => false;
 
     public void Init(PlayerWeapon playerWeapon, List<float> value)
     {
+        if(value.Count < 2) return;
         _piercing = (int)value[0];
         _piercingDmg = (int)value[1];
         playerWeapon.SetPiercing(_piercing, _piercingDmg);

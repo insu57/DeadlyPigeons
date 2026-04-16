@@ -9,11 +9,8 @@ public class Burning : IWeaponEffect
     private int _duration;
     private int _damage;
     private float _tick;
-    
-    public IWeaponEffect Clone()
-    {
-        return new Burning();
-    }
+
+    public bool IsExecuteType => true;
 
     public void Init(PlayerWeapon playerWeapon, List<float> value) { }
     //ex 화상 (1 지속시간 3데미지(+100% 원소 데미지)
@@ -21,6 +18,7 @@ public class Burning : IWeaponEffect
     public void SetExecuteData(PlayerWeapon playerWeapon,List<float> values)
     {
         //values = { 지속시간, 데미지, 데미지 틱(기본 1초) }
+        if(values.Count < 2) return;
         _duration = (int)values[0];
         _damage = (int)values[1];
         _tick = playerWeapon.BurningTick;

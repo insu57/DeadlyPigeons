@@ -21,7 +21,7 @@ public class PlayerWeapon : MonoBehaviour
     public WeaponData WeaponData{get; private set;}
     private TargetInfo _targetInfo;
     private int _currentTierIdx;
-    private float _currentTimer;
+    private float _attackCoolTimer;
     private const int RangeScaler = 75;
     private const float MeleeRangeMultiplier = 0.5f;
     private Hitbox _hitbox;
@@ -123,13 +123,16 @@ public class PlayerWeapon : MonoBehaviour
         
         _currentTierIdx = tier - weaponData.WeaponStat.initTier;//인덱스은 0부터 초기 티어 만큼 차감
 
-        var weaponEffectList = weaponData.WeaponEffectValues;
+        var weaponEffectList = weaponData.WeaponEffectDataList;
         foreach (var weaponEffectData in weaponEffectList)
         {
-            var effect =  weaponEffectData.effect.Clone();
+            var effectType = weaponEffectData.effectType;
+            var effect = WeaponData.GetWeaponEffect(effectType);
             _weaponEffects.Add(effect);
+            
+            if(effect.IsExecuteType) continue;
             List<float> initValues = new();
-            foreach (var effectValues in weaponEffectData.initValuesList) //무기 초기화 시 효과
+            foreach (var effectValues in weaponEffectData.valuesList) //무기 초기화 시 효과
             {
                 var value = GetEffectValueStatMultiplier(effectValues); //무기 효과 해당 티어 값
                 initValues.Add(value); //현재 티어 효과 수치 + 스탯 계수
@@ -140,20 +143,20 @@ public class PlayerWeapon : MonoBehaviour
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
     }
 
-    private float GetEffectValueStatMultiplier(EffectValues effectValues)
+    private float GetEffectValueStatMultiplier(WeaponEffectValues weaponEffectValues)
     {
-        var value = effectValues.values[_currentTierIdx];
-        if (effectValues.multipliers.Count == 0) return value;
+        var value = weaponEffectValues.values[_currentTierIdx];
+        if (weaponEffectValues.multipliers.Count == 0) return value;
         
-        var multiplier = effectValues.multipliers[_currentTierIdx];
+        var multiplier = weaponEffectValues.multipliers[_currentTierIdx];
         //스탯 계수(티어 값)
-        if (effectValues.mainStat != MainStats.None)
+        if (weaponEffectValues.mainStat != MainStats.None)
         {
-            value += (int)( _mainStats[effectValues.mainStat] * multiplier / 100f);
+            value += (int)( _mainStats[weaponEffectValues.mainStat] * multiplier / 100f);
         }
-        else if (effectValues.subStat != SubStats.None)
+        else if (weaponEffectValues.subStat != SubStats.None)
         {
-            value += (int)(_subStats[effectValues.subStat] * multiplier / 100f);
+            value += (int)(_subStats[weaponEffectValues.subStat] * multiplier / 100f);
         }
         return value;
     }
@@ -209,6 +212,8 @@ public class PlayerWeapon : MonoBehaviour
 
     private void Attack()
     {
+        _attackCoolTimer -= Time.deltaTime; 
+        
         if(!_targetInfo.Target) return; //타겟이 있을 때만.
         if(_isAttacking) return;
         if(WeaponData.WeaponStat.isMelee) MeleeAttack();
@@ -224,53 +229,48 @@ public class PlayerWeapon : MonoBehaviour
         
         if(finalRange * finalRange < _targetInfo.SqrDistance) return; //범위 밖
         
-        if (_currentTimer > 0)
+        if (_attackCoolTimer > 0) return; //공격 쿨 타이머(무기 공격 속도 기준)
+
+        _isAttacking = true;
+        _animTimer = 0f;
+        meleeCollider.enabled = true;
+
+        _targetDist = MathF.Sqrt(_targetInfo.SqrDistance);//루트 연산(실제 거리)
+        transform.position = _center.position; //중앙으로
+            
+        //공격 유형
+        //None Sweep Thrust..
+        //특수한 공격(근접무기) 인 경우 None으로
+        _meleeRange = MathF.Max(MinMeleeRange, _targetDist - 1); //1유닛 여유(스프라이트 크기고려) -> 개선 방안?   
+        Vector3 dirToTarget = _targetInfo.Target.position - _center.position; //방향벡터
+        float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
+        hitbox.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
+
+        var (isCrit, damage) = CritDamage();
+            
+        WeaponEffectsSetExecute(); //무기 효과 실행효과 데이터 주입
+        _hitbox.AttackInit(damage, isCrit, _weaponEffects);
+            
+        var attackType = WeaponData.WeaponStat.attackType;
+        if (attackType == AttackType.Sweep)
         {
-            _currentTimer -= Time.deltaTime;
+            float halfAngle = sweepAngle / 2f;
+                
+                
+            if (Mathf.Abs(centerAngle) > 90f) //시작-끝 각도 계산(중심각 기준)
+            {
+                _startAngle = centerAngle - halfAngle;
+                _endAngle = centerAngle + halfAngle;
+            }
+            else
+            {
+                _startAngle = centerAngle + halfAngle;
+                _endAngle = centerAngle - halfAngle;
+            }
         }
-        else
+        else if (attackType == AttackType.Thrust)
         {
-            _isAttacking = true;
-            _animTimer = 0f;
-            meleeCollider.enabled = true;
-
-            _targetDist = MathF.Sqrt(_targetInfo.SqrDistance);//루트 연산(실제 거리)
-            transform.position = _center.position; //중앙으로
-            
-            //공격 유형
-            //None Sweep Thrust..
-            //특수한 공격(근접무기) 인 경우 None으로
-            _meleeRange = MathF.Max(MinMeleeRange, _targetDist - 1); //1유닛 여유(스프라이트 크기고려) -> 개선 방안?   
-            Vector3 dirToTarget = _targetInfo.Target.position - _center.position; //방향벡터
-            float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
-            hitbox.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
-
-            var (isCrit, damage) = CritDamage();
-            
-            WeaponEffectsSetExecute(); //무기 효과 실행효과 데이터 주입
-            _hitbox.AttackInit(damage, isCrit, _weaponEffects);
-            
-            var attackType = WeaponData.WeaponStat.attackType;
-            if (attackType == AttackType.Sweep)
-            {
-                float halfAngle = sweepAngle / 2f;
-                
-                
-                if (Mathf.Abs(centerAngle) > 90f) //시작-끝 각도 계산(중심각 기준)
-                {
-                    _startAngle = centerAngle - halfAngle;
-                    _endAngle = centerAngle + halfAngle;
-                }
-                else
-                {
-                    _startAngle = centerAngle + halfAngle;
-                    _endAngle = centerAngle - halfAngle;
-                }
-            }
-            else if (attackType == AttackType.Thrust)
-            {
-                transform.localRotation = Quaternion.Euler(0, 0, centerAngle); //타겟 조준
-            }
+            transform.localRotation = Quaternion.Euler(0, 0, centerAngle); //타겟 조준
         }
     }
 
@@ -284,7 +284,7 @@ public class PlayerWeapon : MonoBehaviour
         if (percent >= 1f)
         {
             _isAttacking = false;
-            _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
+            _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
             hitbox.localPosition = Vector3.zero;
@@ -318,47 +318,42 @@ public class PlayerWeapon : MonoBehaviour
             return;
         }
         
-        if (_currentTimer > 0)
-        {
-            _currentTimer -= Time.deltaTime;
-        }
-        else
-        {
-            //투사체 만큼 발사.
-            //투사체 각도!
-            var projectile = ObjectPoolingManager.Instance.GetProjectile();
-            projectile.transform.position = muzzle.position;//
-            var dir = _targetInfo.Target.position - muzzle.position;
+        if (_attackCoolTimer > 0) return; //공격 쿨 타이머(무기 공격 속도 기준)
+       
+        //투사체 만큼 발사.//투사체 각도!
+        var projectile = ObjectPoolingManager.Instance.GetProjectile();
+        projectile.transform.position = muzzle.position;//
+        var dir = _targetInfo.Target.position - muzzle.position;
             
-            WeaponEffectsSetExecute(); //무기효과: 실행 효과 데이터 주입
+        WeaponEffectsSetExecute(); //무기효과: 실행 효과 데이터 주입
             
-            var (isCrit, damage) = CritDamage(); //최종 데미지(치명 포함)
-            var projectileInitData = new ProjectileInitData //투사체 초기화 정보 
-            {
-                Damage = damage,
-                Piercing =  _piercing + _subStats[SubStats.Piercing], //무기 관통 + 관통 스탯
-                PiercingDmgPer =  _piercingDmgPer + _subStats[SubStats.PiercingDamage],//관통 데미지 + 스탯
-                Bounces = _bounces + _subStats[SubStats.Bounces], //무기 도탄 + 스탯
-                HitLayer = DataManager.Instance.PlayerHitboxLayer, //Layer : 플레이어 히트 박스
-                IsCrit = isCrit,
-                WeaponEffects = _weaponEffects //  효과 리스트
-            };
-            projectile.Initialize(projectileInitData);
-            projectile.Fire(dir, finalRange);
+        var (isCrit, damage) = CritDamage(); //최종 데미지(치명 포함)
+        var projectileInitData = new ProjectileInitData //투사체 초기화 정보 
+        {
+            Damage = damage,
+            Piercing =  _piercing + _subStats[SubStats.Piercing], //무기 관통 + 관통 스탯
+            PiercingDmgPer =  _piercingDmgPer + _subStats[SubStats.PiercingDamage],//관통 데미지 + 스탯
+            Bounces = _bounces + _subStats[SubStats.Bounces], //무기 도탄 + 스탯
+            HitLayer = DataManager.Instance.PlayerHitboxLayer, //Layer : 플레이어 히트 박스
+            IsCrit = isCrit,
+            WeaponEffects = _weaponEffects //  효과 리스트
+        };
+        projectile.Initialize(projectileInitData);
+        projectile.Fire(dir, finalRange);
 
-            _currentTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
-        }
+        _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
     }
 
     private void WeaponEffectsSetExecute()
     {
         for (int i = 0; i < _weaponEffects.Count; i++)
         {
-            List<float> currentExecuteValues = new();
-            
             var weaponEffect = _weaponEffects[i];
-            var weaponEffectData = WeaponData.WeaponEffectValues[i];
-            var effectValues = weaponEffectData.executeValuesList;
+            if(!weaponEffect.IsExecuteType) continue;
+            
+            List<float> currentExecuteValues = new();
+            var weaponEffectData = WeaponData.WeaponEffectDataList[i];
+            var effectValues = weaponEffectData.valuesList;
                 
             foreach (var effectValue in effectValues)
             {

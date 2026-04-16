@@ -1,11 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Hitbox : MonoBehaviour
 {
     //근접, 폭발 등 히트박스.(기본적으로 한번 공격 시 같은 적을 중복하여 피해를 주지않음)
-    private CapsuleCollider2D _collider;
+    public CapsuleCollider2D Collider {get; private set;}
     private int _damage;
     private bool _isCrit;
     private List<IWeaponEffect> _weaponEffects;
@@ -13,7 +14,7 @@ public class Hitbox : MonoBehaviour
     
     private void Awake()
     {
-        _collider = GetComponent<CapsuleCollider2D>();
+        Collider = GetComponent<CapsuleCollider2D>();
     }
     
     public void AttackInit(int damage, bool isCrit,List<IWeaponEffect> weaponEffects)
@@ -28,10 +29,18 @@ public class Hitbox : MonoBehaviour
     {
         transform.localScale = new Vector3(scale, scale, scale);
     }
+    //hitTarget 추가 메서드 -> 폭발무기 첫 적중 타겟은 폭발 피해에서 제외?or 지금 처럼 두번 데미지
+
+    public void AddHitTarget(IDamageable target) //폭발 등 이중으로 데미지가 들어가지 않도록 타겟 헤시셋에 추가
+    {
+        _hitTargets.Add(target);
+    }
+
+    public void HitboxStartRoutine(IEnumerator routine)
+    {
+        StartCoroutine(routine);
+    }
     
-    //구현필요 목록
-    //Lifetime -> 폭발 특정 시간 지나면 사라짐
-    //hitTarget 추가 메서드 -> 폭발무기 첫 적중 타겟은 폭발 피해에서 제외?
     
 
     private void OnTriggerEnter2D(Collider2D other)

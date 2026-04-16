@@ -6,13 +6,11 @@ using UnityEngine;
 public class Bounces : IWeaponEffect
 {
     private int _bounces;
-    public IWeaponEffect Clone()
-    {
-        return new Bounces();
-    }
-
+    public bool IsExecuteType => false;
+    
     public void Init(PlayerWeapon playerWeapon, List<float> value)
     {
+        if(value.Count < 1) return;
         _bounces = (int)value[0];
         playerWeapon.SetBounces(_bounces);
     }

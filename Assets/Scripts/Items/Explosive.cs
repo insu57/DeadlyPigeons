@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,11 +8,8 @@ public class Explosive : IWeaponEffect
 {
     private float _explosionSize;
     private int _damage;
-    
-    public IWeaponEffect Clone()
-    {
-        return new Explosive();
-    }
+
+    public bool IsExecuteType => true;
 
     public void Init(PlayerWeapon playerWeapon, List<float> value) { }
     
@@ -22,6 +20,7 @@ public class Explosive : IWeaponEffect
     public void SetExecuteData(PlayerWeapon playerWeapon, List<float> values)
     {
         //폭발 크기 배율
+        if(values.Count < 1) return;
         _explosionSize = values[0];
         _explosionSize *= 1f + playerWeapon.GetStat(SubStats.ExplosiveSize) / 100f;
         _damage = Mathf.FloorToInt(playerWeapon.FinalDamage
@@ -31,11 +30,21 @@ public class Explosive : IWeaponEffect
     public void Execute(IDamageable damageable)
     {
         //착탄 시 폭발 오브젝트 활성.
-        //Debug.Log("Explosive");
         var explosion = ObjectPoolingManager.Instance.GetExplosion(_damage, _explosionSize / 100f);
-        explosion.transform.position = damageable.GetTransform().position;
+        explosion.AddHitTarget(damageable); //예외 타겟(무기가 적중한 타겟은 제외)
+        explosion.Collider.enabled = true; //그리고 Collider 활성화
+        explosion.transform.position = damageable.GetTransform().position; //폭발 지점
+        explosion.HitboxStartRoutine(ExplosionCoroutine(explosion)); //0.5초 후 사라짐
+        //점에서 퍼지는 효과 추가?
     }
 
+    private IEnumerator ExplosionCoroutine(Hitbox explosion)
+    {
+        yield return new WaitForSeconds(0.5f);
+        
+        ObjectPoolingManager.Instance.ReleaseExplosion(explosion);
+    }
+    
     public void AttackEnd()
     {
         throw new NotImplementedException();

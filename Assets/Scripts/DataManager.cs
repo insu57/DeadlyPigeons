@@ -7,7 +7,7 @@ public class DataManager : Singleton<DataManager>
     public List<CharacterData> CharList { get; } = new();
     public Dictionary<int, WeaponData> WeaponDict { get; } = new();
     public List<WeaponData> WeaponList { get; } = new();
-    public Dictionary<WeaponClasses, List<WeaponClassEffect>> WeaponClassBonusDict { get; } = new();
+    public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
     
     public Dictionary<int, string> TierColorDict { get; } = new();
@@ -49,8 +49,8 @@ public class DataManager : Singleton<DataManager>
             WeaponList.Add(wData);
         }
 
-        var weaponClassData = Resources.LoadAll<WeaponClassEffectData>("")[0];
-        foreach (var weaponClassValue in weaponClassData.WeaponClassEffects)
+        var weaponClassData = Resources.LoadAll<WeaponClassBonusData>("")[0];
+        foreach (var weaponClassValue in weaponClassData.WeaponClassBonusValues)
         {
             var weaponClass = weaponClassValue.weaponClass;
             WeaponClassBonusDict[weaponClass] = weaponClassValue.statsValues;

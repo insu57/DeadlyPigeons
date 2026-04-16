@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,10 +12,11 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset characterCSV;
     [SerializeField] private TextAsset weaponCSV;
     [SerializeField] private TextAsset weaponClassCSV;
+    [SerializeField] private TextAsset weaponEffectCSV;
     
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
     [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
-    [SerializeField] private WeaponClassEffectData classEffectData;
+    [FormerlySerializedAs("classEffectData")] [SerializeField] private WeaponClassBonusData classBonusData;
     
     [ContextMenu("Sync Character Data")]
     public void SyncCharDataFromCSV()
@@ -320,8 +322,116 @@ public class DataSync : MonoBehaviour
         Debug.Log("Weapon Data Updated " + weaponUpdateCount + "/" + weapons.Length);
     }
 
-    [ContextMenu("Sync WeaponClasses Effect Data")]
-    public void SyncWeaponClassEffectFromCSV()
+    [ContextMenu("Sync Weapon Effect Data")]
+    public void SyncWeaponEffectFromCSV()
+    {
+        WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
+        string[] lines = weaponEffectCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> csvDict = new();
+        List<string[]> csvList = new();
+        Dictionary<int, List<WeaponEffectData>> effectDataDict = new(); //id : effectData list
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            
+            int id = int.Parse(rowData[0]);
+
+            csvDict[id] = rowData;
+            csvList.Add(rowData);
+        }
+        
+        const int maxParameters = 3;
+
+        foreach (var rowData in csvList)
+        {
+            int id = int.Parse(rowData[0]);
+            
+            var effectTypeStr = rowData[3];
+            var effectType = WeaponData.StringToEffectType(effectTypeStr);
+            if(effectType == WeaponEffectType.None) continue;
+            
+            var weaponEffectData = new WeaponEffectData();
+            List<WeaponEffectValues> effectValues = new();
+
+            weaponEffectData.effectType = effectType;
+            weaponEffectData.valuesList = effectValues;
+
+            int currentColIdx = 5;//해당 WeaponEffectData 시트 참조. 파라미터 시작 열
+            
+            for (int i = 0; i < maxParameters; i++)
+            {
+                int valueIdx = currentColIdx + i * 3;
+                if (valueIdx >= rowData.Length || string.IsNullOrEmpty(rowData[valueIdx]))
+                    break;
+
+                List<float> values = new();
+                var strArr = rowData[valueIdx].Split('|');
+                foreach (var str in strArr)
+                {
+                    if (float.TryParse(str, out var value))
+                    {
+                        values.Add(value);
+                    }
+                }
+                var effectValue = new WeaponEffectValues();
+                effectValue.values = values;
+
+                var statStr = rowData[valueIdx + 1];
+                var mainStat = statStr.StringToMainStats();
+                var subStat = statStr.StringToSubStats();
+                effectValue.mainStat = mainStat;
+                effectValue.subStat = subStat;
+
+                strArr = rowData[valueIdx + 2].Split('|');
+                List<int> multipliers = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var multiplier))
+                    {
+                        multipliers.Add(multiplier);
+                    }
+                }
+                effectValue.multipliers = multipliers;
+                effectValues.Add(effectValue);
+            }
+            
+           
+            Debug.Log($"ID:{id} , effectValues count:{effectValues.Count}");
+            
+            if (effectDataDict.ContainsKey(id))
+            {
+                effectDataDict[id].Add(weaponEffectData);
+            }
+            else
+            {
+                List<WeaponEffectData> effectDataList = new() { weaponEffectData };
+                effectDataDict[id] = effectDataList;
+                
+            }
+        }
+        int weaponEffectUpdateCount = 0;
+        foreach (var weaponData in weapons)
+        {
+            if (effectDataDict.TryGetValue(weaponData.ID, out var effectDataList))
+            {
+#if UNITY_EDITOR
+                Debug.Log(weaponData.Name + ' ' + effectDataList.Count);
+                
+                weaponData.SetWeaponEffectData(effectDataList);
+                weaponEffectUpdateCount++;
+                
+                EditorUtility.SetDirty(weaponData);
+#endif
+            }
+        }
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Weapon Effect Data Updated " + weaponEffectUpdateCount);
+    }
+
+    [ContextMenu("Sync WeaponClasses Bonus Data")]
+    public void SyncWeaponClassBonusFromCSV()
     {
         string[] lines = weaponClassCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
         Dictionary<string, string[]> csvDict = new();
@@ -335,7 +445,7 @@ public class DataSync : MonoBehaviour
             csvDict[className] = rowData;
         }
 
-        List<WeaponClassKeyValue> effects = new();
+        List<WeaponClassBonusValue> effects = new();
         
         foreach (var (className, rowData) in csvDict)
         {
@@ -346,7 +456,7 @@ public class DataSync : MonoBehaviour
             int colsPerEffect = 6;
             int maxEffects = 3;
             
-            List<WeaponClassEffect> effectStats = new();
+            List<WeaponClassBonus> effectStats = new();
             for (int i = 0; i < maxEffects; i++)
             {
                 int statIdx = startIdx + i * colsPerEffect;
@@ -354,7 +464,7 @@ public class DataSync : MonoBehaviour
                     break;
 
                 string statString = rowData[statIdx].Trim();
-                var effectStatValue = new WeaponClassEffect();
+                var effectStatValue = new WeaponClassBonus();
                 
                 if (statString.StringToMainStats() != MainStats.None)
                 {
@@ -386,7 +496,7 @@ public class DataSync : MonoBehaviour
                 effectStats.Add(effectStatValue);
             }
 
-            var weaponClassValue = new WeaponClassKeyValue
+            var weaponClassValue = new WeaponClassBonusValue
             {
                 weaponClass = weaponClass,
                 statsValues = effectStats
@@ -396,8 +506,8 @@ public class DataSync : MonoBehaviour
         }
         
 #if UNITY_EDITOR
-        classEffectData.SyncCSVData(effects);
-        EditorUtility.SetDirty(classEffectData);
+        classBonusData.SyncCSVData(effects);
+        EditorUtility.SetDirty(classBonusData);
         AssetDatabase.SaveAssets();
 #endif
         Debug.Log("Sync WeaponClass Data");

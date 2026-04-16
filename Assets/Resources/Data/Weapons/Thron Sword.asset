@@ -37,11 +37,8 @@ MonoBehaviour:
     knockBack: 000000000000000000000000
     healthAbsorb: 000000000000000000000000
     prices: 2d0000005a000000c8000000
-    piercing: 
     description: 
-  effects: []
-  effect:
-    rid: -2
+  <WeaponEffectValues>k__BackingField: []
   <SpriteScale>k__BackingField: {x: 0.3, y: 0.3, z: 0.3}
   <SpriteOffset>k__BackingField: {x: 0.491, y: -0.003, z: 0}
   <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 315}
@@ -50,6 +47,4 @@ MonoBehaviour:
   <ColliderSize>k__BackingField: {x: 2.031668, y: 0.16593273}
   references:
     version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    RefIds: []

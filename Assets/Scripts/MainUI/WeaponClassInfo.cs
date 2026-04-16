@@ -63,7 +63,7 @@ public class WeaponClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExit
         infoText2.SetText(sb);
     }
 
-    private void GetClassEffectTxt(StringBuilder sb, List<WeaponClassEffect> effectList, int bonus)
+    private void GetClassEffectTxt(StringBuilder sb, List<WeaponClassBonus> effectList, int bonus)
     {
         var statNameList = new List<string>();
         foreach (var effect in effectList)

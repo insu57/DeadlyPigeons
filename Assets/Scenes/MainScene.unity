@@ -4500,9 +4500,10 @@ MonoBehaviour:
   characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
   weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
   weaponClassCSV: {fileID: 4900000, guid: ed665054a62c4334b9c6e3de070b6dcf, type: 3}
+  weaponEffectCSV: {fileID: 4900000, guid: d456cfa96ce45a644b76f47b44f4f443, type: 3}
   charPath: Assets/Sprites/Characters/
   weaponPath: Assets/Sprites/Weapons/
-  classEffectData: {fileID: 11400000, guid: cbdb069c4bd70e04c9575ca0a9848c9f, type: 2}
+  classBonusData: {fileID: 11400000, guid: cbdb069c4bd70e04c9575ca0a9848c9f, type: 2}
 --- !u!4 &1255188287
 Transform:
   m_ObjectHideFlags: 0

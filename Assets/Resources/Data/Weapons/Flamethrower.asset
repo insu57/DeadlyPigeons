@@ -38,15 +38,11 @@ MonoBehaviour:
     healthAbsorb: 000000000000000000000000
     prices: 3800000067000000cf000000
     description: "\uD654\uC5FC\uBC29\uC0AC\uAE30. \uC124\uBA85\uC740 \uC5B4\uB5BB\uAC8C???"
-  <Effects>k__BackingField: []
-  <WeaponEffectValues>k__BackingField:
-  - effect:
-      rid: 3867232216674467926
-    effectType: 0
-    initValuesList: []
-    executeValuesList:
+  <WeaponEffectDataList>k__BackingField:
+  - effectType: 0
+    valuesList:
     - values:
-      - 2
+      - 1
       - 3
       - 5
       mainStat: 17
@@ -59,10 +55,8 @@ MonoBehaviour:
       mainStat: 9
       subStat: 13
       multipliers: 640000006400000064000000
-  - effect:
-      rid: 3867232216674467949
-    effectType: 2
-    initValuesList:
+  - effectType: 2
+    valuesList:
     - values:
       - 99
       - 99
@@ -71,25 +65,15 @@ MonoBehaviour:
       subStat: 13
       multipliers: 
     - values:
-      - 100
-      - 100
-      - 100
+      - 0
+      - 0
+      - 0
       mainStat: 17
       subStat: 13
       multipliers: 
-    executeValuesList: []
   <SpriteScale>k__BackingField: {x: 0.07, y: 0.07, z: 0.07}
   <SpriteOffset>k__BackingField: {x: 0.354, y: 0.037, z: 0}
   <SpriteAngle>k__BackingField: {x: -0, y: 0, z: 0}
   <MuzzleOffset>k__BackingField: {x: 0.843, y: 0.113, z: 0}
   <ColliderOffset>k__BackingField: {x: 0.45274442, y: 0.0111977225}
   <ColliderSize>k__BackingField: {x: 1.2207788, y: 0.29929486}
-  references:
-    version: 2
-    RefIds:
-    - rid: 3867232216674467926
-      type: {class: Burning, ns: , asm: Assembly-CSharp}
-      data: 
-    - rid: 3867232216674467949
-      type: {class: Piercing, ns: , asm: Assembly-CSharp}
-      data: 
