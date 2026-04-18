@@ -10,13 +10,16 @@ using UnityEditor;
 public class DataSync : MonoBehaviour
 {
     [SerializeField] private TextAsset characterCSV;
+    [SerializeField] private TextAsset charPassiveCSV;
+    [SerializeField] private TextAsset itemCSV;
     [SerializeField] private TextAsset weaponCSV;
     [SerializeField] private TextAsset weaponClassCSV;
     [SerializeField] private TextAsset weaponEffectCSV;
     
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
+    [SerializeField] private string itemPath = "Assets/Sprites/Items/";
     [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
-    [FormerlySerializedAs("classEffectData")] [SerializeField] private WeaponClassBonusData classBonusData;
+    [SerializeField] private WeaponClassBonusData classBonusData;
     
     [ContextMenu("Sync Character Data")]
     public void SyncCharDataFromCSV()
@@ -68,7 +71,7 @@ public class DataSync : MonoBehaviour
                 
                 foreach (var str in statStrArray)
                 {
-                    Debug.Log(str);
+                    
                     string[] stat = str.Split(':');
                     
                     string statStr = stat[0];
@@ -128,6 +131,151 @@ public class DataSync : MonoBehaviour
         AssetDatabase.SaveAssets();
 #endif
         Debug.Log("Character Data Updated: " + charUpdateCount + "/" + characters.Length);
+    }
+
+    [ContextMenu("Sync Item Data")]
+    public void SyncItemDataFromCSV()
+    {
+        if (!charPassiveCSV || !itemCSV)
+        {
+            Debug.LogError("Item CSV Error : null");
+            return;
+        }
+
+        ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
+        
+        // 캐릭터 패시브 CSV 파싱 준비
+        string[] passiveLines = charPassiveCSV.text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> passiveDict = new();
+        for (int i = 2; i < passiveLines.Length; i++)
+        {
+            string[] rowData = passiveLines[i].Split(',');
+            if (int.TryParse(rowData[0], out int id))
+            {
+                passiveDict[id] = rowData;
+            }
+        }
+
+        // 일반 아이템 CSV 파싱 준비
+        string[] itemLines = itemCSV.text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> itemDict = new();
+        for (int i = 2; i < itemLines.Length; i++)
+        {
+            string[] rowData = itemLines[i].Split(',');
+            if (int.TryParse(rowData[0], out int id))
+            {
+                itemDict[id] = rowData;
+            }
+        }
+
+        int itemUpdateCount = 0;
+
+        foreach (var so in items)
+        {
+            string[] rowData = null;
+            bool isFound = false;
+
+            ItemStat itemStat = new();
+            string itemSpritePath = null;
+            if (passiveDict.TryGetValue(so.ID, out rowData))
+            {
+                isFound = true;
+                itemSpritePath = $"{charPath}{so.ID}.png";
+                // TODO: 캐릭터 패시브 데이터 파싱 로직
+                itemStat.itemName =  rowData[1];
+                itemStat.tier = 1; //패시브는 티어 1로
+                int idx = 3;
+                List<StatAmount> values = new();
+                List<StatAmount> multipliers = new();
+                for (int i = 0; i < 5; i++)
+                {
+                    int curIdx = idx + i * 3;
+                    if(curIdx >= rowData.Length || string.IsNullOrEmpty(rowData[curIdx]))
+                        break;
+                    
+                    var statStr = rowData[curIdx];
+                    var mainStat = statStr.StringToMainStats();
+                    var subStat = statStr.StringToSubStats();
+                    int amount = int.Parse(rowData[curIdx+1]);
+                    var statAmount = new StatAmount
+                    {
+                        mainStat = mainStat,
+                        subStat = subStat,
+                        amount = amount,
+                    };
+                    bool isMultiplier = bool.Parse(rowData[curIdx+2]);
+                    if (isMultiplier)
+                    {
+                        multipliers.Add(statAmount);
+                    }
+                    else
+                    {
+                        values.Add(statAmount);
+                    }
+                }
+                
+                itemStat.statMultipliers = multipliers;
+                itemStat.statValues = values;
+                itemStat.description = rowData[17];
+            }
+            else if (itemDict.TryGetValue(so.ID, out rowData))
+            {
+                isFound = true;
+                itemSpritePath = $"{itemPath}{so.ID}.png";
+                // TODO: 일반 아이템 데이터 파싱 로직
+                itemStat.itemName = rowData[1];
+                itemStat.tier = int.Parse(rowData[2]);
+                int idx = 2;
+                List<StatAmount> values = new();
+                for (int i = 0; i < 5; i++)
+                {
+                    int curIdx = idx + i * 2;
+                    if(curIdx >= rowData.Length || string.IsNullOrEmpty(rowData[curIdx]))
+                        break;
+                    
+                    var statStr = rowData[curIdx];
+                    var mainStat = statStr.StringToMainStats();
+                    var subStat = statStr.StringToSubStats();
+                    int amount = int.Parse(rowData[curIdx+1]);
+                    var statAmount = new StatAmount
+                    {
+                        mainStat = mainStat,
+                        subStat = subStat,
+                        amount = amount,
+                    };
+                    values.Add(statAmount);
+                }
+                itemStat.statValues = values;
+                itemStat.description = rowData[13];
+            }
+
+            if (isFound)
+            {
+                
+#if UNITY_EDITOR
+                // TODO: 파싱된 데이터를 기반으로 so.SyncItemData 호출
+                Sprite itemSprite = AssetDatabase.LoadAssetAtPath<Sprite>(itemSpritePath);
+                if (!itemSprite)
+                {
+                    Debug.LogError("Item Sprite Not Found : " + so.ID);
+                }
+                
+                so.SyncItemData(itemStat);
+                
+                itemUpdateCount++;
+                EditorUtility.SetDirty(so);
+#endif
+            }
+            else
+            {
+                Debug.LogError("Item Data Not Found : " + so.ID);
+            }
+        }
+
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Item Data Updated: " + itemUpdateCount + "/" + items.Length);
     }
 
     [ContextMenu("Sync Weapon Data")]
