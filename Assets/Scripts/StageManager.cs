@@ -47,6 +47,7 @@ public class StageManager : MonoBehaviour
             {
                 CharID = testChar.ID,
                 WeaponIDList = new List<int>(),
+                ItemIDList = new List<int>(),
                 StageID = testStage
             };
 
@@ -62,10 +63,15 @@ public class StageManager : MonoBehaviour
         {
             weapons.Add(DataManager.Instance.WeaponDict[weaponID]);
         }
+        List<ItemData> items = new();
+        foreach (var itemID in _playerSelected.ItemIDList)
+        {
+            items.Add(DataManager.Instance.ItemDict[itemID]);
+        }
         
         var stage = _playerSelected.StageID;
         
-        _playerManager.InitStatWeapons(charData, weapons);
+        _playerManager.InitStatWeapons(charData,items, weapons);
         
         sb.AppendLine($"Stage: {stage}");
         sb.AppendLine($"Character: {charData.CharacterName}");

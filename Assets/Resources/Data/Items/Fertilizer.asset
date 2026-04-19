@@ -10,11 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71afd9bdc0eed074aa9bfd80d7950b70, type: 3}
-  m_Name: ItemData
+  m_Name: Fertilizer
   m_EditorClassIdentifier: 
-  <ID>k__BackingField: 0
-  <ItemName>k__BackingField: 
+  <ID>k__BackingField: 4002
+  <ItemName>k__BackingField: "\uBE44\uB8CC\uD3EC\uB300"
   <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
-  <StatValues>k__BackingField: []
+  <Icon>k__BackingField: {fileID: 21300000, guid: ee395a6163e05b1449fc0fb13bd95b1c, type: 3}
+  <StatValues>k__BackingField:
+  - mainStat: 5
+    subStat: 13
+    amount: -5
+  - mainStat: 16
+    subStat: 13
+    amount: 5
   <StatMultipliers>k__BackingField: []

@@ -13,6 +13,7 @@ using Random = UnityEngine.Random;
 public class PlayerSelected
 {
     public int CharID;
+    public List<int> ItemIDList = new();
     public List<int> WeaponIDList = new();
     public int StageID;//?
 }
@@ -175,21 +176,40 @@ public class SelectWindow : MonoBehaviour
         var charData = DataManager.Instance.CharDict[charID];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
+        var passiveData = DataManager.Instance.ItemDict[charID];
 
         sb.Clear();
-        var passive = charData.InitStatsList; //초기 스탯(패시브) -> 패시브 아이템으로 변경?
-        foreach (var init in passive)
+
+        foreach (var statAmount in passiveData.StatMultipliers)
         {
-            if (init.mainStats != MainStats.None)
+            if (statAmount.mainStat != MainStats.None)
             {
-                sb.Append(init.mainStats.GetIcons()); //스탯 아이콘
-                sb.AppendColorString(init.amount); //증감량
-                sb.AppendLine(init.mainStats.MainStatsToString()); //해당 스탯명
+                sb.Append(statAmount.mainStat.GetIcons()).Append(' '); //스탯 아이콘
+                string mainStat = statAmount.mainStat.MainStatsToString();
+                sb.AppendMultiplier(mainStat, statAmount.amount);
+                sb.AppendLine();
             }
-            else if (init.subStats != SubStats.None)
+            else if (statAmount.subStat != SubStats.None)
             {
-                sb.AppendColorString(init.amount);
-                sb.AppendLine(init.subStats.SubStatsToString());
+                sb.Append(statAmount.subStat.SubStatsToString()).Append(' ');
+                string subStat = statAmount.subStat.SubStatsToString();
+                sb.AppendMultiplier(subStat, statAmount.amount);
+                sb.AppendLine();
+            }
+        }
+
+        foreach (var statAmount in passiveData.StatValues)
+        {
+            if (statAmount.mainStat != MainStats.None)
+            {
+                sb.Append(statAmount.mainStat.GetIcons()); //스탯 아이콘
+                sb.AppendColorString(statAmount.amount); //증감량
+                sb.AppendLine(statAmount.mainStat.MainStatsToString()); //해당 스탯명
+            }
+            else if (statAmount.subStat != SubStats.None)
+            {
+                sb.AppendColorString(statAmount.amount);
+                sb.AppendLine(statAmount.subStat.SubStatsToString());
             }
         }
 
@@ -271,63 +291,6 @@ public class SelectWindow : MonoBehaviour
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
         weaponPanel.ShowInfo(weaponData, sb);
-        
-        /*
-        sb.Clear();
-
-        weaponName.text = weaponData.Name;
-        weaponImg.sprite = weaponData.Sprite;
-        
-        //무기의 스탯은 초기 티어기준으로.
-        var tier = weaponData.WeaponStat.initTier;
-        var colorHexStr = DataManager.Instance.TierColorDict[tier]; //티어 컬러 가져오기
-        var color = DataManager.Instance.GetHexToColor(colorHexStr);
-        weaponName.color = color;
-        weaponPanelBorder.color = color;
-        
-        var weaponClass = weaponData.WeaponStat.classes;
-        sb.Append(WeaponData.WeaponClassToString(weaponClass[0])); //첫 클래스
-        for (int i = 1; i < weaponClass.Count; i++) //하나 이상의 클래스를 가진 무기라면
-        {
-            sb.Append(", ").Append(WeaponData.WeaponClassToString(weaponClass[i]));
-        } 
-        weaponClasses.SetText(sb);
-        sb.Clear();
-        
-        sb.AppendHeadString("데미지:");
-        sb.Append(weaponData.WeaponStat.baseDamage[0]).Append(" ("); //기본 데미지
-        foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers) //스탯 별 데미지 계수
-        {
-            var stat = statMultiplier.stat;
-            var value = statMultiplier.value[0];
-            sb.Append("+").Append(value).Append("%").Append(stat.GetIcons());
-        }
-        sb.AppendLine(")");
-        
-        sb.AppendHeadString("치명타:");
-        sb.Append("X").Append(weaponData.WeaponStat.critDamage[0]);
-        sb.Append(" (").Append(weaponData.WeaponStat.critChance[0]).AppendLine("% 확률)");
-        
-        sb.AppendHeadString("쿨타운:");
-        sb.Append(weaponData.WeaponStat.attackSpeed[0]).AppendLine("s");
-        
-        var knockback = weaponData.WeaponStat.knockBack[0];
-        if (knockback > 0)
-        {
-            sb.AppendHeadString("넉백:");
-            sb.Append(knockback).AppendLine();
-        }
-        
-        sb.AppendHeadString("범위:");
-        sb.Append(weaponData.WeaponStat.range[0]).Append("(");
-        sb.AppendLine(weaponData.WeaponStat.isMelee ? "근거리)" : "원거리)");
-
-        sb.Append("•").AppendLine(weaponData.WeaponStat.description); 
-        //고유 효과 -> 데이터는 어떤방식으로???
-        // 최소 0개(없음부터) ~ 5?개(상한은 없이?) - 티어 수 만큼의 스탯 배수값...
-        
-        
-        weaponDescription.SetText(sb);*/
     }
 
 
@@ -397,7 +360,8 @@ public class SelectWindow : MonoBehaviour
     private void LoadMain(int charID, int weaponID, int stage)
     {
         PlayerSelected.CharID = charID;
-        //개선필요.
+        //개선필요??
+        PlayerSelected.ItemIDList.Add(charID);
         PlayerSelected.WeaponIDList.Add(weaponID);
         PlayerSelected.StageID = stage;
         

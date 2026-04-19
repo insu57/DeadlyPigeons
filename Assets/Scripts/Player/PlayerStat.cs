@@ -14,8 +14,11 @@ public class PlayerStat : MonoBehaviour, IDamageable
     [field: SerializeField] private int currentHP;
     [field: SerializeField] private int money;
     [field: SerializeField] private int defaultMaxHP = 10;
-    private Dictionary<MainStats, int> _defaultMainStats = new();
-    private Dictionary<SubStats, int> _defaultSubStats = new();
+    private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
+    private readonly Dictionary<MainStats, int> _mainStatMultiDict = new();
+    private readonly Dictionary<MainStats, int> _finalMainStatDict = new();
+    private readonly Dictionary<SubStats, int> _subStatDict = new();
+   
     //체력회복은 초당 얼만큼?? 1부터 ~, 패시브, 아이템 등으로 깎인다면? -> 두 개는 별개로?
     public event Action<MainStats, int> OnChangeMainStats;
     public event Action<SubStats, int> OnChangeSubStats;
@@ -25,58 +28,82 @@ public class PlayerStat : MonoBehaviour, IDamageable
         currentLevel = 1;
     }
 
-    public void InitStat(CharacterData charData)
+    public void InitStat()
     {
         for (int i = 0; i < (int)MainStats.None; i++) //None -> 마지막 항목
         {
             MainStats mainStat = (MainStats)i;
-            _defaultMainStats.Add(mainStat, 0);
+            _baseMainStatDict.Add(mainStat, 0);
+            _mainStatMultiDict.Add(mainStat, 0);
+            _finalMainStatDict.Add(mainStat, 0);
         }
-
+        
         for (int i = 0; i < (int)SubStats.None; i++)
         {
             SubStats subStat = (SubStats)i;
-            _defaultSubStats.Add(subStat, 0);
+            _subStatDict.Add(subStat, 0);
         }
         
-        _defaultMainStats[MainStats.MaxHP] = defaultMaxHP; //기본 최대 체력
+        _baseMainStatDict[MainStats.MaxHP] = defaultMaxHP; //기본 최대 체력
         currentHP = defaultMaxHP;
         
-        var initStatsList = charData.InitStatsList;
-
-        foreach (var initStat in initStatsList) //패시브 적용. 아이템으로 변경 시 달라짐.
-        {
-            if (initStat.mainStats != MainStats.None)
-            {
-                _defaultMainStats[initStat.mainStats] += initStat.amount;
-            }
-            else if (initStat.subStats != SubStats.None)
-            {
-                _defaultSubStats[initStat.subStats] += initStat.amount;
-            }
-        }
-
-        foreach (var (mainStat, value) in _defaultMainStats)
+        foreach (var (mainStat, value) in _baseMainStatDict)
         {
             OnChangeMainStats?.Invoke(mainStat, value);
         }
 
-        foreach (var (subStat, value) in _defaultSubStats)
+        foreach (var (subStat, value) in _subStatDict)
         {
             OnChangeSubStats?.Invoke(subStat, value);
         }
     }
 
+    public void AddItem(ItemData itemData)
+    {
+        if (itemData.StatMultipliers != null) //스탯 배수
+        {
+            foreach (var statAmount in itemData.StatMultipliers)
+            {
+                if(statAmount.mainStat == MainStats.None) continue;
+                _mainStatMultiDict[statAmount.mainStat] += statAmount.amount;
+                UpdateStat(statAmount.mainStat, 0);
+            }
+        }
+
+        if (itemData.StatValues != null)
+        {
+            foreach (var statAmount in itemData.StatValues)
+            {
+                if (statAmount.mainStat != MainStats.None)
+                {
+                    UpdateStat(statAmount.mainStat, statAmount.amount);
+                }
+                else if (statAmount.subStat != SubStats.None)
+                {
+                    UpdateStat(statAmount.subStat, statAmount.amount);
+                }
+            }
+        }
+    }
+    
     public void UpdateStat(MainStats mainStats, int amount)
     {
-        _defaultMainStats[mainStats] += amount;
-        OnChangeMainStats?.Invoke(mainStats, _defaultMainStats[mainStats]);
+        _baseMainStatDict[mainStats] += amount;
+        int currentAmount =  _baseMainStatDict[mainStats];
+        int multiplier = _mainStatMultiDict[mainStats];
+        _finalMainStatDict[mainStats] = Mathf.FloorToInt(currentAmount * (1f + multiplier / 100f));
+        if(mainStats== MainStats.MaxHP)
+        {
+            Debug.Log("MaxHP:" + _baseMainStatDict[mainStats]);
+            Debug.Log($"{mainStats}: {_finalMainStatDict[mainStats]}");
+        }
+        OnChangeMainStats?.Invoke(mainStats, _finalMainStatDict[mainStats]);
     }
 
     public void UpdateStat(SubStats subStats, int amount)
     {
-        _defaultSubStats[subStats] += amount;
-        OnChangeSubStats?.Invoke(subStats, _defaultSubStats[subStats]);
+        _subStatDict[subStats] += amount;
+        OnChangeSubStats?.Invoke(subStats, _subStatDict[subStats]);
     }
 
     public void SyncStatData()
@@ -84,13 +111,13 @@ public class PlayerStat : MonoBehaviour, IDamageable
         for (int i = 0; i < (int)MainStats.None; i++)
         {
             var mainStat = (MainStats)i;
-            OnChangeMainStats?.Invoke(mainStat, _defaultMainStats[mainStat]);
+            OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
         }
 
         for (int i = 0; i < (int)SubStats.None; i++)
         {
             var subStat = (SubStats)i;
-            OnChangeSubStats?.Invoke(subStat, _defaultSubStats[subStat]);
+            OnChangeSubStats?.Invoke(subStat, _subStatDict[subStat]);
         }
     }
     

@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
+    //Items
+    [field: SerializeField] private List<ItemData> itemDataList;
+    
     //Weapons
     [field: SerializeField] private List<GameObject> weaponParents;
     [field: SerializeField] private List<PlayerWeapon> playerWeapons;
@@ -37,13 +40,23 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
 
-    public void InitStatWeapons(CharacterData charData, List<WeaponData> weapons)
+    public void InitStatWeapons(CharacterData charData, List<ItemData> items, List<WeaponData> weapons)
     {
         Debug.Log("InitStat");
-        _playerStat.InitStat(charData);
+        _playerStat.InitStat();
+        foreach (var itemData in items)
+        {
+            AddItem(itemData);
+        }
         InitWeapons(weapons);
     }
 
+    private void AddItem(ItemData itemData)
+    {
+        itemDataList.Add(itemData);
+        _playerStat.AddItem(itemData);
+    }
+    
     private void InitWeapons(List<WeaponData> initWeaponList)
     {
         for (int i = 0; i < _weaponSlotCount; i++) //무기 슬롯 초기화.

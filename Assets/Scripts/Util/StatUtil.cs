@@ -198,6 +198,29 @@ public static class StatUtil
         else sb.Append(0);
     }
 
+    public static void AppendMultiplier(this StringBuilder sb, string stat, int value)
+    {
+        if (value > 0)
+        {
+            sb.Append(" <color=").Append(GreenColor).Append(">");
+            sb.Append(stat);
+            sb.Append("</color> amount of change increased by");
+            sb.Append(" <color=").Append(GreenColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color> ");
+        }
+        else if (value < 0)
+        {
+            sb.Append(" <color=").Append(GreenColor).Append(">");
+            sb.Append(stat);
+            sb.Append("</color> amount of change decreased by");
+            sb.Append(" <color=").Append(RedColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color> ");
+        }
+        else sb.Append(0);
+    }
+    
     public static void AppendHeadString(this StringBuilder sb, string txt)
     {
         sb.Append("<color=").Append(YellowColor).Append(">");

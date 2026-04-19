@@ -13,8 +13,21 @@ MonoBehaviour:
   m_Name: Doro_passive
   m_EditorClassIdentifier: 
   <ID>k__BackingField: 1003
-  <ItemName>k__BackingField: 
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
-  <StatValues>k__BackingField: []
-  <StatMultipliers>k__BackingField: []
+  <ItemName>k__BackingField: DORO
+  <Description>k__BackingField: "\uCD5C\uB300\uCCB4\uB82550% \uC18D\uB3C450% \uADFC\uAC70\uB9AC
+    +5"
+  <Icon>k__BackingField: {fileID: -2245382313370318542, guid: ef7ae709b4802104c9505a8e429dcbd6, type: 3}
+  <StatValues>k__BackingField:
+  - mainStat: 8
+    subStat: 13
+    amount: -15
+  - mainStat: 7
+    subStat: 13
+    amount: 5
+  <StatMultipliers>k__BackingField:
+  - mainStat: 0
+    subStat: 13
+    amount: 50
+  - mainStat: 5
+    subStat: 13
+    amount: 50

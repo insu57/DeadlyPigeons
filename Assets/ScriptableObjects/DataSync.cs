@@ -147,6 +147,7 @@ public class DataSync : MonoBehaviour
         // 캐릭터 패시브 CSV 파싱 준비
         string[] passiveLines = charPassiveCSV.text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
         Dictionary<int, string[]> passiveDict = new();
+        
         for (int i = 2; i < passiveLines.Length; i++)
         {
             string[] rowData = passiveLines[i].Split(',');
@@ -184,7 +185,7 @@ public class DataSync : MonoBehaviour
                 // TODO: 캐릭터 패시브 데이터 파싱 로직
                 itemStat.itemName =  rowData[1];
                 itemStat.tier = 1; //패시브는 티어 1로
-                int idx = 3;
+                int idx = 2;
                 List<StatAmount> values = new();
                 List<StatAmount> multipliers = new();
                 for (int i = 0; i < 5; i++)
@@ -225,7 +226,7 @@ public class DataSync : MonoBehaviour
                 // TODO: 일반 아이템 데이터 파싱 로직
                 itemStat.itemName = rowData[1];
                 itemStat.tier = int.Parse(rowData[2]);
-                int idx = 2;
+                int idx = 3;
                 List<StatAmount> values = new();
                 for (int i = 0; i < 5; i++)
                 {
@@ -236,6 +237,7 @@ public class DataSync : MonoBehaviour
                     var statStr = rowData[curIdx];
                     var mainStat = statStr.StringToMainStats();
                     var subStat = statStr.StringToSubStats();
+                    Debug.Log(rowData[curIdx+1]);
                     int amount = int.Parse(rowData[curIdx+1]);
                     var statAmount = new StatAmount
                     {
@@ -259,7 +261,7 @@ public class DataSync : MonoBehaviour
                 {
                     Debug.LogError("Item Sprite Not Found : " + so.ID);
                 }
-                
+                itemStat.icon = itemSprite;
                 so.SyncItemData(itemStat);
                 
                 itemUpdateCount++;

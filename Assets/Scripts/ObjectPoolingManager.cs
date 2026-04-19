@@ -96,6 +96,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     {
         if (_selectBtnSetting.Prefab.TryGetComponent(out SelectButton selectBtn))
         {
+            //if(_selectBtnPool != null) return;
             _selectBtnPool = InitPool(selectBtn, _selectBtnSetting);
         }
         else

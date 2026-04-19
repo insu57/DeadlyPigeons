@@ -5,6 +5,8 @@ public class DataManager : Singleton<DataManager>
 {
     public Dictionary<int, CharacterData> CharDict { get; } = new();
     public List<CharacterData> CharList { get; } = new();
+    public Dictionary<int, ItemData> ItemDict { get; } = new();
+    public List<ItemData> ItemList { get; } = new();
     public Dictionary<int, WeaponData> WeaponDict { get; } = new();
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
@@ -40,6 +42,13 @@ public class DataManager : Singleton<DataManager>
         {
             CharDict.Add(charData.ID, charData);
             CharList.Add(charData);
+        }
+        
+        ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
+        foreach (var itemData in items)
+        {
+            ItemDict.Add(itemData.ID, itemData);
+            ItemList.Add(itemData);
         }
         
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
