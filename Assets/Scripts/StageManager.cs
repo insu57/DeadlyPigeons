@@ -55,6 +55,8 @@ public class StageManager : MonoBehaviour
             {
                 _playerSelected.WeaponIDList.Add(weaponData.ID);
             }
+            
+            _playerSelected.ItemIDList.Add(testChar.ID);
         }
         
         var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
@@ -69,19 +71,7 @@ public class StageManager : MonoBehaviour
             items.Add(DataManager.Instance.ItemDict[itemID]);
         }
         
-        var stage = _playerSelected.StageID;
-        
-        _playerManager.InitStatWeapons(charData,items, weapons);
-        
-        sb.AppendLine($"Stage: {stage}");
-        sb.AppendLine($"Character: {charData.CharacterName}");
-        sb.Append($"Weapon: ");
-        foreach (var weaponData in weapons)
-        {
-            sb.Append($"{weaponData.Name} ");
-        }
-        
-        stageText.SetText(sb);
+        _playerManager.InitCharacter(charData,items, weapons);
         
         //pooling
         ObjectPoolingManager.Instance.InitProjectilePool();

@@ -12,6 +12,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
 
     [field: SerializeField] private int currentLevel;
     [field: SerializeField] private int currentHP;
+    private const int DefaultMaxHP = 10;
     [field: SerializeField] private int money;
     [field: SerializeField] private int defaultMaxHP = 10;
     private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
@@ -44,10 +45,10 @@ public class PlayerStat : MonoBehaviour, IDamageable
             _subStatDict.Add(subStat, 0);
         }
         
-        _baseMainStatDict[MainStats.MaxHP] = defaultMaxHP; //기본 최대 체력
+        UpdateStat(MainStats.MaxHP, DefaultMaxHP); //기본 최대 체력
         currentHP = defaultMaxHP;
         
-        foreach (var (mainStat, value) in _baseMainStatDict)
+        foreach (var (mainStat, value) in _finalMainStatDict)
         {
             OnChangeMainStats?.Invoke(mainStat, value);
         }

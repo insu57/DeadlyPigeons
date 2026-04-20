@@ -15,7 +15,9 @@ MonoBehaviour:
   <ID>k__BackingField: 1001
   <ItemName>k__BackingField: Anis
   <Description>k__BackingField: "\uC6D0\uAC70\uB9AC 200% \uADFC\uAC70\uB9AC -100%"
+  <Tier>k__BackingField: 1
   <Icon>k__BackingField: {fileID: 21300000, guid: 9c0a2949d63f543489c9c20f967f0db3, type: 3}
+  <ItemClass>k__BackingField: 0
   <StatValues>k__BackingField: []
   <StatMultipliers>k__BackingField:
   - mainStat: 8

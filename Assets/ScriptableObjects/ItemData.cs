@@ -10,6 +10,11 @@ public struct StatAmount
     public int amount;
 }
 
+public enum ItemClass
+{
+    Item,Unique, Limited, Character
+}
+
 [Serializable]
 public struct ItemStat
 {
@@ -33,6 +38,7 @@ public class ItemData : ScriptableObject
     [field: SerializeField] public string Description { get; private set; }
     [field: SerializeField] public int Tier { get; private set; }
     [field: SerializeField] public Sprite Icon { get; private set; }
+    [field: SerializeField] public ItemClass ItemClass { get; private set; }
     [field: SerializeField] public List<StatAmount> StatValues { get; private set; } //스탯 수치 증감량
     [field: SerializeField] public List<StatAmount> StatMultipliers { get; private set; }//스탯 변화량 추가 증감
 

@@ -4,16 +4,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WeaponInfoPanel : MonoBehaviour
+public class InfoPanel : MonoBehaviour
 {
     [SerializeField] private Image img;
     [SerializeField] private TMP_Text nameTxt;
     [SerializeField] private TMP_Text classesTxt;
     [SerializeField] private Image panelBorder;
     [SerializeField] private TMP_Text descriptionTxt;
-    [SerializeField] private WeaponClassInfo weaponClassInfo;
+    [SerializeField] private ClassInfo weaponClassInfo;
     
-    public void ShowInfo(WeaponData weaponData, StringBuilder sb)
+    public void ShowWeaponInfo(WeaponData weaponData, StringBuilder sb)
     {
         sb.Clear();
 
@@ -74,6 +74,22 @@ public class WeaponInfoPanel : MonoBehaviour
 
     public void ShowWeaponClassInfo(List<WeaponClasses> weaponClasses, StringBuilder sb)
     {
-        weaponClassInfo.ShowClassInfo(weaponClasses, sb);
+        weaponClassInfo.ShowWeaponClassInfo(weaponClasses, sb);
+    }
+
+    public void ShowItemInfo(ItemData item, StringBuilder sb)
+    {
+        sb.Clear();
+
+        nameTxt.text = item.ItemName;
+        img.sprite = item.Icon;
+        var tier = item.Tier;
+        
+        var colorHexStr = DataManager.Instance.TierColorDict[tier]; //티어 컬러 가져오기
+        var color = DataManager.Instance.GetHexToColor(colorHexStr);
+        nameTxt.color = color;
+        panelBorder.color = color;
+        
+        
     }
 }

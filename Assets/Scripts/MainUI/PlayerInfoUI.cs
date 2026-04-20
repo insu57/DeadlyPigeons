@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class PlayerInfoUI : MonoBehaviour
 {
-    [SerializeField] private GameObject infoPanel;
+    [SerializeField] private GameObject infoUI;
     private StringBuilder sb;
     [SerializeField] private PlayerStatTxt playerStatTxt;
     
@@ -30,11 +30,11 @@ public class PlayerInfoUI : MonoBehaviour
     [Header("Weapons")] 
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private GridLayoutGroup weaponGrid;
-    [SerializeField] private Transform itemGrid;
+    [SerializeField] private GridLayoutGroup itemGrid;
     [SerializeField] private Transform selectBtnParent;
     private Transform _weaponInfoPanelParent;
-    [SerializeField] private WeaponInfoPanel weaponInfoPanel;
-    [SerializeField] private WeaponClassInfo weaponClassInfo;
+    [SerializeField] private InfoPanel infoPanel;
+    [SerializeField] private ClassInfo classInfo;
     private int _weaponSlot;
     public event Action<int, SelectButton> OnShowWeaponInfo; //ID
     
@@ -80,17 +80,17 @@ public class PlayerInfoUI : MonoBehaviour
     
     private void ShowInfoUI(InputAction.CallbackContext context)
     {
-        if (infoPanel.activeSelf) //닫기
+        if (infoUI.activeSelf) //닫기
         {
             InputManager.Instance.Input.Player.Enable();
             InputManager.Instance.Input.UI.Disable();
-            infoPanel.SetActive(false);
+            infoUI.SetActive(false);
         }
         else//열기
         {
             InputManager.Instance.Input.Player.Disable();
             InputManager.Instance.Input.UI.Enable();
-            infoPanel.SetActive(true);
+            infoUI.SetActive(true);
         }
     }
 
@@ -98,6 +98,8 @@ public class PlayerInfoUI : MonoBehaviour
     {
         var labelTxt = mainStatDict[stat].StatLabel;
         var valueTxt = mainStatDict[stat].StatValue;
+        
+        Debug.Log($"{stat}: {value}");
         
         sb.Clear();
         sb.Append(value);
@@ -158,7 +160,7 @@ public class PlayerInfoUI : MonoBehaviour
         mainStatPanel.SetActive(false);
     }
 
-    public void SetWeaponSlots(int slots)
+    public void InitWeaponSlots(int slots) //슬롯 초기화.
     {
         _weaponSlot = slots;
         if (_weaponSlot <= 0)
@@ -167,26 +169,35 @@ public class PlayerInfoUI : MonoBehaviour
         }
     }
     
-    public void AddWeapon(Sprite sprite, int index)
+    public void AddWeapon(Sprite sprite, int index) //무기 장착(UI)
     {
         var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         selectBtn.SetButtonImg(sprite);
         selectBtn.transform.SetParent(weaponGrid.transform);
         
         selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index, selectBtn);
-        selectBtn.OnBtnPointerExit += CloseWeaponInfo;
+        selectBtn.OnBtnPointerExit += CloseInfoPanel;
     }
 
+    public void AddItem(ItemData item, int idx)
+    {
+        var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
+        selectBtn.SetButtonImg(item.Icon);
+        selectBtn.transform.SetParent(itemGrid.transform);
+        
+        selectBtn.OnBtnPointerEnter += () => ShowItemInfo(item, selectBtn, idx);
+        selectBtn.OnBtnPointerExit += CloseInfoPanel;
+    }
+    
     public void SetWeaponClassBonus(Dictionary<WeaponClasses, int> weaponsBonusDict)
     {
-        weaponClassInfo.SetWeaponClassBonusDict(weaponsBonusDict);
+        classInfo.SetWeaponClassBonusDict(weaponsBonusDict);
     }
 
-    public void ShowWeaponInfo(WeaponData weaponData, SelectButton selectButton, int idx)
+    private void SetInfoPanel(int cols, int idx, SelectButton selectButton)
     {
-        int cols = weaponGrid.constraintCount;
         Transform panelParent;
-        var panelRT = (RectTransform)weaponInfoPanel.transform;
+        var panelRT = (RectTransform)infoPanel.transform;
         if (idx < cols / 2)
         {
             panelParent = selectButton.InfoPanelParentLeft;
@@ -197,16 +208,28 @@ public class PlayerInfoUI : MonoBehaviour
             panelParent = selectButton.InfoPanelParentRight;
             panelRT.pivot = new Vector2(1, 1);
         }
-        weaponInfoPanel.transform.position = panelParent.position;
-        weaponInfoPanel.gameObject.SetActive(true);
-        weaponInfoPanel.ShowInfo(weaponData, sb);
-        var classes = weaponData.WeaponStat.classes;
-        weaponInfoPanel.ShowWeaponClassInfo(classes, sb);
+        infoPanel.transform.position = panelParent.position;
+        infoPanel.gameObject.SetActive(true);
     }
 
-    private void CloseWeaponInfo()
+    public void ShowWeaponInfo(WeaponData weaponData, SelectButton selectButton, int idx) //무기 정보 표시
     {
-        weaponInfoPanel.gameObject.SetActive(false);
+        SetInfoPanel(weaponGrid.constraintCount, idx, selectButton);
+        infoPanel.ShowWeaponInfo(weaponData, sb);
+        var classes = weaponData.WeaponStat.classes;
+        infoPanel.ShowWeaponClassInfo(classes, sb);
+    }
+
+    public void ShowItemInfo(ItemData item, SelectButton selectButton,int idx)
+    {
+        SetInfoPanel(itemGrid.constraintCount, idx, selectButton);
+        
+        infoPanel.ShowItemInfo(item, sb);
+    }
+    
+    private void CloseInfoPanel()
+    {
+        infoPanel.gameObject.SetActive(false);
     }
     
 }

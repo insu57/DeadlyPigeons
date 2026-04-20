@@ -60,7 +60,7 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private TMP_Text charPassive;
 
     [Header("Weapon Description")] 
-    [SerializeField] private WeaponInfoPanel weaponPanel;
+    [SerializeField] private InfoPanel weaponPanel;
     [SerializeField] private Image weaponPanelBorder;
     [SerializeField] private Image weaponImg;
     [SerializeField] private TMP_Text weaponName;
@@ -290,7 +290,7 @@ public class SelectWindow : MonoBehaviour
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
-        weaponPanel.ShowInfo(weaponData, sb);
+        weaponPanel.ShowWeaponInfo(weaponData, sb);
     }
 
 

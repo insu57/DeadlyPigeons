@@ -40,31 +40,36 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
 
-    public void InitStatWeapons(CharacterData charData, List<ItemData> items, List<WeaponData> weapons)
+    public void InitCharacter(CharacterData charData, List<ItemData> items, List<WeaponData> weapons)
     {
         Debug.Log("InitStat");
+        //CharData.. 추후 플레이어 스트라이트 및 애니메이션 관련 초기화
+        
         _playerStat.InitStat();
-        foreach (var itemData in items)
+        foreach (var itemData in items) //초기 아이템 장착
         {
             AddItem(itemData);
         }
-        InitWeapons(weapons);
+        InitWeapons(weapons); //초기 무기 장착
     }
 
     private void AddItem(ItemData itemData)
     {
         itemDataList.Add(itemData);
         _playerStat.AddItem(itemData);
+        int idx = itemDataList.Count - 1;
+        _playerInfoUI.AddItem(itemData, idx);
     }
     
-    private void InitWeapons(List<WeaponData> initWeaponList)
+    private void InitWeapons(List<WeaponData> initWeaponList) //무기 초기화
     {
         for (int i = 0; i < _weaponSlotCount; i++) //무기 슬롯 초기화.
         {
-            var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform);
+            var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform); 
             playerWeapons.Add(playerWeapon);
             playerWeapon.SetCenter(transform);
             playerWeapon.gameObject.SetActive(false);
+            //PlayerWeapon 초기화
         }
         
         for (int i = 0; i < initWeaponList.Count; i++)
@@ -81,17 +86,15 @@ public class PlayerManager : MonoBehaviour
             }
         }
         
-        SetWeaponClassBonus();
+        SetWeaponClassBonus(); //무기 보너스 설정.
 
-        _playerInfoUI.SetWeaponSlots(_weaponSlotCount);
+        _playerInfoUI.InitWeaponSlots(_weaponSlotCount); //무기 슬롯 UI 초기화
 
         for (int i = 0; i < initWeaponList.Count; i++)
         {
             var sprite = initWeaponList[i].Sprite;
             _playerInfoUI.AddWeapon(sprite, i);
         }
-        
-        _playerStat.SyncStatData();
     }
 
     private void UpdateStat(MainStats stat, int value)
@@ -134,7 +137,7 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.ShowWeaponInfo(weaponData, selectBtn, index);
     }
 
-    private void SetWeaponClassBonus()
+    private void SetWeaponClassBonus() //클래스 보너스 초기화
     {
         _playerInfoUI.SetWeaponClassBonus(WeaponClassDict);
         

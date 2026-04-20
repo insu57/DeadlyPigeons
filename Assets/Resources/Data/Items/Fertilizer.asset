@@ -15,7 +15,9 @@ MonoBehaviour:
   <ID>k__BackingField: 4002
   <ItemName>k__BackingField: "\uBE44\uB8CC\uD3EC\uB300"
   <Description>k__BackingField: 
+  <Tier>k__BackingField: 1
   <Icon>k__BackingField: {fileID: 21300000, guid: ee395a6163e05b1449fc0fb13bd95b1c, type: 3}
+  <ItemClass>k__BackingField: 0
   <StatValues>k__BackingField:
   - mainStat: 5
     subStat: 13

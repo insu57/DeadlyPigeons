@@ -13,6 +13,7 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [SerializeField] private Button selectBtn;
     [field: SerializeField] public Transform InfoPanelParentLeft { get; private set; }
     [field: SerializeField] public Transform InfoPanelParentRight { get; private set; }
+    [field: SerializeField] public Transform InfoPanelParentTop { get; private set; }
     public Button SelectBtn => selectBtn;
     public event Action OnBtnPointerEnter;
     public event Action OnBtnPointerExit;

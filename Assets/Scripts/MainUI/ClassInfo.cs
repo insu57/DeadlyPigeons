@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class WeaponClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private GameObject infoPanelParent;
     [SerializeField] private GameObject infoPanel1;
@@ -22,7 +22,6 @@ public class WeaponClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExit
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("OnPointerEnter: WeaponClass");
         infoPanelParent.SetActive(true);
     }
 
@@ -36,24 +35,25 @@ public class WeaponClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExit
         _weaponsBonusDict = weaponsBonusDict;
     }
     
-    public void ShowClassInfo(List<WeaponClasses> classes, StringBuilder sb)
+    public void ShowWeaponClassInfo(List<WeaponClasses> classes, StringBuilder sb) //무기 클래스 정보
     {
         infoPanelParent.SetActive(true);
         sb.Clear();
 
+        //클래스 1번
         infoPanel1.SetActive(true);
-        var class1 = classes[0];
+        var class1 = classes[0]; 
         classText1.text = WeaponData.WeaponClassToString(class1);
         var effectList1 = DataManager.Instance.WeaponClassBonusDict[class1];
         GetClassEffectTxt(sb, effectList1, _weaponsBonusDict[class1]);
         infoText1.SetText(sb);
 
-        if (classes.Count <= 1)
+        if (classes.Count <= 1) 
         {
             infoPanel2.SetActive(false);
             return;
         }
-        infoPanel2.SetActive(true);
+        infoPanel2.SetActive(true); //클래스가 2개면 2번도 
         
         var class2 = classes[1];
         classText2.text = WeaponData.WeaponClassToString(class2);
