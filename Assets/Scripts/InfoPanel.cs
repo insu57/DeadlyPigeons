@@ -11,7 +11,7 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text classesTxt;
     [SerializeField] private Image panelBorder;
     [SerializeField] private TMP_Text descriptionTxt;
-    [SerializeField] private ClassInfo weaponClassInfo;
+    [SerializeField] private ClassInfo classInfo;
     
     public void ShowWeaponInfo(WeaponData weaponData, StringBuilder sb)
     {
@@ -74,13 +74,11 @@ public class InfoPanel : MonoBehaviour
 
     public void ShowWeaponClassInfo(List<WeaponClasses> weaponClasses, StringBuilder sb)
     {
-        weaponClassInfo.ShowWeaponClassInfo(weaponClasses, sb);
+        classInfo.ShowWeaponClassInfo(weaponClasses, sb);
     }
 
     public void ShowItemInfo(ItemData item, StringBuilder sb)
     {
-        sb.Clear();
-
         nameTxt.text = item.ItemName;
         img.sprite = item.Icon;
         var tier = item.Tier;
@@ -89,7 +87,53 @@ public class InfoPanel : MonoBehaviour
         var color = DataManager.Instance.GetHexToColor(colorHexStr);
         nameTxt.color = color;
         panelBorder.color = color;
+
+        var itemClass = ItemData.ToString(item.ItemClass);
+        classesTxt.SetText(itemClass);
         
+        GetItemStatTxt(sb, item.ID);
+        descriptionTxt.SetText(sb);
         
+        classInfo.ShowItemClassInfo(item.ItemClass, sb);
+    }
+
+    public static void GetItemStatTxt(StringBuilder stringBuilder, int itemID)
+    {
+        var passiveData = DataManager.Instance.ItemDict[itemID];
+        
+        stringBuilder.Clear();
+
+        foreach (var statAmount in passiveData.StatMultipliers)
+        {
+            if (statAmount.mainStat != MainStats.None)
+            {
+                stringBuilder.Append(statAmount.mainStat.GetIcons()).Append(' '); //스탯 아이콘
+                string mainStat = statAmount.mainStat.MainStatsToString();
+                stringBuilder.AppendMultiplier(mainStat, statAmount.amount);
+                stringBuilder.AppendLine();
+            }
+            else if (statAmount.subStat != SubStats.None)
+            {
+                stringBuilder.Append(statAmount.subStat.SubStatsToString()).Append(' ');
+                string subStat = statAmount.subStat.SubStatsToString();
+                stringBuilder.AppendMultiplier(subStat, statAmount.amount);
+                stringBuilder.AppendLine();
+            }
+        }
+
+        foreach (var statAmount in passiveData.StatValues)
+        {
+            if (statAmount.mainStat != MainStats.None)
+            {
+                stringBuilder.Append(statAmount.mainStat.GetIcons()); //스탯 아이콘
+                stringBuilder.AppendColorString(statAmount.amount); //증감량
+                stringBuilder.AppendLine(statAmount.mainStat.MainStatsToString()); //해당 스탯명
+            }
+            else if (statAmount.subStat != SubStats.None)
+            {
+                stringBuilder.AppendColorString(statAmount.amount);
+                stringBuilder.AppendLine(statAmount.subStat.SubStatsToString());
+            }
+        }
     }
 }

@@ -24,6 +24,8 @@ public class StageManager : MonoBehaviour
     
     [field: SerializeField] private List<Transform> activeEnemies = new();
     private const float MaxFindRange = 100f;
+
+    [field: SerializeField] private List<EnemyManager> enemies;
     
     //test
     [SerializeField] private CharacterData testChar;
@@ -77,6 +79,12 @@ public class StageManager : MonoBehaviour
         ObjectPoolingManager.Instance.InitProjectilePool();
         ObjectPoolingManager.Instance.InitDamageTxtPool();
         ObjectPoolingManager.Instance.InitExplosivePool();
+
+        //temp
+        foreach (var enemy in enemies)
+        {
+            enemy.SetTarget(_playerManager.transform);
+        }
     }
 
     private void Update()

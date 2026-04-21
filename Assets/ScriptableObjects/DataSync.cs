@@ -173,18 +173,18 @@ public class DataSync : MonoBehaviour
 
         foreach (var so in items)
         {
-            string[] rowData = null;
             bool isFound = false;
 
             ItemStat itemStat = new();
             string itemSpritePath = null;
-            if (passiveDict.TryGetValue(so.ID, out rowData))
+            if (passiveDict.TryGetValue(so.ID, out var rowData))
             {
                 isFound = true;
                 itemSpritePath = $"{charPath}{so.ID}.png";
                 // TODO: 캐릭터 패시브 데이터 파싱 로직
                 itemStat.itemName =  rowData[1];
                 itemStat.tier = 1; //패시브는 티어 1로
+                itemStat.itemClass = ItemClass.Character;
                 int idx = 2;
                 List<StatAmount> values = new();
                 List<StatAmount> multipliers = new();
@@ -226,7 +226,10 @@ public class DataSync : MonoBehaviour
                 // TODO: 일반 아이템 데이터 파싱 로직
                 itemStat.itemName = rowData[1];
                 itemStat.tier = int.Parse(rowData[2]);
-                int idx = 3;
+                string itemClassString = rowData[3];
+                itemStat.itemClass = ItemData.ToItemClass(itemClassString);
+                
+                int idx = 4;
                 List<StatAmount> values = new();
                 for (int i = 0; i < 5; i++)
                 {
@@ -248,7 +251,7 @@ public class DataSync : MonoBehaviour
                     values.Add(statAmount);
                 }
                 itemStat.statValues = values;
-                itemStat.description = rowData[13];
+                itemStat.description = rowData[14];
             }
 
             if (isFound)

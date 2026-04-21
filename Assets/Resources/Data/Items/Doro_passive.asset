@@ -18,7 +18,7 @@ MonoBehaviour:
     +5"
   <Tier>k__BackingField: 1
   <Icon>k__BackingField: {fileID: -2245382313370318542, guid: ef7ae709b4802104c9505a8e429dcbd6, type: 3}
-  <ItemClass>k__BackingField: 0
+  <ItemClass>k__BackingField: 3
   <StatValues>k__BackingField:
   - mainStat: 8
     subStat: 13

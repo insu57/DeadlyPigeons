@@ -1,5 +1,5 @@
-ID,Name,Tier,Stat1,Stat1 Amount,Stat2,Stat2 Amount,Stat3,Stat3 Amount,Stat4,Stat4 Amount,Stat5,Stat5 Amount,Description
-0,1,2,3,4,5,6,7,8,9,10,11,12,13
-4001,숯불,1,Elemental,5,Melee,-5,,,,,,3,
-4002,비료포대,1,Speed,-5,Harvest,5,,,,,,,
-4003,매끄러운 돌,2,Speed,5,Armor,3,,,,,,,
+ID,Name,Tier,Class,Stat1,Stat1 Amount,Stat2,Stat2 Amount,Stat3,Stat3 Amount,Stat4,Stat4 Amount,Stat5,Stat5 Amount,Description
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+4001,숯불,1,Item,Elemental,5,Melee,-5,,,,,,3,
+4002,비료포대,1,Item,Speed,-5,Harvest,5,,,,,,,
+4003,매끄러운 돌,2,Item,Speed,5,Armor,3,,,,,,,

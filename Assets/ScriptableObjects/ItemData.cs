@@ -20,6 +20,7 @@ public struct ItemStat
 {
     public string itemName;
     public string description;
+    public ItemClass itemClass;
     public int tier;
     public Sprite icon;
     public List<StatAmount> statValues;
@@ -42,11 +43,38 @@ public class ItemData : ScriptableObject
     [field: SerializeField] public List<StatAmount> StatValues { get; private set; } //스탯 수치 증감량
     [field: SerializeField] public List<StatAmount> StatMultipliers { get; private set; }//스탯 변화량 추가 증감
 
+    public static ItemClass ToItemClass(string type)
+    {
+        // 입력된 문자열과 완벽히 일치하는 Enum이 있다면 변환 성공
+        if (Enum.TryParse(type, out ItemClass result))
+        {
+            return result;
+        }
+
+        //변환 실패 시 예외 처리
+        Debug.LogWarning($"[ItemClass] 매칭되는 클래스를 찾을 수 없습니다: {type}");
+        
+        //기본값: Item
+        return ItemClass.Item; 
+    }
+
+    public static string ToString(ItemClass itemClass) => itemClass switch
+    {
+        ItemClass.Item => nameof(ItemClass.Item),
+        ItemClass.Unique => nameof(ItemClass.Unique),
+        ItemClass.Limited => nameof(ItemClass.Limited),
+        ItemClass.Character => nameof(ItemClass.Character),
+
+        // default 케이스 (_)
+        _ => "Unknown!!"
+    };
+    
 #if UNITY_EDITOR
     public void SyncItemData(ItemStat itemStat)
     {
         ItemName = itemStat.itemName;
         Description = itemStat.description;
+        ItemClass = itemStat.itemClass;
         Tier = itemStat.tier;
         Icon = itemStat.icon;
         StatValues = itemStat.statValues;

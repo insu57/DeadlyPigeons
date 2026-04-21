@@ -220,10 +220,9 @@ public class PlayerInfoUI : MonoBehaviour
         infoPanel.ShowWeaponClassInfo(classes, sb);
     }
 
-    public void ShowItemInfo(ItemData item, SelectButton selectButton,int idx)
+    private void ShowItemInfo(ItemData item, SelectButton selectButton,int idx)
     {
         SetInfoPanel(itemGrid.constraintCount, idx, selectButton);
-        
         infoPanel.ShowItemInfo(item, sb);
     }
     

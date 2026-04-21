@@ -9,7 +9,10 @@ public class EnemyManager : MonoBehaviour, IDamageable
     [SerializeField] private int health;
     [SerializeField] private int maxHealth;
     
+    private Transform _target;
     private Coroutine _activeDotCoroutine;
+    
+    public void SetTarget(Transform target) => _target = target;
     
     public void Damage(int damage, bool isCrit)
     {

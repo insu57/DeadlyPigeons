@@ -176,46 +176,16 @@ public class SelectWindow : MonoBehaviour
         var charData = DataManager.Instance.CharDict[charID];
         charImage.sprite = charData.CharacterSprite;
         charName.text = charData.CharacterName;
-        var passiveData = DataManager.Instance.ItemDict[charID];
-
+        
         sb.Clear();
 
-        foreach (var statAmount in passiveData.StatMultipliers)
-        {
-            if (statAmount.mainStat != MainStats.None)
-            {
-                sb.Append(statAmount.mainStat.GetIcons()).Append(' '); //스탯 아이콘
-                string mainStat = statAmount.mainStat.MainStatsToString();
-                sb.AppendMultiplier(mainStat, statAmount.amount);
-                sb.AppendLine();
-            }
-            else if (statAmount.subStat != SubStats.None)
-            {
-                sb.Append(statAmount.subStat.SubStatsToString()).Append(' ');
-                string subStat = statAmount.subStat.SubStatsToString();
-                sb.AppendMultiplier(subStat, statAmount.amount);
-                sb.AppendLine();
-            }
-        }
-
-        foreach (var statAmount in passiveData.StatValues)
-        {
-            if (statAmount.mainStat != MainStats.None)
-            {
-                sb.Append(statAmount.mainStat.GetIcons()); //스탯 아이콘
-                sb.AppendColorString(statAmount.amount); //증감량
-                sb.AppendLine(statAmount.mainStat.MainStatsToString()); //해당 스탯명
-            }
-            else if (statAmount.subStat != SubStats.None)
-            {
-                sb.AppendColorString(statAmount.amount);
-                sb.AppendLine(statAmount.subStat.SubStatsToString());
-            }
-        }
+        InfoPanel.GetItemStatTxt(sb, charID);
 
         charPassive.SetText(sb);
     }
 
+    
+    
     private void InitWeaponRandom()
     {
         _randomWeaponBtn = ObjectPoolingManager.Instance.GetSelectBtn();
@@ -352,7 +322,6 @@ public class SelectWindow : MonoBehaviour
            btn.SelectBtn.onClick.RemoveAllListeners();
            btn.SelectBtn.onClick.AddListener( () => LoadMain(charID, weaponID, idx));
         }
-        
         
         //PlayerSelected.CharID = charID; //캐릭터 선택 완료.
     }

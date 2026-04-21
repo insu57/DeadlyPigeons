@@ -45,7 +45,7 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         var class1 = classes[0]; 
         classText1.text = WeaponData.WeaponClassToString(class1);
         var effectList1 = DataManager.Instance.WeaponClassBonusDict[class1];
-        GetClassEffectTxt(sb, effectList1, _weaponsBonusDict[class1]);
+        GetWeaponClassEffectTxt(sb, effectList1, _weaponsBonusDict[class1]);
         infoText1.SetText(sb);
 
         if (classes.Count <= 1) 
@@ -59,11 +59,11 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         classText2.text = WeaponData.WeaponClassToString(class2);
         var effectList2 = DataManager.Instance.WeaponClassBonusDict[class2];
         sb. Clear();
-        GetClassEffectTxt(sb, effectList2, _weaponsBonusDict[class2]);
+        GetWeaponClassEffectTxt(sb, effectList2, _weaponsBonusDict[class2]);
         infoText2.SetText(sb);
     }
 
-    private void GetClassEffectTxt(StringBuilder sb, List<WeaponClassBonus> effectList, int bonus)
+    private void GetWeaponClassEffectTxt(StringBuilder sb, List<WeaponClassBonus> effectList, int bonus)
     {
         var statNameList = new List<string>();
         foreach (var effect in effectList)
@@ -125,5 +125,11 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             
             sb.AppendLine();
         }
+    }
+
+    public void ShowItemClassInfo(ItemClass itemClass, StringBuilder sb)
+    {
+        //추가 설명이 필요한 클래스 구현시 변경
+        infoPanelParent.SetActive(false);
     }
 }

@@ -1355,7 +1355,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1038200584935151950, guid: b814f2ee0f710984f817a315b2868b45, type: 3}
       propertyPath: m_Name
-      value: WeaponInfoMain
+      value: InfoPanel
       objectReference: {fileID: 0}
     - target: {fileID: 1038200584935151950, guid: b814f2ee0f710984f817a315b2868b45, type: 3}
       propertyPath: m_IsActive
@@ -1445,6 +1445,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6745992884822253717, guid: b814f2ee0f710984f817a315b2868b45, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 450
+      objectReference: {fileID: 0}
+    - target: {fileID: 7738127928630916073, guid: b814f2ee0f710984f817a315b2868b45, type: 3}
+      propertyPath: classInfo
+      value: 
+      objectReference: {fileID: 120023597}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
