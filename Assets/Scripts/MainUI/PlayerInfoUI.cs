@@ -99,8 +99,6 @@ public class PlayerInfoUI : MonoBehaviour
         var labelTxt = mainStatDict[stat].StatLabel;
         var valueTxt = mainStatDict[stat].StatValue;
         
-        Debug.Log($"{stat}: {value}");
-        
         sb.Clear();
         sb.Append(value);
         if (stat.IsPercentageMainStat()) sb.Append('%');

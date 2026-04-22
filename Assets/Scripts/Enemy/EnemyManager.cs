@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour, IDamageable
@@ -9,10 +9,41 @@ public class EnemyManager : MonoBehaviour, IDamageable
     [SerializeField] private int health;
     [SerializeField] private int maxHealth;
     
-    private Transform _target;
+    public Transform Target {get; private set; }
     private Coroutine _activeDotCoroutine;
     
-    public void SetTarget(Transform target) => _target = target;
+    private IEnemyState _currentState;
+    private Dictionary<Type, IEnemyState> _enemyStates = new();
+    
+    public Rigidbody2D Rigidbody2D{get; private set;}
+    
+    public void SetTarget(Transform target)
+    {
+        Debug.Log(name + ' ' + target.name);
+        Target = target;
+    }
+
+    private void Awake()
+    {
+        Rigidbody2D = GetComponent<Rigidbody2D>();
+    }
+    
+    private void Start()
+    {
+        _enemyStates[typeof(ChaseState)] = new ChaseState();
+        
+        ChangeState(typeof(ChaseState));
+    }
+
+    private void Update()
+    {
+        _currentState?.ExecuteState(this);
+    }
+
+    private void FixedUpdate()
+    {
+        _currentState?.FixedExecute(this);
+    }
     
     public void Damage(int damage, bool isCrit)
     {
@@ -66,4 +97,13 @@ public class EnemyManager : MonoBehaviour, IDamageable
     }
     
     public Transform GetTransform() => transform;
+
+    private void ChangeState(Type newState)
+    {
+        _currentState?.ExitState(this);
+        
+        _currentState = _enemyStates[newState];
+        
+        _currentState.EnterState(this);
+    }
 }

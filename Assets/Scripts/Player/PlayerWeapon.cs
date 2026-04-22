@@ -140,6 +140,8 @@ public class PlayerWeapon : MonoBehaviour
             effect.Init(this, initValues); //수치 주입
         }
         
+        FinalDamage = GetDamage();
+        
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
     }
 

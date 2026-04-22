@@ -93,11 +93,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
         int currentAmount =  _baseMainStatDict[mainStats];
         int multiplier = _mainStatMultiDict[mainStats];
         _finalMainStatDict[mainStats] = Mathf.FloorToInt(currentAmount * (1f + multiplier / 100f));
-        if(mainStats== MainStats.MaxHP)
-        {
-            Debug.Log("MaxHP:" + _baseMainStatDict[mainStats]);
-            Debug.Log($"{mainStats}: {_finalMainStatDict[mainStats]}");
-        }
+    
         OnChangeMainStats?.Invoke(mainStats, _finalMainStatDict[mainStats]);
     }
 

@@ -2,18 +2,29 @@ using UnityEngine;
 
 public class ChaseState : IEnemyState
 {
-    public void EnterState()
+    public void EnterState(EnemyManager enemyManager)
     {
-        throw new System.NotImplementedException();
+        
     }
 
-    public void ExecuteState()
+    public void ExecuteState(EnemyManager enemyManager)
     {
-        throw new System.NotImplementedException();
+        
     }
 
-    public void ExitState()
+    public void FixedExecute(EnemyManager enemyManager)
     {
-        throw new System.NotImplementedException();
+        if(!enemyManager.Target) return;
+        
+        Vector3 dir = (enemyManager.Target.position - enemyManager.transform.position).normalized;
+        float moveSpeed = 3f;
+        Vector2 targetPos = enemyManager.transform.position + dir * (moveSpeed * Time.fixedDeltaTime);
+        
+        enemyManager.Rigidbody2D.MovePosition(targetPos);
+    }
+
+    public void ExitState(EnemyManager enemyManager)
+    {
+        
     }
 }

@@ -22,10 +22,8 @@ public class StageManager : MonoBehaviour
     [SerializeField] private TMP_Text stageText;
     private PlayerSelected _playerSelected;
     
-    [field: SerializeField] private List<Transform> activeEnemies = new();
+    [field: SerializeField] private List<EnemyManager> activeEnemies = new();
     private const float MaxFindRange = 100f;
-
-    [field: SerializeField] private List<EnemyManager> enemies;
     
     //test
     [SerializeField] private CharacterData testChar;
@@ -81,8 +79,9 @@ public class StageManager : MonoBehaviour
         ObjectPoolingManager.Instance.InitExplosivePool();
 
         //temp
-        foreach (var enemy in enemies)
+        foreach (var enemy in activeEnemies)
         {
+            Debug.Log(enemy.name);
             enemy.SetTarget(_playerManager.transform);
         }
     }
@@ -108,13 +107,15 @@ public class StageManager : MonoBehaviour
 
         foreach (var activeEnemy in activeEnemies)
         {
-            Vector3 dir = activeEnemy.position - _playerManager.transform.position;
+            var enemyTransform = activeEnemy.transform;
+            
+            Vector3 dir = enemyTransform.position - _playerManager.transform.position;
             float distSqr = dir.sqrMagnitude;
 
             if (distSqr < minDistanceSqr)
             {
                 minDistanceSqr = distSqr;
-                closest = activeEnemy;
+                closest = enemyTransform;
             }
         }
 
