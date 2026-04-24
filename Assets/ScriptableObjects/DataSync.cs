@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -444,7 +445,6 @@ public class DataSync : MonoBehaviour
                     knockBack = knockback,
                     healthAbsorb = healthAbsorb,
                     prices = prices,
-                    description = rowData[16]
                 };
                 
 #if UNITY_EDITOR
@@ -509,7 +509,13 @@ public class DataSync : MonoBehaviour
             weaponEffectData.effectType = effectType;
             weaponEffectData.valuesList = effectValues;
 
-            int currentColIdx = 5;//해당 WeaponEffectData 시트 참조. 파라미터 시작 열
+            var descriptionFormat = rowData[5]; //효과 설명
+            var parsedChunk = Regex.Split(descriptionFormat, @"\{(\d+)\}"); //{인덱스}로 분할
+            
+            
+            weaponEffectData.effectDescription = parsedChunk;
+            
+            int currentColIdx = 6;//해당 WeaponEffectData 시트 참조. 파라미터 시작 열
             
             for (int i = 0; i < maxParameters; i++)
             {

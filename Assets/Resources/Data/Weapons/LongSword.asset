@@ -39,7 +39,6 @@ MonoBehaviour:
     knockBack: 14000000140000001400000014000000
     healthAbsorb: 00000000000000000000000000000000
     prices: 14000000280000005000000096000000
-    description: "\uB871\uC18C\uB4DC"
   <WeaponEffectDataList>k__BackingField:
   - effectType: 0
     valuesList:
@@ -59,6 +58,14 @@ MonoBehaviour:
       mainStat: 9
       subStat: 13
       multipliers: 64000000640000006400000064000000
+    effectDescription:
+    - 
+    - 0
+    - "\uCD08 \uB3D9\uC548 "
+    - 1
+    - ' (+'
+    - 2
+    - "%)\uC758 \uD654\uC0C1 \uB370\uBBF8\uC9C0\uB97C \uC90D\uB2C8\uB2E4."
   - effectType: 1
     valuesList:
     - values:
@@ -69,6 +76,8 @@ MonoBehaviour:
       mainStat: 17
       subStat: 13
       multipliers: 
+    effectDescription:
+    - "\uC801\uC911 \uC2DC \uD3ED\uBC1C\uD569\uB2C8\uB2E4."
   <SpriteScale>k__BackingField: {x: 0.3, y: 0.3, z: 0.3}
   <SpriteOffset>k__BackingField: {x: 0.691, y: 0.022, z: 0}
   <SpriteAngle>k__BackingField: {x: 0, y: 0, z: 315}

@@ -20,7 +20,8 @@ public class PlayerWeapon : MonoBehaviour
     private Transform _center;
     public WeaponData WeaponData{get; private set;}
     private TargetInfo _targetInfo;
-    private int _currentTierIdx;
+    public int Tier {get; private set;}
+    public int TierIdx { get; private set; }
     private float _attackCoolTimer;
     private const int RangeScaler = 75;
     private const float MeleeRangeMultiplier = 0.5f;
@@ -34,10 +35,10 @@ public class PlayerWeapon : MonoBehaviour
 
     private (bool isCrit, int damage) CritDamage()
     {
-        var critChance = WeaponData.WeaponStat.critChance[_currentTierIdx] + _mainStats[MainStats.CritChance];
+        var critChance = WeaponData.WeaponStat.critChance[TierIdx] + _mainStats[MainStats.CritChance];
         bool isCrit = Random.value < critChance / 100f;
         var damage = FinalDamage;
-        if (isCrit) damage = Mathf.FloorToInt(damage * WeaponData.WeaponStat.critDamage[_currentTierIdx]);
+        if (isCrit) damage = Mathf.FloorToInt(damage * WeaponData.WeaponStat.critDamage[TierIdx]);
         
         return (isCrit, damage);
     }
@@ -120,8 +121,9 @@ public class PlayerWeapon : MonoBehaviour
         {
             muzzle.localPosition = weaponData.MuzzleOffset;
         }
-        
-        _currentTierIdx = tier - weaponData.WeaponStat.initTier;//인덱스은 0부터 초기 티어 만큼 차감
+
+        Tier = tier;
+        TierIdx = tier - weaponData.WeaponStat.initTier;//인덱스은 0부터 초기 티어 만큼 차감
 
         var weaponEffectList = weaponData.WeaponEffectDataList;
         foreach (var weaponEffectData in weaponEffectList)
@@ -147,10 +149,10 @@ public class PlayerWeapon : MonoBehaviour
 
     private float GetEffectValueStatMultiplier(WeaponEffectValues weaponEffectValues)
     {
-        var value = weaponEffectValues.values[_currentTierIdx];
+        var value = weaponEffectValues.values[TierIdx];
         if (weaponEffectValues.multipliers.Count == 0) return value;
         
-        var multiplier = weaponEffectValues.multipliers[_currentTierIdx];
+        var multiplier = weaponEffectValues.multipliers[TierIdx];
         //스탯 계수(티어 값)
         if (weaponEffectValues.mainStat != MainStats.None)
         {
@@ -225,7 +227,7 @@ public class PlayerWeapon : MonoBehaviour
 
     private void MeleeAttack()
     {
-        var finalRange = (WeaponData.WeaponStat.range[_currentTierIdx] 
+        var finalRange = (WeaponData.WeaponStat.range[TierIdx] 
                           + _mainStats[MainStats.Range] * MeleeRangeMultiplier) / RangeScaler;
         //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
         
@@ -286,7 +288,7 @@ public class PlayerWeapon : MonoBehaviour
         if (percent >= 1f)
         {
             _isAttacking = false;
-            _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
+            _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
             hitbox.localPosition = Vector3.zero;
@@ -311,7 +313,7 @@ public class PlayerWeapon : MonoBehaviour
 
     private void RangedAttack()
     {
-        float finalRange = (float)(WeaponData.WeaponStat.range[_currentTierIdx] + _mainStats[MainStats.Range] )
+        float finalRange = (float)(WeaponData.WeaponStat.range[TierIdx] + _mainStats[MainStats.Range] )
                             /  RangeScaler;
         //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
         
@@ -343,7 +345,7 @@ public class PlayerWeapon : MonoBehaviour
         projectile.Initialize(projectileInitData);
         projectile.Fire(dir, finalRange);
 
-        _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[_currentTierIdx];
+        _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
     }
 
     private void WeaponEffectsSetExecute()
@@ -372,13 +374,13 @@ public class PlayerWeapon : MonoBehaviour
         //(기본 데미지 + (스탯 * 계수 + ...)) * 데미지 배율 + 고유효과 적용
         StringBuilder sb = new StringBuilder();
         
-        int baseDamage = WeaponData.WeaponStat.baseDamage[_currentTierIdx]; //기본데미지(티어별)
+        int baseDamage = WeaponData.WeaponStat.baseDamage[TierIdx]; //기본데미지(티어별)
         int statDamageSum = 0;//총 스탯 추가 데미지
         
         foreach (var statMultiplier in WeaponData.WeaponStat.damageMultipliers)
         {
             var stat = statMultiplier.stat; //스탯 종류
-            var value = statMultiplier.value[_currentTierIdx]; //계수(티어별)
+            var value = statMultiplier.value[TierIdx]; //계수(티어별)
             var statAmount = _mainStats[stat]; //현재 스탯
             int statDamage =  Mathf.FloorToInt(statAmount * (value / 100f)); //소수점 이하는 버림
             statDamageSum += statDamage;

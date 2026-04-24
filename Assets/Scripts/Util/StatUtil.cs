@@ -161,43 +161,60 @@ public static class StatUtil
         return mainStatIcons[stat];
     }
 
-    public static void AppendColorString(this StringBuilder sb, float value)
+    public static void AppendColorValue(this StringBuilder sb, float value)
     {
-        var format = value.ToString("F2");
+        //var format = value.ToString("F2");
         if (value > 0)
         {
-            sb.Append(" <color=#55FF55>+");
-            sb.Append(format);
-            sb.Append("</color> ");
+            sb.Append("<color=").Append(GreenColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color>");
         }
         else if (value < 0)
         {
-            sb.Append(" <color=#FF5555>");
-            sb.Append(format);
-            sb.Append("</color> ");
+            sb.Append("<color=").Append(RedColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color>");
 
         }
         else sb.Append(0);
     }
     
-    public static void AppendColorString(this StringBuilder sb, int value)
+    public static void AppendColorValue(this StringBuilder sb, int value)
     {
         if (value > 0)
         {
-            sb.Append(" <color=").Append(GreenColor).Append(">+");
+            sb.Append("<color=").Append(GreenColor).Append(">");
             sb.Append(value);
-            sb.Append("</color> ");
+            sb.Append("</color>");
         }
         else if (value < 0)
         {
-            sb.Append(" <color=").Append(RedColor).Append(">");
+            sb.Append("<color=").Append(RedColor).Append(">");
             sb.Append(value);
-            sb.Append("</color> ");
+            sb.Append("</color>");
 
         }
         else sb.Append(0);
     }
 
+    public static void AppendColorString(this StringBuilder sb, string str, int sign)
+    {
+        if (sign > 0)
+        {
+            sb.Append("<color=").Append(GreenColor).Append(">");
+            sb.Append(str);
+            sb.Append("</color>");
+        }
+        else if (sign < 0)
+        {
+            sb.Append("<color=").Append(RedColor).Append(">");
+            sb.Append(str);
+            sb.Append("</color>");
+        }
+        else sb.Append(str);
+    }
+    
     public static void AppendMultiplier(this StringBuilder sb, string stat, int value)
     {
         if (value > 0)

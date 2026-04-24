@@ -217,12 +217,16 @@ public class SelectWindow : MonoBehaviour
 
             selectBtn.transform.SetParent(weaponViewportContent); //부모 설정.
 
-            selectBtn.SetButtonImg(DataManager.Instance.WeaponDict[weaponID].Sprite);
+            var weaponData = DataManager.Instance.WeaponDict[weaponID];
+            const int initTierIdx = 0;
+            
+            selectBtn.SetButtonImg(weaponData.Sprite);
 
             _weaponSelectList.Add(selectBtn);
 
-            selectBtn.OnBtnPointerEnter += () => ShowWeaponDescription(weaponID); //포인터 이벤트(설명 표시)
-            selectBtn.SelectBtn.onClick.AddListener( () => ShowStageSelect(charID, weaponID));
+            selectBtn.OnBtnPointerEnter += () => ShowWeaponDescription(weaponID, initTierIdx); 
+            //포인터 이벤트(설명 표시)
+            selectBtn.SelectBtn.onClick.AddListener( () => ShowStageSelect(charID, weaponID, initTierIdx));
         }
         
         ShowRandomWeapon();
@@ -256,11 +260,11 @@ public class SelectWindow : MonoBehaviour
         ShowWeaponButtons(charID); //버튼 설정
     }
 
-    private void ShowWeaponDescription(int weaponID) //재활용??
+    private void ShowWeaponDescription(int weaponID, int tier) //재활용??
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
-        weaponPanel.ShowWeaponInfo(weaponData, sb);
+        weaponPanel.ShowWeaponInfo(weaponData,tier, sb);
     }
 
 
@@ -278,8 +282,9 @@ public class SelectWindow : MonoBehaviour
         var weaponList = DataManager.Instance.CharDict[charID].InitWeaponIDList;
         var randIdx = Random.Range(0, weaponList.Count);
         var weaponID = weaponList[randIdx];
+        const int initTierIdx = 0;
         
-        ShowStageSelect(charID, weaponID);
+        ShowStageSelect(charID, weaponID, initTierIdx);
     }
 
     private void InitStageSelect()
@@ -309,9 +314,9 @@ public class SelectWindow : MonoBehaviour
         stageDescription.SetText(sb);
     }
     
-    private void ShowStageSelect(int charID, int weaponID)
+    private void ShowStageSelect(int charID, int weaponID, int initTierIdx)
     {
-        ShowWeaponDescription(weaponID);
+        ShowWeaponDescription(weaponID, initTierIdx);
         SwitchWindow(SelectWindowState.StageSelect);
         stagePanel.SetActive(true);
 

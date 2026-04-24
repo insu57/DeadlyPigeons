@@ -134,7 +134,8 @@ public class PlayerManager : MonoBehaviour
     private void HandleOnShowWeaponInfo(int index, SelectButton selectBtn)
     {
         var weaponData = playerWeapons[index].WeaponData;
-        _playerInfoUI.ShowWeaponInfo(weaponData, selectBtn, index);
+        var tierIdx = playerWeapons[index].TierIdx;
+        _playerInfoUI.ShowWeaponInfo(weaponData, tierIdx, selectBtn, index);
     }
 
     private void SetWeaponClassBonus() //클래스 보너스 초기화

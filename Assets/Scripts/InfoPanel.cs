@@ -13,7 +13,7 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
     
-    public void ShowWeaponInfo(WeaponData weaponData, StringBuilder sb)
+    public void ShowWeaponInfo(WeaponData weaponData, int tierIdx, StringBuilder sb)
     {
         sb.Clear();
 
@@ -21,7 +21,7 @@ public class InfoPanel : MonoBehaviour
         img.sprite = weaponData.Sprite;
         
         //무기의 스탯은 초기 티어기준으로.
-        var tier = weaponData.WeaponStat.initTier;
+        var tier = tierIdx + weaponData.WeaponStat.initTier; //현재 티어(인덱스 + 초기 티어)
         var colorHexStr = DataManager.Instance.TierColorDict[tier]; //티어 컬러 가져오기
         var color = DataManager.Instance.GetHexToColor(colorHexStr);
         nameTxt.color = color;
@@ -36,38 +36,74 @@ public class InfoPanel : MonoBehaviour
         classesTxt.SetText(sb);
         sb.Clear();
         
-        sb.AppendHeadString("데미지:");
-        sb.Append(weaponData.WeaponStat.baseDamage[0]).Append(" ("); //기본 데미지
+        sb.AppendHeadString("데미지: ");
+        sb.Append(weaponData.WeaponStat.baseDamage[tierIdx]).Append(" ("); //기본 데미지
         foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers) //스탯 별 데미지 계수
         {
             var stat = statMultiplier.stat;
-            var value = statMultiplier.value[0];
+            var value = statMultiplier.value[tierIdx];
             sb.Append("+").Append(value).Append("%").Append(stat.GetIcons());
         }
         sb.AppendLine(")");
         
-        sb.AppendHeadString("치명타:");
-        sb.Append("X").Append(weaponData.WeaponStat.critDamage[0]);
-        sb.Append(" (").Append(weaponData.WeaponStat.critChance[0]).AppendLine("% 확률)");
+        sb.AppendHeadString("치명타: ");
+        sb.Append("X").Append(weaponData.WeaponStat.critDamage[tierIdx]);
+        sb.Append(" (").Append(weaponData.WeaponStat.critChance[tierIdx]).AppendLine("% 확률)");
         
-        sb.AppendHeadString("쿨타운:");
-        sb.Append(weaponData.WeaponStat.attackSpeed[0]).AppendLine("s");
+        sb.AppendHeadString("쿨다운: ");
+        sb.Append(weaponData.WeaponStat.attackSpeed[tierIdx]).AppendLine("s");
         
-        var knockback = weaponData.WeaponStat.knockBack[0];
+        var knockback = weaponData.WeaponStat.knockBack[tierIdx];
         if (knockback > 0)
         {
-            sb.AppendHeadString("넉백:");
+            sb.AppendHeadString("넉백: ");
             sb.Append(knockback).AppendLine();
         }
         
-        sb.AppendHeadString("범위:");
-        sb.Append(weaponData.WeaponStat.range[0]).Append("(");
+        sb.AppendHeadString("범위: ");
+        sb.Append(weaponData.WeaponStat.range[tierIdx]).Append("(");
         sb.AppendLine(weaponData.WeaponStat.isMelee ? "근거리)" : "원거리)");
 
-        sb.Append("•").AppendLine(weaponData.WeaponStat.description); 
-        //고유 효과 -> 데이터는 어떤방식으로???
-        // 최소 0개(없음부터) ~ 5?개(상한은 없이?) - 티어 수 만큼의 스탯 배수값...
-        
+        //개선 방안?
+        var weaponEffectDataList = weaponData.WeaponEffectDataList;
+        foreach (var weaponEffectData in weaponEffectDataList)
+        {
+            var descriptionFormat = weaponEffectData.effectDescription;
+            sb.Append('•');
+            List<(float param, bool isValue)> paramList = new(); //파라미터 리스트
+            foreach (var effectValue in weaponEffectData.valuesList) //효과 수치 리스트
+            {
+                paramList.Add((effectValue.values[tierIdx], true));
+                if (effectValue.multipliers.Count > 0)
+                {
+                    paramList.Add((effectValue.multipliers[tierIdx], false));
+                }
+            }
+            
+            for (int i = 0; i < descriptionFormat.Length; i++)
+            {
+                if (i % 2 == 0) //짝수: 문자열
+                {
+                    sb.Append(descriptionFormat[i]);
+                }
+                else //홀수: 파라미터
+                {
+                    int paramIndex = int.Parse(descriptionFormat[i]); //인덱스
+                    if(paramIndex < 0 || paramIndex > paramList.Count) continue;
+                    var param = paramList[paramIndex].param;
+                    if (paramList[paramIndex].isValue)
+                    {
+                        sb.AppendColorValue(param);
+                    }
+                    else
+                    {
+                        sb.Append(param);
+                    }
+                }
+            }
+
+            sb.AppendLine();
+        }
         
         descriptionTxt.SetText(sb);
     }
@@ -114,7 +150,6 @@ public class InfoPanel : MonoBehaviour
             }
             else if (statAmount.subStat != SubStats.None)
             {
-                stringBuilder.Append(statAmount.subStat.SubStatsToString()).Append(' ');
                 string subStat = statAmount.subStat.SubStatsToString();
                 stringBuilder.AppendMultiplier(subStat, statAmount.amount);
                 stringBuilder.AppendLine();
@@ -125,13 +160,16 @@ public class InfoPanel : MonoBehaviour
         {
             if (statAmount.mainStat != MainStats.None)
             {
-                stringBuilder.Append(statAmount.mainStat.GetIcons()); //스탯 아이콘
-                stringBuilder.AppendColorString(statAmount.amount); //증감량
+                stringBuilder.Append(statAmount.mainStat.GetIcons()).Append(' '); //스탯 아이콘
+                if(statAmount.amount > 0) stringBuilder.AppendColorString("+", 1);
+                stringBuilder.AppendColorValue(statAmount.amount); //증감량
                 stringBuilder.AppendLine(statAmount.mainStat.MainStatsToString()); //해당 스탯명
             }
             else if (statAmount.subStat != SubStats.None)
             {
-                stringBuilder.AppendColorString(statAmount.amount);
+                stringBuilder.Append(' ');
+                if(statAmount.amount > 0) stringBuilder.AppendColorString("+", 1);
+                stringBuilder.AppendColorValue(statAmount.amount);
                 stringBuilder.AppendLine(statAmount.subStat.SubStatsToString());
             }
         }

@@ -48,7 +48,6 @@ public struct WeaponStat
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
     public List<int> prices;
-    public string description;
 }
 
 [Serializable]
@@ -56,7 +55,7 @@ public struct WeaponEffectData
 {
     public WeaponEffectType effectType;
     public List<WeaponEffectValues> valuesList; //각 항목 리스트 -> 티어 수치 리스트
-    //public List<EffectValues> executeValuesList;
+    public string[] effectDescription;
 }
 
 [Serializable]
