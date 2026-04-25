@@ -50,6 +50,21 @@ public struct WeaponStat
     public List<int> prices;
 }
 
+public struct CurrentWeaponStat
+{
+    public WeaponData WeaponData;
+    public int Tier;
+    public int Damage;
+    public List<(MainStats mainStat, int multiplier)> StatMultipliers;
+    public float CritDamage;
+    public int CritChance;
+    public float AttackSpeed;
+    public int KnockBack;
+    public int Range;
+    public bool IsMelee;
+    public int HealthAbsorb;
+}
+
 [Serializable]
 public struct WeaponEffectData
 {

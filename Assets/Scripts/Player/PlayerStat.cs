@@ -103,19 +103,15 @@ public class PlayerStat : MonoBehaviour, IDamageable
         OnChangeSubStats?.Invoke(subStats, _subStatDict[subStats]);
     }
 
-    public void SyncStatData()
+    public CurrentWeaponStat GetCurrentWeaponStat(CurrentWeaponStat currentWeaponStat)
     {
-        for (int i = 0; i < (int)MainStats.None; i++)
-        {
-            var mainStat = (MainStats)i;
-            OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
-        }
+        currentWeaponStat.CritChance += _finalMainStatDict[MainStats.CritChance];
+        currentWeaponStat.AttackSpeed *= (1f + _finalMainStatDict[MainStats.AttackSpeed] / 100f);
+        currentWeaponStat.KnockBack += _subStatDict[SubStats.Knockback];
+        currentWeaponStat.Range += _finalMainStatDict[MainStats.Range];
+        currentWeaponStat.HealthAbsorb += _finalMainStatDict[MainStats.HealthAbsorb];
 
-        for (int i = 0; i < (int)SubStats.None; i++)
-        {
-            var subStat = (SubStats)i;
-            OnChangeSubStats?.Invoke(subStat, _subStatDict[subStat]);
-        }
+        return currentWeaponStat;
     }
     
     public void Damage(int damage, bool isCrit)

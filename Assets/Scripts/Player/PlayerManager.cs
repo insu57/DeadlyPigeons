@@ -133,9 +133,37 @@ public class PlayerManager : MonoBehaviour
 
     private void HandleOnShowWeaponInfo(int index, SelectButton selectBtn)
     {
-        var weaponData = playerWeapons[index].WeaponData;
-        var tierIdx = playerWeapons[index].TierIdx;
-        _playerInfoUI.ShowWeaponInfo(weaponData, tierIdx, selectBtn, index);
+        var playerWeapon =  playerWeapons[index];
+        var weaponData = playerWeapon.WeaponData;
+        var tierIdx = playerWeapon.TierIdx;
+
+        var statMultipliers = new List<(MainStats MainStats, int multipleir)>();
+        foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers)
+        {
+            var mainStat = statMultiplier.stat;
+            var multiplier = statMultiplier.value[tierIdx];
+            statMultipliers.Add((mainStat, multiplier));
+        }
+        
+        
+        var currentWeaponStat = new CurrentWeaponStat
+        {
+            WeaponData = weaponData,
+            Tier = playerWeapon.Tier,
+            Damage = playerWeapon.FinalDamage,
+            StatMultipliers = statMultipliers,
+            CritDamage = weaponData.WeaponStat.critDamage[tierIdx],
+            CritChance = weaponData.WeaponStat.critChance[tierIdx],
+            AttackSpeed = weaponData.WeaponStat.attackSpeed[tierIdx],
+            KnockBack = weaponData.WeaponStat.knockBack[tierIdx],
+            Range = weaponData.WeaponStat.range[tierIdx],
+            IsMelee = weaponData.WeaponStat.isMelee,
+            HealthAbsorb = weaponData.WeaponStat.healthAbsorb[tierIdx],
+        };
+
+        currentWeaponStat = _playerStat.GetCurrentWeaponStat(currentWeaponStat);
+        
+        _playerInfoUI.ShowWeaponInfo(currentWeaponStat, tierIdx, selectBtn, index);
     }
 
     private void SetWeaponClassBonus() //클래스 보너스 초기화

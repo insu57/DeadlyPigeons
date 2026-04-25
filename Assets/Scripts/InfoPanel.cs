@@ -13,21 +13,22 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
     
-    public void ShowWeaponInfo(WeaponData weaponData, int tierIdx, StringBuilder sb)
+    public void ShowWeaponInfo(CurrentWeaponStat weapon, int tierIdx, StringBuilder sb)
     {
         sb.Clear();
 
-        nameTxt.text = weaponData.Name;
-        img.sprite = weaponData.Sprite;
+        nameTxt.text = weapon.WeaponData.Name;
+        img.sprite = weapon.WeaponData.Sprite;
         
         //무기의 스탯은 초기 티어기준으로.
-        var tier = tierIdx + weaponData.WeaponStat.initTier; //현재 티어(인덱스 + 초기 티어)
+        //var tier = tierIdx + weaponData.WeaponStat.initTier; //현재 티어(인덱스 + 초기 티어)
+        var tier = weapon.Tier;
         var colorHexStr = DataManager.Instance.TierColorDict[tier]; //티어 컬러 가져오기
         var color = DataManager.Instance.GetHexToColor(colorHexStr);
         nameTxt.color = color;
         panelBorder.color = color;
-        
-        var weaponClass = weaponData.WeaponStat.classes;
+
+        var weaponClass = weapon.WeaponData.WeaponStat.classes;
         sb.Append(WeaponData.WeaponClassToString(weaponClass[0])); //첫 클래스
         for (int i = 1; i < weaponClass.Count; i++) //하나 이상의 클래스를 가진 무기라면
         {
@@ -37,23 +38,23 @@ public class InfoPanel : MonoBehaviour
         sb.Clear();
         
         sb.AppendHeadString("데미지: ");
-        sb.Append(weaponData.WeaponStat.baseDamage[tierIdx]).Append(" ("); //기본 데미지
-        foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers) //스탯 별 데미지 계수
+        sb.Append(weapon.Damage).Append(" ("); //기본 데미지
+        foreach (var statMultiplier in weapon.StatMultipliers) //스탯 별 데미지 계수
         {
-            var stat = statMultiplier.stat;
-            var value = statMultiplier.value[tierIdx];
+            var stat = statMultiplier.mainStat;
+            var value = statMultiplier.multiplier;
             sb.Append("+").Append(value).Append("%").Append(stat.GetIcons());
         }
         sb.AppendLine(")");
         
         sb.AppendHeadString("치명타: ");
-        sb.Append("X").Append(weaponData.WeaponStat.critDamage[tierIdx]);
-        sb.Append(" (").Append(weaponData.WeaponStat.critChance[tierIdx]).AppendLine("% 확률)");
+        sb.Append("X").Append(weapon.CritDamage);
+        sb.Append(" (").Append(weapon.CritChance).AppendLine("% 확률)");
         
         sb.AppendHeadString("쿨다운: ");
-        sb.Append(weaponData.WeaponStat.attackSpeed[tierIdx]).AppendLine("s");
-        
-        var knockback = weaponData.WeaponStat.knockBack[tierIdx];
+        sb.Append(weapon.AttackSpeed).AppendLine("s");
+
+        var knockback = weapon.KnockBack;
         if (knockback > 0)
         {
             sb.AppendHeadString("넉백: ");
@@ -61,11 +62,11 @@ public class InfoPanel : MonoBehaviour
         }
         
         sb.AppendHeadString("범위: ");
-        sb.Append(weaponData.WeaponStat.range[tierIdx]).Append("(");
-        sb.AppendLine(weaponData.WeaponStat.isMelee ? "근거리)" : "원거리)");
+        sb.Append(weapon.Range).Append("(");
+        sb.AppendLine(weapon.IsMelee ? "근거리)" : "원거리)");
 
         //개선 방안?
-        var weaponEffectDataList = weaponData.WeaponEffectDataList;
+        var weaponEffectDataList = weapon.WeaponData.WeaponEffectDataList;
         foreach (var weaponEffectData in weaponEffectDataList)
         {
             var descriptionFormat = weaponEffectData.effectDescription;
@@ -91,11 +92,11 @@ public class InfoPanel : MonoBehaviour
                     int paramIndex = int.Parse(descriptionFormat[i]); //인덱스
                     if(paramIndex < 0 || paramIndex > paramList.Count) continue;
                     var param = paramList[paramIndex].param;
-                    if (paramList[paramIndex].isValue)
+                    if (paramList[paramIndex].isValue)//스탯에 영향받기 때문에 
                     {
                         sb.AppendColorValue(param);
                     }
-                    else
+                    else//스탯 배수인 경우 고정이므로 색x
                     {
                         sb.Append(param);
                     }

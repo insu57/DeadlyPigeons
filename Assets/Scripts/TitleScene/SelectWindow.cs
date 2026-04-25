@@ -218,15 +218,14 @@ public class SelectWindow : MonoBehaviour
             selectBtn.transform.SetParent(weaponViewportContent); //부모 설정.
 
             var weaponData = DataManager.Instance.WeaponDict[weaponID];
-            const int initTierIdx = 0;
             
             selectBtn.SetButtonImg(weaponData.Sprite);
 
             _weaponSelectList.Add(selectBtn);
 
-            selectBtn.OnBtnPointerEnter += () => ShowWeaponDescription(weaponID, initTierIdx); 
+            selectBtn.OnBtnPointerEnter += () => ShowWeaponDescription(weaponID); 
             //포인터 이벤트(설명 표시)
-            selectBtn.SelectBtn.onClick.AddListener( () => ShowStageSelect(charID, weaponID, initTierIdx));
+            selectBtn.SelectBtn.onClick.AddListener( () => ShowStageSelect(charID, weaponID));
         }
         
         ShowRandomWeapon();
@@ -260,11 +259,35 @@ public class SelectWindow : MonoBehaviour
         ShowWeaponButtons(charID); //버튼 설정
     }
 
-    private void ShowWeaponDescription(int weaponID, int tier) //재활용??
+    private void ShowWeaponDescription(int weaponID) //재활용??
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
-        weaponPanel.ShowWeaponInfo(weaponData,tier, sb);
+        List<(MainStats mainStat, int multiplier)> statsMultipliers = new();
+        foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers)
+        {
+            var mainStat = statMultiplier.stat;
+            var multiplier = statMultiplier.value[0];
+            statsMultipliers.Add((mainStat, multiplier));
+        }
+        
+        //tierIdx = 0(초기 인덱스)
+        var currentWeaponStat = new CurrentWeaponStat
+        {
+            WeaponData = weaponData,
+            Tier = weaponData.WeaponStat.initTier,
+            Damage = weaponData.WeaponStat.baseDamage[0],
+            StatMultipliers = statsMultipliers,
+            CritDamage = weaponData.WeaponStat.critDamage[0],
+            CritChance = weaponData.WeaponStat.critChance[0],
+            AttackSpeed = weaponData.WeaponStat.attackSpeed[0],
+            KnockBack = weaponData.WeaponStat.knockBack[0],
+            Range = weaponData.WeaponStat.range[0],
+            IsMelee = weaponData.WeaponStat.isMelee,
+            HealthAbsorb = weaponData.WeaponStat.healthAbsorb[0],
+        };
+        
+        weaponPanel.ShowWeaponInfo(currentWeaponStat,0, sb);
     }
 
 
@@ -282,9 +305,8 @@ public class SelectWindow : MonoBehaviour
         var weaponList = DataManager.Instance.CharDict[charID].InitWeaponIDList;
         var randIdx = Random.Range(0, weaponList.Count);
         var weaponID = weaponList[randIdx];
-        const int initTierIdx = 0;
         
-        ShowStageSelect(charID, weaponID, initTierIdx);
+        ShowStageSelect(charID, weaponID);
     }
 
     private void InitStageSelect()
@@ -314,9 +336,9 @@ public class SelectWindow : MonoBehaviour
         stageDescription.SetText(sb);
     }
     
-    private void ShowStageSelect(int charID, int weaponID, int initTierIdx)
+    private void ShowStageSelect(int charID, int weaponID)
     {
-        ShowWeaponDescription(weaponID, initTierIdx);
+        ShowWeaponDescription(weaponID);
         SwitchWindow(SelectWindowState.StageSelect);
         stagePanel.SetActive(true);
 
