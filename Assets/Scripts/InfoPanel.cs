@@ -38,7 +38,12 @@ public class InfoPanel : MonoBehaviour
         sb.Clear();
         
         sb.AppendHeadString("데미지: ");
-        sb.Append(weapon.Damage).Append(" ("); //기본 데미지
+        int sign = 0;
+        if(weapon.Damage > weapon.WeaponData.WeaponStat.baseDamage[tierIdx]) sign = 1;
+        else if (weapon.Damage < weapon.WeaponData.WeaponStat.baseDamage[tierIdx]) sign = -1;
+        
+        sb.AppendColor(weapon.Damage, sign);
+        sb.Append(" ("); //기본 데미지
         foreach (var statMultiplier in weapon.StatMultipliers) //스탯 별 데미지 계수
         {
             var stat = statMultiplier.mainStat;
@@ -162,14 +167,14 @@ public class InfoPanel : MonoBehaviour
             if (statAmount.mainStat != MainStats.None)
             {
                 stringBuilder.Append(statAmount.mainStat.GetIcons()).Append(' '); //스탯 아이콘
-                if(statAmount.amount > 0) stringBuilder.AppendColorString("+", 1);
+                if(statAmount.amount > 0) stringBuilder.AppendColor("+", 1);
                 stringBuilder.AppendColorValue(statAmount.amount); //증감량
                 stringBuilder.AppendLine(statAmount.mainStat.MainStatsToString()); //해당 스탯명
             }
             else if (statAmount.subStat != SubStats.None)
             {
                 stringBuilder.Append(' ');
-                if(statAmount.amount > 0) stringBuilder.AppendColorString("+", 1);
+                if(statAmount.amount > 0) stringBuilder.AppendColor("+", 1);
                 stringBuilder.AppendColorValue(statAmount.amount);
                 stringBuilder.AppendLine(statAmount.subStat.SubStatsToString());
             }

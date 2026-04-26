@@ -103,6 +103,20 @@ public class PlayerStat : MonoBehaviour, IDamageable
         OnChangeSubStats?.Invoke(subStats, _subStatDict[subStats]);
     }
 
+    public void SyncStat()
+    {
+        foreach (var (mainStat, value) in _finalMainStatDict)
+        {
+            OnChangeMainStats?.Invoke(mainStat, value);
+        }
+
+        foreach (var (subStat, value) in _subStatDict)
+        {
+            OnChangeSubStats?.Invoke(subStat, value);
+        }
+    }
+    
+
     public CurrentWeaponStat GetCurrentWeaponStat(CurrentWeaponStat currentWeaponStat)
     {
         currentWeaponStat.CritChance += _finalMainStatDict[MainStats.CritChance];

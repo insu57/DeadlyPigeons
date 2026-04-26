@@ -72,6 +72,8 @@ public class PlayerManager : MonoBehaviour
             //PlayerWeapon 초기화
         }
         
+        Debug.Log(playerWeapons.Count);
+        
         for (int i = 0; i < initWeaponList.Count; i++)
         {
             if(i >= _weaponSlotCount) break;
@@ -95,12 +97,15 @@ public class PlayerManager : MonoBehaviour
             var sprite = initWeaponList[i].Sprite;
             _playerInfoUI.AddWeapon(sprite, i);
         }
+        
+        //sync?
+        _playerStat.SyncStat();
     }
 
     private void UpdateStat(MainStats stat, int value)
     {
         _playerInfoUI.UpdateMainStat(stat, value);
-      
+     
         foreach (var playerWeapon in playerWeapons)
         {
             if (playerWeapon.WeaponData)
@@ -123,7 +128,7 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    public void GetClosestEnemy(TargetInfo enemy)
+    public void GetClosestEnemy(TargetInfo enemy) //가장 가까운 적 => PlayerWeapon에 주입
     {
         foreach (var playerWeapon in playerWeapons)
         {
@@ -131,7 +136,7 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    private void HandleOnShowWeaponInfo(int index, SelectButton selectBtn)
+    private void HandleOnShowWeaponInfo(int index, SelectButton selectBtn) //무기 정보 표시
     {
         var playerWeapon =  playerWeapons[index];
         var weaponData = playerWeapon.WeaponData;

@@ -259,7 +259,7 @@ public class SelectWindow : MonoBehaviour
         ShowWeaponButtons(charID); //버튼 설정
     }
 
-    private void ShowWeaponDescription(int weaponID) //재활용??
+    private void ShowWeaponDescription(int weaponID)
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
@@ -272,7 +272,7 @@ public class SelectWindow : MonoBehaviour
         }
         
         //tierIdx = 0(초기 인덱스)
-        var currentWeaponStat = new CurrentWeaponStat
+        var currentWeaponStat = new CurrentWeaponStat  //개선 방안?
         {
             WeaponData = weaponData,
             Tier = weaponData.WeaponStat.initTier,

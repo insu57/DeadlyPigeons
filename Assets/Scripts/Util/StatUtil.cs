@@ -163,7 +163,7 @@ public static class StatUtil
 
     public static void AppendColorValue(this StringBuilder sb, float value)
     {
-        //var format = value.ToString("F2");
+        //var format = value.ToString("F2"); 자릿수관련 int, float 통합?
         if (value > 0)
         {
             sb.Append("<color=").Append(GreenColor).Append(">");
@@ -198,7 +198,7 @@ public static class StatUtil
         else sb.Append(0);
     }
 
-    public static void AppendColorString(this StringBuilder sb, string str, int sign)
+    public static void AppendColor(this StringBuilder sb, string str, int sign)
     {
         if (sign > 0)
         {
@@ -213,6 +213,23 @@ public static class StatUtil
             sb.Append("</color>");
         }
         else sb.Append(str);
+    }
+
+    public static void AppendColor(this StringBuilder sb, float value, int sign)
+    {
+        if (sign > 0)
+        {
+            sb.Append("<color=").Append(GreenColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color>");
+        }
+        else if (sign < 0)
+        {
+            sb.Append("<color=").Append(RedColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color>");
+        }
+        else sb.Append(value);
     }
     
     public static void AppendMultiplier(this StringBuilder sb, string stat, int value)

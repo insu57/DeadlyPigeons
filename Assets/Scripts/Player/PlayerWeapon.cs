@@ -174,6 +174,11 @@ public class PlayerWeapon : MonoBehaviour
     {
         _mainStats[stat] = value;
         FinalDamage = GetDamage();
+        Debug.Log($"{stat} : {value}, Final : {FinalDamage}");
+        if (stat == MainStats.Melee)
+        {
+            
+        }
     }
 
     public void UpdateSubStats(SubStats stat, int value)
