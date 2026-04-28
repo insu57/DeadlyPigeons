@@ -120,7 +120,6 @@ public class PlayerStat : MonoBehaviour, IDamageable
     public CurrentWeaponStat GetCurrentWeaponStat(CurrentWeaponStat currentWeaponStat)
     {
         currentWeaponStat.CritChance += _finalMainStatDict[MainStats.CritChance];
-        currentWeaponStat.AttackSpeed *= (1f + _finalMainStatDict[MainStats.AttackSpeed] / 100f);
         currentWeaponStat.KnockBack += _subStatDict[SubStats.Knockback];
         currentWeaponStat.Range += _finalMainStatDict[MainStats.Range];
         currentWeaponStat.HealthAbsorb += _finalMainStatDict[MainStats.HealthAbsorb];

@@ -287,7 +287,7 @@ public class SelectWindow : MonoBehaviour
             HealthAbsorb = weaponData.WeaponStat.healthAbsorb[0],
         };
         
-        weaponPanel.ShowWeaponInfo(currentWeaponStat,0, sb);
+        weaponPanel.ShowWeaponInfo(currentWeaponStat, sb);
     }
 
 

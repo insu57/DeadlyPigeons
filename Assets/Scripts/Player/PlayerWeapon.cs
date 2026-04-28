@@ -23,8 +23,11 @@ public class PlayerWeapon : MonoBehaviour
     public int Tier {get; private set;}
     public int TierIdx { get; private set; }
     private float _attackCoolTimer;
-    private const int RangeScaler = 75;
-    private const float MeleeRangeMultiplier = 0.5f;
+    public float FinalAttackSpeed { get; private set; } //최종 공격 속도
+    private const float AttackSpeedScaler = 0.01f; //공격 속도 상수(스탯이 늘어나면 속도가 0에 가까워짐)
+    private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
+    private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
+    private float _finalRange; //실제 최종 범위(유닛 배율 적용). 범위 스탯과는 다름.
     private Hitbox _hitbox;
     private float _targetDist;
 
@@ -174,10 +177,14 @@ public class PlayerWeapon : MonoBehaviour
     {
         _mainStats[stat] = value;
         FinalDamage = GetDamage();
-        Debug.Log($"{stat} : {value}, Final : {FinalDamage}");
-        if (stat == MainStats.Melee)
+     
+        if (stat == MainStats.Range)
         {
-            
+            _finalRange = GetRange();
+        }
+        else if (stat == MainStats.AttackSpeed)
+        {
+            FinalAttackSpeed = GetAttackSpeed();
         }
     }
 
@@ -232,11 +239,7 @@ public class PlayerWeapon : MonoBehaviour
 
     private void MeleeAttack()
     {
-        var finalRange = (WeaponData.WeaponStat.range[TierIdx] 
-                          + _mainStats[MainStats.Range] * MeleeRangeMultiplier) / RangeScaler;
-        //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
-        
-        if(finalRange * finalRange < _targetInfo.SqrDistance) return; //범위 밖
+        if(_finalRange * _finalRange < _targetInfo.SqrDistance) return; //범위 밖
         
         if (_attackCoolTimer > 0) return; //공격 쿨 타이머(무기 공격 속도 기준)
 
@@ -318,11 +321,7 @@ public class PlayerWeapon : MonoBehaviour
 
     private void RangedAttack()
     {
-        float finalRange = (float)(WeaponData.WeaponStat.range[TierIdx] + _mainStats[MainStats.Range] )
-                            /  RangeScaler;
-        //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
-        
-        if (finalRange * finalRange < _targetInfo.SqrDistance)
+        if (_finalRange * _finalRange < _targetInfo.SqrDistance)
         {
             return;
         }
@@ -348,7 +347,7 @@ public class PlayerWeapon : MonoBehaviour
             WeaponEffects = _weaponEffects //  효과 리스트
         };
         projectile.Initialize(projectileInitData);
-        projectile.Fire(dir, finalRange);
+        projectile.Fire(dir, _finalRange);
 
         _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
     }
@@ -377,7 +376,6 @@ public class PlayerWeapon : MonoBehaviour
     private int GetDamage()
     {
         //(기본 데미지 + (스탯 * 계수 + ...)) * 데미지 배율 + 고유효과 적용
-        StringBuilder sb = new StringBuilder();
         
         int baseDamage = WeaponData.WeaponStat.baseDamage[TierIdx]; //기본데미지(티어별)
         int statDamageSum = 0;//총 스탯 추가 데미지
@@ -395,5 +393,60 @@ public class PlayerWeapon : MonoBehaviour
         //최종 데미지 배율 적용
         
         return Mathf.FloorToInt(finalDamage);//소수점 이하 버리기
+    }
+
+    private float GetRange()
+    {
+        if (WeaponData.WeaponStat.isMelee)
+        {
+            //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
+            var finalRange = (WeaponData.WeaponStat.range[TierIdx] 
+                              + _mainStats[MainStats.Range] * MeleeRangeMultiplier) / RangeScaler;
+            return finalRange;
+        }
+        else
+        {
+            //(기본 범위 + 범위 스탯) / 범위 조절(유닛)
+            float finalRange = (float)(WeaponData.WeaponStat.range[TierIdx] + _mainStats[MainStats.Range] )
+                               /  RangeScaler;
+            return finalRange;
+        }
+    }
+
+    private float GetAttackSpeed()
+    {
+        var baseAttackSpeed = WeaponData.WeaponStat.attackSpeed[TierIdx];
+        var attackSpeedStat = _mainStats[MainStats.AttackSpeed];
+        var finalAttackSpeed = baseAttackSpeed / (1 + (AttackSpeedScaler * attackSpeedStat)); 
+        //공격 속도 스탯이 늘어나면 0에 가까워짐.(0은 되지않음) 스탯 100이면 공격 간 시간(대기시간)이 절반으로 감소
+        return finalAttackSpeed;
+    }
+
+    public CurrentWeaponStat GetCurrentWeaponStat()
+    {
+        var weaponStat = WeaponData.WeaponStat;
+        var statMultipliers = new List<(MainStats MainStats, int multipleir)>();
+        foreach (var statMultiplier in weaponStat.damageMultipliers)
+        {
+            var mainStat = statMultiplier.stat;
+            var multiplier = statMultiplier.value[TierIdx];
+            statMultipliers.Add((mainStat, multiplier));
+        }
+        var currentWeaponStat = new CurrentWeaponStat
+        {
+            WeaponData = WeaponData,
+            Tier = Tier,
+            Damage = FinalDamage,
+            StatMultipliers = statMultipliers,
+            CritDamage = weaponStat.critDamage[TierIdx],
+            CritChance = weaponStat.critChance[TierIdx] + _mainStats[MainStats.CritChance],
+            AttackSpeed = FinalAttackSpeed,
+            KnockBack = weaponStat.knockBack[TierIdx] + _subStats[SubStats.Knockback],
+            Range =  weaponStat.range[TierIdx] + _mainStats[MainStats.Range],
+            IsMelee = weaponStat.isMelee,
+            HealthAbsorb = weaponStat.healthAbsorb[TierIdx] + _mainStats[MainStats.HealthAbsorb],
+        };
+
+        return currentWeaponStat;
     }
 }

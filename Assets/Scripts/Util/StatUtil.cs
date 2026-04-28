@@ -215,15 +215,33 @@ public static class StatUtil
         else sb.Append(str);
     }
 
-    public static void AppendColor(this StringBuilder sb, float value, int sign)
+    public static void AppendColorCompare(this StringBuilder sb, float value, float @default)
     {
-        if (sign > 0)
+        if (value > @default)
         {
             sb.Append("<color=").Append(GreenColor).Append(">");
             sb.Append(value);
             sb.Append("</color>");
         }
-        else if (sign < 0)
+        else if (value < @default)
+        {
+            sb.Append("<color=").Append(RedColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color>");
+        }
+        else sb.Append(value);
+    }
+    
+    public static void AppendColorCompareReverse(this StringBuilder sb, float value, float @default)
+    {
+        //공격 속도와 같이 작은 값이 좋을 때
+        if (value < @default)
+        {
+            sb.Append("<color=").Append(GreenColor).Append(">");
+            sb.Append(value);
+            sb.Append("</color>");
+        }
+        else if (value > @default)
         {
             sb.Append("<color=").Append(RedColor).Append(">");
             sb.Append(value);

@@ -13,16 +13,17 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
     
-    public void ShowWeaponInfo(CurrentWeaponStat weapon, int tierIdx, StringBuilder sb)
+    public void ShowWeaponInfo(CurrentWeaponStat weapon, StringBuilder sb)
     {
         sb.Clear();
 
+        var weaponStat = weapon.WeaponData.WeaponStat;
+        
         nameTxt.text = weapon.WeaponData.Name;
         img.sprite = weapon.WeaponData.Sprite;
         
-        //무기의 스탯은 초기 티어기준으로.
-        //var tier = tierIdx + weaponData.WeaponStat.initTier; //현재 티어(인덱스 + 초기 티어)
         var tier = weapon.Tier;
+        var tierIdx = tier - weaponStat.initTier;
         var colorHexStr = DataManager.Instance.TierColorDict[tier]; //티어 컬러 가져오기
         var color = DataManager.Instance.GetHexToColor(colorHexStr);
         nameTxt.color = color;
@@ -36,39 +37,46 @@ public class InfoPanel : MonoBehaviour
         } 
         classesTxt.SetText(sb);
         sb.Clear();
+
+        
         
         sb.AppendHeadString("데미지: ");
-        int sign = 0;
-        if(weapon.Damage > weapon.WeaponData.WeaponStat.baseDamage[tierIdx]) sign = 1;
-        else if (weapon.Damage < weapon.WeaponData.WeaponStat.baseDamage[tierIdx]) sign = -1;
-        
-        sb.AppendColor(weapon.Damage, sign);
+        sb.AppendColorCompare(weapon.Damage, weaponStat.baseDamage[tierIdx]);
         sb.Append(" ("); //기본 데미지
-        foreach (var statMultiplier in weapon.StatMultipliers) //스탯 별 데미지 계수
+        foreach (var (stat, value) in weapon.StatMultipliers) //스탯 별 데미지 계수
         {
-            var stat = statMultiplier.mainStat;
-            var value = statMultiplier.multiplier;
             sb.Append("+").Append(value).Append("%").Append(stat.GetIcons());
         }
         sb.AppendLine(")");
         
         sb.AppendHeadString("치명타: ");
         sb.Append("X").Append(weapon.CritDamage);
-        sb.Append(" (").Append(weapon.CritChance).AppendLine("% 확률)");
+        sb.Append(" (").AppendColorCompare(weapon.CritChance, weaponStat.critChance[tierIdx]);
+        sb.AppendLine("% 확률)");
         
         sb.AppendHeadString("쿨다운: ");
-        sb.Append(weapon.AttackSpeed).AppendLine("s");
+        sb.AppendColorCompareReverse(weapon.AttackSpeed, weaponStat.attackSpeed[tierIdx]);
+        sb.AppendLine("s");
 
         var knockback = weapon.KnockBack;
         if (knockback > 0)
         {
             sb.AppendHeadString("넉백: ");
-            sb.Append(knockback).AppendLine();
+            sb.AppendColorCompare(knockback, weaponStat.knockBack[tierIdx]);
+            sb.AppendLine();
+        }
+
+        var healthAbsorb = weapon.HealthAbsorb;
+        if (healthAbsorb > 0)
+        {
+            sb.AppendHeadString("체력 흡수: ");
+            sb.AppendColorCompare(healthAbsorb, weaponStat.healthAbsorb[tierIdx]);
+            sb.AppendLine();
         }
         
         sb.AppendHeadString("범위: ");
-        sb.Append(weapon.Range).Append("(");
-        sb.AppendLine(weapon.IsMelee ? "근거리)" : "원거리)");
+        sb.AppendColorCompare(weapon.Range, weaponStat.range[tierIdx]);
+        sb.Append("(").AppendLine(weapon.IsMelee ? "근거리)" : "원거리)");
 
         //개선 방안?
         var weaponEffectDataList = weapon.WeaponData.WeaponEffectDataList;

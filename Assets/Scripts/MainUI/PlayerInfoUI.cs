@@ -210,10 +210,10 @@ public class PlayerInfoUI : MonoBehaviour
         infoPanel.gameObject.SetActive(true);
     }
 
-    public void ShowWeaponInfo(CurrentWeaponStat currentWeaponStat, int tierIdx, SelectButton selectButton, int weaponIdx) //무기 정보 표시
+    public void ShowWeaponInfo(CurrentWeaponStat currentWeaponStat,SelectButton selectButton, int weaponIdx) //무기 정보 표시
     {
         SetInfoPanel(weaponGrid.constraintCount, weaponIdx, selectButton);//피봇 설정 관련 개선?
-        infoPanel.ShowWeaponInfo(currentWeaponStat, tierIdx, sb);
+        infoPanel.ShowWeaponInfo(currentWeaponStat, sb);
         var classes = currentWeaponStat.WeaponData.WeaponStat.classes;
         infoPanel.ShowWeaponClassInfo(classes, sb);
     }

@@ -23,7 +23,6 @@ public class PlayerControl : MonoBehaviour
 
     private void Update()
     {
-        //_moveInputVector = InputManager.Instance.Input.Player.Move.ReadValue<Vector2>();
         MoveInput();
     }
     
@@ -34,7 +33,6 @@ public class PlayerControl : MonoBehaviour
 
     private void MoveInput()
     {
-        //_moveInputVector = InputManager.Instance.Input.Player.Move.ReadValue<Vector2>();
         _moveInputVector = _moveAction.ReadValue<Vector2>();
         
     }
@@ -53,6 +51,11 @@ public class PlayerControl : MonoBehaviour
         }
         
         _rigidbody2D.linearVelocity = _moveInputVector * 5f;
+        
+        //맵 제한?
+        //1. Wall Collider
+        //2. 좌표 제한
+        //추후 성능 문제, 떨림 등 문제가 생기면 수정
     }
     
 }
