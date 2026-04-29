@@ -29,6 +29,7 @@ public class StageManager : MonoBehaviour
     [SerializeField] private CharacterData testChar;
     [SerializeField] private List<WeaponData> testWeapon;
     [SerializeField] private int testStage;
+    [SerializeField] private int testWave;
 
     private void Awake()
     {
@@ -100,7 +101,7 @@ public class StageManager : MonoBehaviour
         Debug.Log("init stage");
     }
 
-    private void FindClosestEnemy()
+    private void FindClosestEnemy() //가장 가까운 적 찾기
     {
         Transform closest = null;
         float minDistanceSqr = MaxFindRange * MaxFindRange;

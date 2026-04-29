@@ -1,26 +1,26 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class EnemyManager : MonoBehaviour, IDamageable
 {
-    //tmp
-    [SerializeField] private int health;
-    [SerializeField] private int maxHealth;
-    
-    public Transform Target {get; private set; }
+    [SerializeField] private EnemyData enemyData; //stage에서.
+    //Spawn시 현재 wave 정보 주입.
+    private int _currentWave = 1;
+    private int _health;
+
+    public int AttackDamage { get; private set; }
+
+    public Transform Target { get; private set; }
     private Coroutine _activeDotCoroutine;
-    
     private IEnemyState _currentState;
-    private Dictionary<Type, IEnemyState> _enemyStates = new();
-    
-    public Rigidbody2D Rigidbody2D{get; private set;}
-    
+    private EnemyStateType _currentStateType;
+    private Dictionary<EnemyStateType, IEnemyState> _enemyStates = new();
+
+    public Rigidbody2D Rigidbody2D { get; private set; }
+
     public void SetTarget(Transform target)
     {
-        Debug.Log(name + ' ' + target.name);
         Target = target;
     }
 
@@ -28,34 +28,81 @@ public class EnemyManager : MonoBehaviour, IDamageable
     {
         Rigidbody2D = GetComponent<Rigidbody2D>();
     }
-    
+
     private void Start()
     {
-        _enemyStates[typeof(ChaseState)] = new ChaseState();
-        
-        ChangeState(typeof(ChaseState));
+        _health = enemyData.BaseHealth + enemyData.HealthPerWave * (_currentWave - 1);
+        AttackDamage = Mathf.FloorToInt(enemyData.BaseDamage + enemyData.DamagePerWave * (_currentWave - 1));
+
+        _enemyStates[EnemyStateType.Chase] = new ChaseState();
+        _enemyStates[EnemyStateType.Kite] = new KiteState();
+
+        ChangeState(enemyData.InitialState);
     }
 
     private void Update()
     {
         _currentState?.ExecuteState(this);
+        CheckTransitions();
     }
 
     private void FixedUpdate()
     {
         _currentState?.FixedExecute(this);
     }
-    
+
+    private void CheckTransitions()//상태 변경 체크
+    {
+        if (enemyData.Transitions == null || !Target) return;
+
+        foreach (var transition in enemyData.Transitions)
+        {
+            if (transition.targetState == _currentStateType) continue; //동일하면 x
+
+            if (EvaluateCondition(transition)) //조건 체크
+            {
+                ChangeState(transition.targetState);
+                return;
+            }
+        }
+    }
+
+    private bool EvaluateCondition(StateTransition transition) //상태변경 조건 검사
+    {
+        switch (transition.condition)
+        {
+            case TransitionCondition.HealthBelow:
+                float healthPct = (float)_health / enemyData.BaseHealth * 100f;
+                return healthPct < transition.threshold;
+
+            case TransitionCondition.PlayerNear:
+                return Vector2.Distance(transform.position, Target.position) < transition.threshold;
+
+            case TransitionCondition.PlayerFar:
+                return Vector2.Distance(transform.position, Target.position) > transition.threshold;
+
+            default:
+                return false;
+        }
+    }
+
+    private void ChangeState(EnemyStateType stateType)
+    {
+        _currentState?.ExitState(this);
+        _currentStateType = stateType;
+        _currentState = _enemyStates[stateType];
+        _currentState.EnterState(this);
+    }
+
     public void Damage(int damage, bool isCrit)
     {
-        health -= damage;
+        _health -= damage;
 
-        var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
+        var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt(); //데미지 플로팅 텍스트
         dmgTxt.transform.position = transform.position;
         dmgTxt.SetText(damage, isCrit);
-        
-        
-        if (health <= 0)
+
+        if (_health <= 0)
         {
             Debug.Log("DEAD");
         }
@@ -63,7 +110,6 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     public void Heal(int healAmount)
     {
-        
     }
 
     public void DotDamage(int duration, int damage, float tick)
@@ -72,39 +118,27 @@ public class EnemyManager : MonoBehaviour, IDamageable
         {
             StopCoroutine(_activeDotCoroutine);
         }
-        //지속시간, 데미지는 큰 값으로 갱신 틱은 가장 짧은 것으로)
         _activeDotCoroutine = StartCoroutine(DotDamageCoroutine(duration, damage, tick));
     }
 
     private IEnumerator DotDamageCoroutine(float duration, int damage, float tick)
     {
         float elapsedTime = 0f;
-        
         WaitForSeconds waitTick = new WaitForSeconds(tick);
 
-        while (elapsedTime < duration) //지속 시간 동안
+        while (elapsedTime < duration)
         {
-            if (!this)
-            {
-                yield break;
-            }
-            yield return waitTick;
-            //일정 틱 이후 도트 데미지
-            Damage(damage, false);
-            elapsedTime += tick;//틱 만큼 추가
+            if (!this) yield break; //Dead 시 오류 방지
+            
+            yield return waitTick; //tick만큼 대기
+            
+            Damage(damage, false); //도트 데미지 만큼 피해
+            
+            elapsedTime += tick;
         }
-        
-        _activeDotCoroutine = null;
-    }
-    
-    public Transform GetTransform() => transform;
 
-    private void ChangeState(Type newState)
-    {
-        _currentState?.ExitState(this);
-        
-        _currentState = _enemyStates[newState];
-        
-        _currentState.EnterState(this);
+        _activeDotCoroutine = null; //지속 시간 지나면 null
     }
+
+    public Transform GetTransform() => transform;
 }

@@ -75,7 +75,6 @@ public class Projectile : MonoBehaviour
             target.Damage(_damage, _isCrit);
             foreach (var weaponEffect in _weaponEffects)
             {
-                Debug.Log("EXECUTE");
                 weaponEffect.Execute(target);
             }
             _piercing--;
