@@ -5330,7 +5330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bff4ed2e0eba44498e8a3d530e566a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: 96311c7f302320e4dafef1dd6220504f, type: 2}
+  enemyData: {fileID: 11400000, guid: 1dceaad86c463a04baa15598d889512f, type: 2}
 --- !u!1 &1701176796
 GameObject:
   m_ObjectHideFlags: 0

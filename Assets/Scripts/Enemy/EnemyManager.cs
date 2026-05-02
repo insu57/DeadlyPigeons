@@ -4,20 +4,27 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour, IDamageable
 {
-    [SerializeField] private EnemyData enemyData; //stage에서.
-    //Spawn시 현재 wave 정보 주입.
+    [SerializeField] private EnemyData enemyData;
     private int _currentWave = 1;
     private int _health;
 
     public int AttackDamage { get; private set; }
+    public float Speed { get; private set; }
 
     public Transform Target { get; private set; }
     private Coroutine _activeDotCoroutine;
+
     private IEnemyState _currentState;
     private EnemyStateType _currentStateType;
     private Dictionary<EnemyStateType, IEnemyState> _enemyStates = new();
+    private Dictionary<EnemyStateType, List<float>> _stateParameterDict = new();
+
+    private IShootState _currentShootState;
+    private Dictionary<ShootStateType, IShootState> _shootStates = new();
 
     public Rigidbody2D Rigidbody2D { get; private set; }
+
+    private float _stateTimer;
 
     public void SetTarget(Transform target)
     {
@@ -31,18 +38,26 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        _health = enemyData.BaseHealth + enemyData.HealthPerWave * (_currentWave - 1);
+        _health = Mathf.FloorToInt(enemyData.BaseHealth + enemyData.HealthPerWave * (_currentWave - 1));
         AttackDamage = Mathf.FloorToInt(enemyData.BaseDamage + enemyData.DamagePerWave * (_currentWave - 1));
+        Speed = enemyData.BaseSpeed;
 
         _enemyStates[EnemyStateType.Chase] = new ChaseState();
         _enemyStates[EnemyStateType.Kite] = new KiteState();
+        _enemyStates[EnemyStateType.Dash] = new DashState();
+
+        _shootStates[ShootStateType.None] = new NoneShootState();
+        _shootStates[ShootStateType.Projectile] = new ProjectileShootState();
 
         ChangeState(enemyData.InitialState);
+        ChangeShootState(enemyData.InitialShootState);
     }
 
     private void Update()
     {
+        _stateTimer += Time.deltaTime;
         _currentState?.ExecuteState(this);
+        _currentShootState?.ExecuteState(this);
         CheckTransitions();
     }
 
@@ -51,15 +66,15 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _currentState?.FixedExecute(this);
     }
 
-    private void CheckTransitions()//상태 변경 체크
+    private void CheckTransitions()
     {
         if (enemyData.Transitions == null || !Target) return;
 
         foreach (var transition in enemyData.Transitions)
         {
-            if (transition.targetState == _currentStateType) continue; //동일하면 x
+            if (transition.targetState == _currentStateType) continue;
 
-            if (EvaluateCondition(transition)) //조건 체크
+            if (EvaluateCondition(transition)) //상태 변경 조건 체크
             {
                 ChangeState(transition.targetState);
                 return;
@@ -67,7 +82,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
         }
     }
 
-    private bool EvaluateCondition(StateTransition transition) //상태변경 조건 검사
+    private bool EvaluateCondition(StateTransition transition)
     {
         switch (transition.condition)
         {
@@ -75,30 +90,45 @@ public class EnemyManager : MonoBehaviour, IDamageable
                 float healthPct = (float)_health / enemyData.BaseHealth * 100f;
                 return healthPct < transition.threshold;
 
-            case TransitionCondition.PlayerNear:
-                return Vector2.Distance(transform.position, Target.position) < transition.threshold;
-
-            case TransitionCondition.PlayerFar:
-                return Vector2.Distance(transform.position, Target.position) > transition.threshold;
+            case TransitionCondition.TimerElapsed:
+                return _stateTimer >= transition.threshold;
 
             default:
                 return false;
         }
     }
 
-    private void ChangeState(EnemyStateType stateType)
+    public void ChangeState(EnemyStateType stateType)
     {
         _currentState?.ExitState(this);
         _currentStateType = stateType;
         _currentState = _enemyStates[stateType];
+        _stateTimer = 0f;
         _currentState.EnterState(this);
+
+        if (enemyData.ShootBindings == null) return;
+        foreach (var binding in enemyData.ShootBindings) //개선?
+        {
+            if (binding.moveState == stateType)
+            {
+                ChangeShootState(binding.shootState);
+                return;
+            }
+        }
+    }
+
+    private void ChangeShootState(ShootStateType shootStateType)
+    {
+        _currentShootState?.ExitState(this);
+        _currentShootState = _shootStates[shootStateType];
+        _currentShootState.EnterState(this);
     }
 
     public void Damage(int damage, bool isCrit)
     {
         _health -= damage;
 
-        var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt(); //데미지 플로팅 텍스트
+        var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
         dmgTxt.transform.position = transform.position;
         dmgTxt.SetText(damage, isCrit);
 
@@ -128,16 +158,16 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         while (elapsedTime < duration)
         {
-            if (!this) yield break; //Dead 시 오류 방지
-            
-            yield return waitTick; //tick만큼 대기
-            
-            Damage(damage, false); //도트 데미지 만큼 피해
-            
+            if (!this) yield break;
+
+            yield return waitTick;
+
+            Damage(damage, false);
+
             elapsedTime += tick;
         }
 
-        _activeDotCoroutine = null; //지속 시간 지나면 null
+        _activeDotCoroutine = null;
     }
 
     public Transform GetTransform() => transform;
