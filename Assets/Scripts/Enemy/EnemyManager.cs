@@ -17,7 +17,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
     private IEnemyState _currentState;
     private EnemyStateType _currentStateType;
     private Dictionary<EnemyStateType, IEnemyState> _enemyStates = new();
-    private Dictionary<EnemyStateType, List<float>> _stateParameterDict = new();
+    private Dictionary<EnemyStateType, EnemyStateParameter> _stateParameterDict = new();
 
     private IShootState _currentShootState;
     private Dictionary<ShootStateType, IShootState> _shootStates = new();
@@ -47,10 +47,30 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _enemyStates[EnemyStateType.Dash] = new DashState();
 
         _shootStates[ShootStateType.None] = new NoneShootState();
-        _shootStates[ShootStateType.Projectile] = new ProjectileShootState();
+        _shootStates[ShootStateType.Single] = new ProjectileShootState();
 
-        ChangeState(enemyData.InitialState);
-        ChangeShootState(enemyData.InitialShootState);
+        foreach (var enemyStateParameter in enemyData.States)
+        {
+            var enemyState = enemyStateParameter.moveState;
+            _enemyStates[enemyState].Init(enemyStateParameter);
+            var shootState = enemyStateParameter.shootState;
+            _shootStates[shootState].Init(enemyStateParameter);
+            
+            _stateParameterDict[enemyState] = enemyStateParameter;
+        }
+
+        if (enemyData.States.Count == 0)
+        {
+            Debug.LogError("Enemy States None!!: " + enemyData.EnemyName);
+            return;
+        }
+        
+        var initStateParameter = enemyData.States[0]; //초기 상태 파라미터
+        var initState = initStateParameter.moveState;
+        var initShootState = initStateParameter.shootState;
+        
+        ChangeState(initState);
+        ChangeShootState(initShootState, initStateParameter);
     }
 
     private void Update()
@@ -58,7 +78,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _stateTimer += Time.deltaTime;
         _currentState?.ExecuteState(this);
         _currentShootState?.ExecuteState(this);
-        CheckTransitions();
+        
+        CheckTransitions();//변경 조건 체크
     }
 
     private void FixedUpdate()
@@ -86,11 +107,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
     {
         switch (transition.condition)
         {
-            case TransitionCondition.HealthBelow:
+            case TransitionCondition.HealthBelow: //체력 임계점
                 float healthPct = (float)_health / enemyData.BaseHealth * 100f;
                 return healthPct < transition.threshold;
 
-            case TransitionCondition.TimerElapsed:
+            case TransitionCondition.TimerElapsed: //시간
                 return _stateTimer >= transition.threshold;
 
             default:
@@ -104,20 +125,16 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _currentStateType = stateType;
         _currentState = _enemyStates[stateType];
         _stateTimer = 0f;
-        _currentState.EnterState(this);
-
-        if (enemyData.ShootBindings == null) return;
-        foreach (var binding in enemyData.ShootBindings) //개선?
+       
+        if (_stateParameterDict.TryGetValue(stateType, out var stateParameter))
         {
-            if (binding.moveState == stateType)
-            {
-                ChangeShootState(binding.shootState);
-                return;
-            }
+            _currentState.EnterState(this);
+            var shootType = stateParameter.shootState;
+            ChangeShootState(shootType, stateParameter);
         }
     }
 
-    private void ChangeShootState(ShootStateType shootStateType)
+    private void ChangeShootState(ShootStateType shootStateType, EnemyStateParameter stateParameter)
     {
         _currentShootState?.ExitState(this);
         _currentShootState = _shootStates[shootStateType];
@@ -149,6 +166,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
             StopCoroutine(_activeDotCoroutine);
         }
         _activeDotCoroutine = StartCoroutine(DotDamageCoroutine(duration, damage, tick));
+        //지속시간, 데미지는 큰 값으로, 틱 시간은 작은(짧은) 값으로???
     }
 
     private IEnumerator DotDamageCoroutine(float duration, int damage, float tick)
@@ -160,7 +178,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
         {
             if (!this) yield break;
 
-            yield return waitTick;
+            yield return waitTick; //틱 시간
 
             Damage(damage, false);
 

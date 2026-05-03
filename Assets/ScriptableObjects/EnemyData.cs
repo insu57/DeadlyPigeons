@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum EnemyStateType { Chase, Kite, Dash }
+public enum ShootStateType { None, Single }
 public enum TransitionCondition { HealthBelow, TimerElapsed }
-public enum ShootStateType { None, Projectile }
 
 [Serializable]
 public struct StateTransition
@@ -15,17 +15,12 @@ public struct StateTransition
 }
 
 [Serializable]
-public struct EnemyStateParameter
-{
-    public EnemyStateType state;
-    public List<float> parameters;
-}
-
-[Serializable]
-public struct StateShootBinding
+public struct EnemyStateParameter //상태 파라미터
 {
     public EnemyStateType moveState;
     public ShootStateType shootState;
+    public List<float> moveParameters;
+    public List<float> shootParameters;
 }
 
 [CreateAssetMenu(fileName = "EnemyData", menuName = "Scriptable Objects/EnemyData")]
@@ -46,10 +41,7 @@ public class EnemyData : ScriptableObject
     [field: SerializeField] public float LootCrateDropChance { get; private set; }
 
     [field: SerializeField] public int InitWave { get; private set; }
-
-    [field: SerializeField] public EnemyStateType InitialState { get; private set; }
-    [field: SerializeField] public ShootStateType InitialShootState { get; private set; }
     [field: SerializeField] public List<EnemyStateParameter> States { get; private set; }
-    [field: SerializeField] public List<StateShootBinding> ShootBindings { get; private set; }
-    [field: SerializeField] public StateTransition[] Transitions { get; private set; }
+
+    [field: SerializeField] public StateTransition[] Transitions { get; private set; }//조건
 }

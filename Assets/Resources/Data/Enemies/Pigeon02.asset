@@ -25,4 +25,11 @@ MonoBehaviour:
   <LootCrateDropChance>k__BackingField: 10
   <InitWave>k__BackingField: 4
   <InitialState>k__BackingField: 1
+  <InitialShootState>k__BackingField: 1
+  <States>k__BackingField:
+  - state: 1
+    parameters: []
+  <ShootBindings>k__BackingField:
+  - moveState: 1
+    shootState: 1
   <Transitions>k__BackingField: []

@@ -3,14 +3,23 @@ using UnityEngine;
 
 public class ProjectileShootState : IShootState
 {
-    private const float FireRate = 1.5f;
-    private const float ProjectileRange = 15f;
+    private  float _fireRate = 3f;
+    private  float _projectileRange = 15f;
 
     private float _fireCooldown;
 
+    public void Init(EnemyStateParameter stateParameter)
+    {
+        if (stateParameter.shootParameters.Count >= 2)
+        {
+            _fireRate = stateParameter.shootParameters[0];
+            _projectileRange = stateParameter.shootParameters[1];
+        }
+    }
+
     public void EnterState(EnemyManager enemyManager)
     {
-        _fireCooldown = FireRate;
+        _fireCooldown = _fireRate;
     }
 
     public void ExecuteState(EnemyManager enemyManager)
@@ -22,7 +31,7 @@ public class ProjectileShootState : IShootState
         if (_fireCooldown <= 0f)
         {
             Shoot(enemyManager);
-            _fireCooldown = FireRate;
+            _fireCooldown = _fireRate;
         }
     }
 
@@ -49,6 +58,6 @@ public class ProjectileShootState : IShootState
         projectile.Initialize(data);
 
         Vector3 dir = (enemyManager.Target.position - enemyManager.transform.position).normalized;
-        projectile.Fire(dir, ProjectileRange);
+        projectile.Fire(dir, _projectileRange);
     }
 }

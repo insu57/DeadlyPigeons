@@ -24,5 +24,15 @@ MonoBehaviour:
   <ConsumableDropChance>k__BackingField: 1
   <LootCrateDropChance>k__BackingField: 1
   <InitWave>k__BackingField: 3
-  <InitialState>k__BackingField: 2
-  <Transitions>k__BackingField: []
+  <InitialState>k__BackingField: 0
+  <InitialShootState>k__BackingField: 0
+  <States>k__BackingField:
+  - state: 0
+    parameters: []
+  - state: 2
+    parameters: []
+  <ShootBindings>k__BackingField: []
+  <Transitions>k__BackingField:
+  - condition: 1
+    threshold: 3
+    targetState: 2

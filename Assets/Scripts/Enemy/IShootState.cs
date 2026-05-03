@@ -1,6 +1,7 @@
 public interface IShootState
 {
-    void EnterState(EnemyManager enemyManager);
-    void ExecuteState(EnemyManager enemyManager);
-    void ExitState(EnemyManager enemyManager);
+    public void Init(EnemyStateParameter stateParameter);
+    public void EnterState(EnemyManager enemyManager);
+    public void ExecuteState(EnemyManager enemyManager);
+    public void ExitState(EnemyManager enemyManager);
 }

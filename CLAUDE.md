@@ -55,7 +55,7 @@ State machine pattern. `EnemyManager` holds a `Dictionary<EnemyStateType, IEnemy
 
 **구현된 상태**:
 - **`ChaseState`** — 플레이어 방향으로 직선 이동 (속도 3f)
-- **`KiteState`** — 거리 < 5 units: 도망, 이상: 접근 + 1.5초마다 투사체 발사. `EnemyProjectile` 레이어가 Physics2D 충돌 매트릭스에서 Player 레이어와 충돌하도록 설정 필요
+- **`KiteState`** — Hysteresis 방식으로 이동 제어. 거리 < `FleeDistance(4f)`: 도망, 거리 > `ApproachDistance(6f)`: 접근, 그 사이 구간(4~6f)은 현재 모드 유지(떨림 방지). + 1.5초마다 투사체 발사. `EnemyProjectile` 레이어가 Physics2D 충돌 매트릭스에서 Player 레이어와 충돌하도록 설정 필요
 
 **새 state 추가 방법**: `IEnemyState` 구현 → `EnemyStateType` enum에 값 추가 → `EnemyManager.Start()`에 `_enemyStates[EnemyStateType.Xxx] = new XxxState()` 등록.
 
@@ -100,6 +100,10 @@ SubStat:    ConsumableHeal, XPGain, ItemPrice, PickUpRange, ExplosiveDamage,
 WeaponClass: Precise, Blunt, Primitive, Gun, Medieval, Blade, Heavy, Elemental
 AttackType:  None, Sweep, Thrust
 ```
+
+## Code Editing Guidelines
+
+- 코드 수정 시 기존 주석은 최대한 유지한다. 삭제하거나 덮어쓰지 않는다.
 
 ## Known WIP / Incomplete Areas
 - `PlayerStat.Damage` / `Heal` — stubbed, not implemented.
