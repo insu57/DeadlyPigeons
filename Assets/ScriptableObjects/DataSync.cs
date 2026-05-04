@@ -16,6 +16,9 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset weaponCSV;
     [SerializeField] private TextAsset weaponClassCSV;
     [SerializeField] private TextAsset weaponEffectCSV;
+    [SerializeField] private TextAsset enemyStatCSV;
+    [SerializeField] private TextAsset enemyStateCSV;
+    [SerializeField] private TextAsset enemyTransitionCSV;
     
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
     [SerializeField] private string itemPath = "Assets/Sprites/Items/";
@@ -480,7 +483,7 @@ public class DataSync : MonoBehaviour
     {
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
         string[] lines = weaponEffectCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
-        Dictionary<int, string[]> csvDict = new();
+        //Dictionary<int, string[]> csvDict = new();
         List<string[]> csvList = new();
         Dictionary<int, List<WeaponEffectData>> effectDataDict = new(); //id : effectData list
         for (int i = 1; i < lines.Length; i++)
@@ -489,7 +492,7 @@ public class DataSync : MonoBehaviour
             
             int id = int.Parse(rowData[0]);
 
-            csvDict[id] = rowData;
+            //csvDict[id] = rowData;
             csvList.Add(rowData);
         }
         
@@ -670,5 +673,192 @@ public class DataSync : MonoBehaviour
         AssetDatabase.SaveAssets();
 #endif
         Debug.Log("Sync WeaponClass Data");
+    }
+
+    [ContextMenu("Sync Enemy Stat Data")]
+    public void SyncEnemyStatDataFromCSV()
+    {
+        var enemies = Resources.LoadAll<EnemyData>("Data/Enemies");
+        string[] lines = enemyStatCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> csvDict = new();
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            int id =  int.Parse(rowData[0]);
+            csvDict[id] = rowData;
+        }
+
+        int enemyUpdateCount = 0;
+
+        foreach (var enemyData in enemies)
+        {
+            if (csvDict.TryGetValue(enemyData.ID, out var rowData))
+            {
+                var enemyStat = new EnemyStat
+                {
+                    enemyName = rowData[1],
+                    baseHealth = int.Parse(rowData[3]),
+                    healthPerWave =  float.Parse(rowData[4]),
+                    baseDamage = int.Parse(rowData[5]),
+                    damagePerWave =  float.Parse(rowData[6]),
+                    baseSpeed = float.Parse(rowData[7]),
+                    knockbackResistance = float.Parse(rowData[8]),
+                    materialsDrop = int.Parse(rowData[9]),
+                    consumableDropChance = int.Parse(rowData[10]),
+                    lootCrateDropChance =  int.Parse(rowData[11]),
+                    initWave = int.Parse(rowData[12]),
+                };
+                
+#if UNITY_EDITOR
+                enemyData.SyncEnemyStat(enemyStat);
+
+                enemyUpdateCount++;
+
+                EditorUtility.SetDirty(enemyData);
+#endif
+            }
+            else
+            {
+                Debug.LogError("Enemy Data Not Found");
+            }
+        }
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Enemy Data Updated " + enemyUpdateCount);
+        
+    }
+
+    [ContextMenu("Sync Enemy State Data")]
+    public void SyncEnemyStateDataFromCSV()
+    {
+        EnemyData[] enemies = Resources.LoadAll<EnemyData>("Data/Enemies");
+        string[] lines = enemyStateCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+        List<string[]> csvList = new();
+        Dictionary<int, List<EnemyStateParameter>> parameterDict = new();
+        
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            
+            csvList.Add(rowData);
+        }
+
+        foreach (var rowData in csvList)
+        {
+            int id =  int.Parse(rowData[0]);
+
+            var stateParameter = new EnemyStateParameter
+            {
+                moveState = EnemyData.ParseEnemyStateType(rowData[2]),
+                shootState = EnemyData.ParseShootStateType(rowData[5])
+            };
+            
+            List<float> moveStateParameter = new();
+            var strArr = rowData[4].Split('|');
+            foreach (var str in strArr)
+            {
+                if (float.TryParse(str, out var value))
+                {
+                    moveStateParameter.Add(value);
+                }
+            }
+            stateParameter.moveParameters = moveStateParameter;
+
+            List<float> shootStateParameter = new();
+            strArr = rowData[7].Split('|');
+            foreach (var str in strArr)
+            {
+                if (float.TryParse(str, out var value))
+                {
+                    shootStateParameter.Add(value);
+                }
+            }
+            stateParameter.shootParameters = shootStateParameter;
+
+            if (parameterDict.ContainsKey(id))
+            {
+                parameterDict[id].Add(stateParameter);
+            }
+            else
+            {
+                List<EnemyStateParameter> parameter = new() { stateParameter };
+                parameterDict[id] = parameter;
+            }
+
+            int enemyStateParameterUpdateCount = 0;
+            foreach (var enemyData in enemies)
+            {
+                if (parameterDict.TryGetValue(enemyData.ID, out var parameterList))
+                {
+#if UNITY_EDITOR
+                    enemyData.SyncEnemyStateParameter(parameterList);
+                    enemyStateParameterUpdateCount++;
+                    
+                    EditorUtility.SetDirty(enemyData);
+#endif
+                }
+            }
+#if UNITY_EDITOR
+            AssetDatabase.SaveAssets(); 
+#endif
+            Debug.Log("Enemy State Parameters Updated " + enemyStateParameterUpdateCount);
+        }
+    }
+
+    [ContextMenu("Sync Enemy Transition Condition")]
+    public void SyncEnemyTransitionFromCSV()
+    {
+        EnemyData[] enemies = Resources.LoadAll<EnemyData>("Data/Enemies");
+        string[] lines = enemyTransitionCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+        List<string[]> csvList = new();
+        Dictionary<int, List<StateTransition>> transitionDict = new();
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            
+            csvList.Add(rowData);
+        }
+
+        foreach (var rowData in csvList)
+        {
+            int id = int.Parse(rowData[0]);
+
+            var transition = new StateTransition
+            {
+                condition = EnemyData.ParseTransitionCondition(rowData[2]),
+                threshold = float.Parse(rowData[4]),
+                targetState = EnemyData.ParseEnemyStateType(rowData[5]),
+            };
+
+            if (transitionDict.ContainsKey(id))
+            {
+                transitionDict[id].Add(transition);
+            }
+            else
+            {
+                List<StateTransition> condition = new() { transition };
+                transitionDict[id] = condition;
+            }
+
+            int enemyTransitionUpdateCount = 0;
+            foreach (var enemyData in enemies)
+            {
+                if (transitionDict.TryGetValue(enemyData.ID, out var conditionList))
+                {
+#if UNITY_EDITOR
+                    enemyData.SyncEnemyStateTransition(conditionList);
+                    enemyTransitionUpdateCount++;
+                    EditorUtility.SetDirty(enemyData);
+#endif
+                }
+            }
+#if UNITY_EDITOR
+            AssetDatabase.SaveAssets();
+#endif
+            Debug.Log("Enemy State Transition Updated: " + enemyTransitionUpdateCount);
+        }
     }
 }

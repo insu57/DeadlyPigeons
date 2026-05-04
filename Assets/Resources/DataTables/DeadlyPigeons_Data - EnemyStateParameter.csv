@@ -1,0 +1,5 @@
+ID,ID:NAME,MoveState,Description,Parameter,ShootState,Description,Parameter
+0,1,2,3,4,5,6,7
+5001,5001 : 비둘기 병사,Chase,x,,None,x,
+5002,5002 : 비둘기 사수,Kite,{0}이하면 도망 {1}이상이면 추격,4|6,Single,{0}초마다 플레이어에게 한 발씩 투사체 발사,3
+5003,5003 : 비둘기 돌격병,Dash,({1}동안 모으고 속도{2}만큼 거리{3} 만큼 이동,0.8|10|8,None,x,

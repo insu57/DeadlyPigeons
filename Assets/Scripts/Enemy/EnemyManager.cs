@@ -38,9 +38,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        _health = Mathf.FloorToInt(enemyData.BaseHealth + enemyData.HealthPerWave * (_currentWave - 1));
-        AttackDamage = Mathf.FloorToInt(enemyData.BaseDamage + enemyData.DamagePerWave * (_currentWave - 1));
-        Speed = enemyData.BaseSpeed;
+        _health = Mathf.FloorToInt(enemyData.EnemyStat.baseHealth 
+                                   + enemyData.EnemyStat.healthPerWave * (_currentWave - 1));
+        AttackDamage = Mathf.FloorToInt(enemyData.EnemyStat.baseDamage 
+                                        + enemyData.EnemyStat.damagePerWave * (_currentWave - 1));
+        Speed = enemyData.EnemyStat.baseSpeed;
 
         _enemyStates[EnemyStateType.Chase] = new ChaseState();
         _enemyStates[EnemyStateType.Kite] = new KiteState();
@@ -61,7 +63,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         if (enemyData.States.Count == 0)
         {
-            Debug.LogError("Enemy States None!!: " + enemyData.EnemyName);
+            Debug.LogError("Enemy States None!!: " + enemyData.EnemyStat.enemyName);
             return;
         }
         
@@ -108,7 +110,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
         switch (transition.condition)
         {
             case TransitionCondition.HealthBelow: //체력 임계점
-                float healthPct = (float)_health / enemyData.BaseHealth * 100f;
+                float healthPct = (float)_health / enemyData.EnemyStat.baseHealth * 100f;
                 return healthPct < transition.threshold;
 
             case TransitionCondition.TimerElapsed: //시간

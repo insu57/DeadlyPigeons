@@ -4204,6 +4204,9 @@ MonoBehaviour:
   weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
   weaponClassCSV: {fileID: 4900000, guid: ed665054a62c4334b9c6e3de070b6dcf, type: 3}
   weaponEffectCSV: {fileID: 4900000, guid: d456cfa96ce45a644b76f47b44f4f443, type: 3}
+  enemyStatCSV: {fileID: 4900000, guid: 9e047f9c37bf890459c1c5d0ccc44fbb, type: 3}
+  enemyStateCSV: {fileID: 4900000, guid: 09a74cc78694b8b4299e08a1810ba010, type: 3}
+  enemyTransitionCSV: {fileID: 4900000, guid: e8ee3cb330d0c524484fb7b435f0a3c1, type: 3}
   charPath: Assets/Sprites/Characters/
   itemPath: Assets/Sprites/Items/
   weaponPath: Assets/Sprites/Weapons/

@@ -4,7 +4,16 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - characterCSV: {fileID: 4900000, guid: 01422440ad89b7e4a855bfb80e9d342b, type: 3}
+  - characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
+  - charPassiveCSV: {fileID: 4900000, guid: a3195a9d7e4aa88449f6ee3eaedbe493, type: 3}
+  - itemCSV: {fileID: 4900000, guid: e3af27ba973413247bc0e99d03d6d2ea, type: 3}
+  - weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
+  - weaponClassCSV: {fileID: 4900000, guid: ed665054a62c4334b9c6e3de070b6dcf, type: 3}
+  - weaponEffectCSV: {fileID: 4900000, guid: d456cfa96ce45a644b76f47b44f4f443, type: 3}
+  - enemyStatCSV: {fileID: 4900000, guid: 9e047f9c37bf890459c1c5d0ccc44fbb, type: 3}
+  - enemyStateCSV: {fileID: 4900000, guid: 09a74cc78694b8b4299e08a1810ba010, type: 3}
+  - enemyTransitionCSV: {fileID: 4900000, guid: e8ee3cb330d0c524484fb7b435f0a3c1, type: 3}
+  - classBonusData: {fileID: 11400000, guid: cbdb069c4bd70e04c9575ca0a9848c9f, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

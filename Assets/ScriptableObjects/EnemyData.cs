@@ -23,25 +23,86 @@ public struct EnemyStateParameter //상태 파라미터
     public List<float> shootParameters;
 }
 
+[Serializable]
+public struct EnemyStat
+{
+    public string enemyName;
+    public int baseHealth;
+    public float healthPerWave;
+    public int baseDamage;
+    public float damagePerWave;
+    public float baseSpeed;
+    public float knockbackResistance;
+    public float materialsDrop;
+    public float consumableDropChance;
+    public float lootCrateDropChance;
+    public int initWave;
+}
+
 [CreateAssetMenu(fileName = "EnemyData", menuName = "Scriptable Objects/EnemyData")]
 public class EnemyData : ScriptableObject
 {
     [field: SerializeField] public int ID { get; private set; }
-    [field: SerializeField] public string EnemyName { get; private set; }
-    [field: SerializeField] public int BaseHealth { get; private set; }
-    [field: SerializeField] public float HealthPerWave { get; private set; }
-    [field: SerializeField] public int BaseDamage { get; private set; }
-    [field: SerializeField] public float DamagePerWave { get; private set; }
-    [field: SerializeField] public float BaseSpeed { get; private set; }
+    [field: SerializeField] public EnemyStat EnemyStat { get; private set; }
+    //[field: SerializeField] public string EnemyName { get; private set; }
+    //[field: SerializeField] public int BaseHealth { get; private set; }
+    //[field: SerializeField] public float HealthPerWave { get; private set; }
+    //[field: SerializeField] public int BaseDamage { get; private set; }
+    //[field: SerializeField] public float DamagePerWave { get; private set; }
+    //[field: SerializeField] public float BaseSpeed { get; private set; }
 
-    [field: SerializeField] public float KnockbackResistance { get; private set; }
+    //[field: SerializeField] public float KnockbackResistance { get; private set; }
 
-    [field: SerializeField] public float MaterialsDrop { get; private set; }
-    [field: SerializeField] public float ConsumableDropChance { get; private set; }
-    [field: SerializeField] public float LootCrateDropChance { get; private set; }
+    //[field: SerializeField] public float MaterialsDrop { get; private set; }
+    //[field: SerializeField] public float ConsumableDropChance { get; private set; }
+    //[field: SerializeField] public float LootCrateDropChance { get; private set; }
 
-    [field: SerializeField] public int InitWave { get; private set; }
+    //[field: SerializeField] public int InitWave { get; private set; }
     [field: SerializeField] public List<EnemyStateParameter> States { get; private set; }
 
-    [field: SerializeField] public StateTransition[] Transitions { get; private set; }//조건
+    [field: SerializeField] public List<StateTransition> Transitions { get; private set; }//조건
+    
+    public static EnemyStateType ParseEnemyStateType(string value)
+    {
+        if (Enum.TryParse(value, true, out EnemyStateType result))
+            return result;
+        Debug.LogWarning($"EnemyStateType 변환 실패: '{value}', 기본값 반환");
+        return default;
+    }
+
+    public static ShootStateType ParseShootStateType(string value)
+    {
+        if (Enum.TryParse(value, true, out ShootStateType result))
+            return result;
+        Debug.LogWarning($"ShootStateType 변환 실패: '{value}', 기본값 반환");
+        return default;
+    }
+
+    public static TransitionCondition ParseTransitionCondition(string value)
+    {
+        if (Enum.TryParse(value, true, out TransitionCondition result))
+            return result;
+        Debug.LogWarning($"TransitionCondition 변환 실패: '{value}', 기본값 반환");
+        return default;
+    }
+
+#if UNITY_EDITOR
+
+    public void SyncEnemyStat(EnemyStat enemyStat)
+    {
+        EnemyStat = enemyStat;
+    }
+
+    public void SyncEnemyStateParameter(List<EnemyStateParameter> parameterList)
+    {
+        States =  parameterList;
+    }
+
+    public void SyncEnemyStateTransition(List<StateTransition> transitionList)
+    {
+        Transitions = transitionList;
+    }
+
+#endif
+    
 }

@@ -12,7 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3facc0fe818a8a42ad2f1002ca79494, type: 3}
   m_Name: Pigeon01
   m_EditorClassIdentifier: 
-  <ID>k__BackingField: 0
+  <ID>k__BackingField: 5001
+  <EnemyStat>k__BackingField:
+    enemyName: "\uBE44\uB458\uAE30 \uBCD1\uC0AC"
+    baseHealth: 3
+    healthPerWave: 2
+    baseDamage: 1
+    damagePerWave: 0.6
+    baseSpeed: 3
+    knockbackResistance: 0
+    materialsDrop: 3
+    consumableDropChance: 1
+    lootCrateDropChance: 1
+    initWave: 1
   <EnemyName>k__BackingField: "\uBE44\uB458\uAE30 \uBCD1\uC0AC"
   <BaseHealth>k__BackingField: 3
   <HealthPerWave>k__BackingField: 2
@@ -24,5 +36,9 @@ MonoBehaviour:
   <ConsumableDropChance>k__BackingField: 1
   <LootCrateDropChance>k__BackingField: 1
   <InitWave>k__BackingField: 0
-  <InitialState>k__BackingField: 0
+  <States>k__BackingField:
+  - moveState: 0
+    shootState: 0
+    moveParameters: []
+    shootParameters: []
   <Transitions>k__BackingField: []
