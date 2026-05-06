@@ -25,7 +25,10 @@ This is a Unity project — there is no CLI build command. Open the project in U
 | `ObjectPoolingManager` | Object pools for Projectile, DamageTxt, Hitbox (explosion), SelectButton |
 | `InputManager` | Wraps Unity's new Input System |
 | `SceneChanger` | Async scene loading; holds `PlayerSelected` (CharacterData) across scenes |
-| `StageManager` | Stage init; finds enemies and assigns player as their target |
+| `StageManager` | Stage init; 매 프레임 `FindClosestEnemy()`로 가장 가까운 적을 `TargetInfo` 구조체로 `PlayerManager.GetClosestEnemy()`에 전달 |
+
+### TargetInfo (`StageManager.cs`)
+`TargetInfo` 구조체: `Target (Transform)`, `SqrDistance (float)`, `IsValid (bool)`. `StageManager.FindClosestEnemy()`가 생성해 `PlayerManager.GetClosestEnemy()`로 전달한다. `PlayerWeapon`이 이를 이용해 가장 가까운 적을 조준한다.
 
 ### Player System (`Assets/Scripts/Player/`)
 - **`PlayerManager`** — top-level orchestrator. Initializes weapons (up to 6 slots) and items from `CharacterData`. Manages weapon class bonuses via `WeaponClassDict`. Listens to stat changes and propagates them to weapons.
@@ -63,6 +66,7 @@ State machine pattern. `EnemyManager` holds a `Dictionary<EnemyStateType, IEnemy
 - **`WeaponData`** — stat struct with tier scaling (tier 1–4), attack type (Sweep/Thrust/ranged), weapon class, and a list of `WeaponEffectType` entries.
 - **`ItemData`** — flat stat bonuses + multipliers. Character passive items share ID with `CharacterData`.
 - **`WeaponClassBonusData`** — bonuses that activate when 2+ weapons of the same class are equipped. Checked by `PlayerManager` whenever loadout changes.
+- **`WaveData`** — 웨이브 1개의 스폰 설정: `WaveNumber`, `WaveLength`, `SpawnTick`, `EnemySpawnCount`, `SpawnPerTick`, `List<EnemyData> Enemies`. `EnemySpawnInfo` struct (`enemyData` + `weight`)도 정의되어 있으나 현재 WaveData에서는 미사용(WIP).
 - CSV → ScriptableObject sync methods exist (`SyncDataCSV()`) but are editor-only (`#if UNITY_EDITOR`).
 
 ### Damage Pipeline
@@ -79,7 +83,8 @@ All implement `IWeaponEffect`: `Init`, `SetExecuteData`, `Execute` (called on hi
 - `Bounces` — increments projectile bounce count.
 
 ### UI
-- **`PlayerInfoUI`** — main HUD; subscribes to `PlayerStat` events and refreshes stat/weapon/item panels.
+- **`PlayerInfoUI`** — main HUD. 무기/아이템 슬롯 표시, 툴팁 패널 제어, 스탯 업데이트를 `PlayerStatInfo[]`에 위임. `ClassInfo`로 무기 클래스 보너스 표시. Tab 키로 상태창 토글.
+- **`PlayerStatInfo`** (`Assets/Scripts/MainUI/`, prefab: `PlayerStatinfo`) — 스탯 표시 패널 컴포넌트. MainStat/SubStat 탭 버튼으로 전환. `InitStatGrid()`로 `PlayerStatTxt` 항목 생성. `UpdateMainStat()` / `UpdateSubStat()`는 값에 따라 텍스트 색상 변경(양수=초록, 0=흰색, 음수=빨강). `PlayerInfoUI`가 배열로 보유하여 복수 패널 지원.
 - **`InfoPanel`** — hover tooltip for weapons and items.
 - **`TitleUI`** — title screen state machine (main menu → select → options).
 
@@ -111,3 +116,4 @@ AttackType:  None, Sweep, Thrust
 - Map boundaries in `PlayerControl` — TODO comment.
 - `ObjectPoolingManager` — single shared projectile pool used by both player and enemies; separate pools may be needed.
 - `PlayerCamera` — marked for improvement.
+- `WaveData` 스폰 시스템 — ScriptableObject 정의만 완료. 실제 스폰 로직(`StageManager` 연동) 미구현. `EnemySpawnInfo.weight`(가중치 기반 스폰)도 미사용.

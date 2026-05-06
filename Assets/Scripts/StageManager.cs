@@ -40,8 +40,7 @@ public class StageManager : MonoBehaviour
     {
         InitStage();
 
-        //test
-        var sb = new StringBuilder();
+        //테스트용.
         if (_playerSelected == null)
         {
             _playerSelected = new PlayerSelected
@@ -60,19 +59,8 @@ public class StageManager : MonoBehaviour
             _playerSelected.ItemIDList.Add(testChar.ID);
         }
         
-        var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
-        List<WeaponData> weapons = new();
-        foreach (var weaponID in _playerSelected.WeaponIDList)
-        {
-            weapons.Add(DataManager.Instance.WeaponDict[weaponID]);
-        }
-        List<ItemData> items = new();
-        foreach (var itemID in _playerSelected.ItemIDList)
-        {
-            items.Add(DataManager.Instance.ItemDict[itemID]);
-        }
-        
-        _playerManager.InitCharacter(charData,items, weapons);
+        //플레이어 초기화
+        InitPlayer();
         
         //pooling
         ObjectPoolingManager.Instance.InitProjectilePool();
@@ -101,6 +89,25 @@ public class StageManager : MonoBehaviour
         Debug.Log("init stage");
     }
 
+    private void InitPlayer()
+    {
+        var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
+        List<WeaponData> weapons = new();
+        foreach (var weaponID in _playerSelected.WeaponIDList)
+        {
+            weapons.Add(DataManager.Instance.WeaponDict[weaponID]);
+        }
+        List<ItemData> items = new();
+        foreach (var itemID in _playerSelected.ItemIDList)
+        {
+            items.Add(DataManager.Instance.ItemDict[itemID]);
+        }
+        
+        _playerManager.InitCharacter(charData,items, weapons);
+    }
+    
+    
+    
     private void FindClosestEnemy() //가장 가까운 적 찾기
     {
         Transform closest = null;

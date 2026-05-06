@@ -11,6 +11,7 @@ public class DataManager : Singleton<DataManager>
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
+    public Dictionary<int, WaveData> WaveDict { get; } = new();
     
     public Dictionary<int, string> TierColorDict { get; } = new();
     private Dictionary<string, Color> HexToColor { get; } = new();
@@ -63,6 +64,12 @@ public class DataManager : Singleton<DataManager>
         {
             var weaponClass = weaponClassValue.weaponClass;
             WeaponClassBonusDict[weaponClass] = weaponClassValue.statsValues;
+        }
+        
+        WaveData[] waves = Resources.LoadAll<WaveData>("Data/Waves");
+        foreach (var waveData in waves)
+        {
+            WaveDict.Add(waveData.WaveNumber, waveData);
         }
     }
 
