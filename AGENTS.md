@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -25,7 +25,7 @@ This is a Unity project — there is no CLI build command. Open the project in U
 | `ObjectPoolingManager` | Object pools for Projectile, DamageTxt, Hitbox (explosion), SelectButton |
 | `InputManager` | Wraps Unity's new Input System |
 | `SceneChanger` | Async scene loading; holds `PlayerSelected` (CharacterData) across scenes |
-| `StageManager` | Stage init; 웨이브 코루틴으로 적 스폰 관리; 매 프레임 `FindClosestEnemy()`로 가장 가까운 적을 `TargetInfo` 구조체로 `PlayerManager.GetClosestEnemy()`에 전달 |
+| `StageManager` | Stage init; 매 프레임 `FindClosestEnemy()`로 가장 가까운 적을 `TargetInfo` 구조체로 `PlayerManager.GetClosestEnemy()`에 전달 |
 
 ### TargetInfo (`StageManager.cs`)
 `TargetInfo` 구조체: `Target (Transform)`, `SqrDistance (float)`, `IsValid (bool)`. `StageManager.FindClosestEnemy()`가 생성해 `PlayerManager.GetClosestEnemy()`로 전달한다. `PlayerWeapon`이 이를 이용해 가장 가까운 적을 조준한다.
@@ -49,11 +49,7 @@ State machine pattern. `EnemyManager` holds a `Dictionary<EnemyStateType, IEnemy
 - `InitialState` (`EnemyStateType`) — 시작 상태
 - `Transitions` (`StateTransition[]`) — 전환 조건 목록. 각 항목은 `condition` / `threshold` / `targetState`로 구성
 
-`EnemyManager.CheckTransitions()`가 매 프레임 조건을 순서대로 평가하고, 충족되면 즉시 전환 후 중단(return). 이미 해당 상태면 스킵. `_currentWave`는 `StageManager.SpawnEnemy()`가 `Init()` 호출 시 주입한다.
-
-**`EnemyManager` 동적 스폰 인터페이스**:
-- `Init(EnemyData data, int wave, Transform target)` — `Instantiate` 직후 호출. `enemyData`·`_currentWave`·`Target`을 세팅하고 `InitEnemy()`를 실행한다. 이 경로로 생성된 적은 `Start()`에서 `InitEnemy()`를 다시 실행하지 않는다.
-- `event Action<EnemyManager> OnDeath` — 사망 시 발행. `StageManager`가 구독해 `activeEnemies`에서 제거한다.
+`EnemyManager.CheckTransitions()`가 매 프레임 조건을 순서대로 평가하고, 충족되면 즉시 전환 후 중단(return). 이미 해당 상태면 스킵. `_currentWave`는 스폰 시 주입 예정(WIP). `StageManager`에 `testWave` 인스펙터 필드로 테스트 가능.
 
 **전환 조건 (`TransitionCondition`)**:
 - `HealthBelow` — 현재 HP% < threshold
@@ -64,13 +60,13 @@ State machine pattern. `EnemyManager` holds a `Dictionary<EnemyStateType, IEnemy
 - **`ChaseState`** — 플레이어 방향으로 직선 이동 (속도 3f)
 - **`KiteState`** — Hysteresis 방식으로 이동 제어. 거리 < `FleeDistance(4f)`: 도망, 거리 > `ApproachDistance(6f)`: 접근, 그 사이 구간(4~6f)은 현재 모드 유지(떨림 방지). + 1.5초마다 투사체 발사. `EnemyProjectile` 레이어가 Physics2D 충돌 매트릭스에서 Player 레이어와 충돌하도록 설정 필요
 
-**새 state 추가 방법**: `IEnemyState` 구현 → `EnemyStateType` enum에 값 추가 → `EnemyManager.InitEnemy()`에 `_enemyStates[EnemyStateType.Xxx] = new XxxState()` 등록.
+**새 state 추가 방법**: `IEnemyState` 구현 → `EnemyStateType` enum에 값 추가 → `EnemyManager.Start()`에 `_enemyStates[EnemyStateType.Xxx] = new XxxState()` 등록.
 
 ### Weapon & Item Data (ScriptableObjects)
 - **`WeaponData`** — stat struct with tier scaling (tier 1–4), attack type (Sweep/Thrust/ranged), weapon class, and a list of `WeaponEffectType` entries.
 - **`ItemData`** — flat stat bonuses + multipliers. Character passive items share ID with `CharacterData`.
 - **`WeaponClassBonusData`** — bonuses that activate when 2+ weapons of the same class are equipped. Checked by `PlayerManager` whenever loadout changes.
-- **`WaveData`** — 웨이브 1개의 스폰 설정: `WaveNumber`, `WaveLength(float)`, `SpawnTick(float)`, `EnemySpawnCount(int)`, `SpawnPerTick(int)`, `List<EnemySpawnInfo> Enemies`. `EnemySpawnInfo` struct: `enemyData` + `weight(float)` + `spawnLocation(SpawnLocationType)`. `SpawnLocationType { Near, Far }` — 플레이어 기준 근거리/원거리 스폰 구분.
+- **`WaveData`** — 웨이브 1개의 스폰 설정: `WaveNumber`, `WaveLength`, `SpawnTick`, `EnemySpawnCount`, `SpawnPerTick`, `List<EnemyData> Enemies`. `EnemySpawnInfo` struct (`enemyData` + `weight`)도 정의되어 있으나 현재 WaveData에서는 미사용(WIP).
 - CSV → ScriptableObject sync methods exist (`SyncDataCSV()`) but are editor-only (`#if UNITY_EDITOR`).
 
 ### Damage Pipeline
@@ -106,9 +102,8 @@ SubStat:    ConsumableHeal, XPGain, ItemPrice, PickUpRange, ExplosiveDamage,
             ExplosiveSize, Bounces, Piercing, PiercingDamage, FreeRerolls,
             Enemies, EnemiesSpeed, RerollPrice, Knockback
 
-WeaponClass:      Precise, Blunt, Primitive, Gun, Medieval, Blade, Heavy, Elemental
-AttackType:       None, Sweep, Thrust
-SpawnLocationType: Near, Far
+WeaponClass: Precise, Blunt, Primitive, Gun, Medieval, Blade, Heavy, Elemental
+AttackType:  None, Sweep, Thrust
 ```
 
 ## Code Editing Guidelines
@@ -121,5 +116,4 @@ SpawnLocationType: Near, Far
 - Map boundaries in `PlayerControl` — TODO comment.
 - `ObjectPoolingManager` — single shared projectile pool used by both player and enemies; separate pools may be needed.
 - `PlayerCamera` — marked for improvement.
-- 웨이브 종료 후 처리 — `WaveCoroutine` 완료 시 다음 웨이브 전환 또는 스테이지 종료 로직 미구현.
-- 적 사망 드롭(재화, 소모품, 루트 크레이트) — `EnemyData`에 확률값 정의되어 있으나 `OnDeath` 처리 미구현.
+- `WaveData` 스폰 시스템 — ScriptableObject 정의만 완료. 실제 스폰 로직(`StageManager` 연동) 미구현. `EnemySpawnInfo.weight`(가중치 기반 스폰)도 미사용.

@@ -44,20 +44,7 @@ public class EnemyData : ScriptableObject
 {
     [field: SerializeField] public int ID { get; private set; }
     [field: SerializeField] public EnemyStat EnemyStat { get; private set; }
-    //[field: SerializeField] public string EnemyName { get; private set; }
-    //[field: SerializeField] public int BaseHealth { get; private set; }
-    //[field: SerializeField] public float HealthPerWave { get; private set; }
-    //[field: SerializeField] public int BaseDamage { get; private set; }
-    //[field: SerializeField] public float DamagePerWave { get; private set; }
-    //[field: SerializeField] public float BaseSpeed { get; private set; }
-
-    //[field: SerializeField] public float KnockbackResistance { get; private set; }
-
-    //[field: SerializeField] public float MaterialsDrop { get; private set; }
-    //[field: SerializeField] public float ConsumableDropChance { get; private set; }
-    //[field: SerializeField] public float LootCrateDropChance { get; private set; }
-
-    //[field: SerializeField] public int InitWave { get; private set; }
+    [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public List<EnemyStateParameter> States { get; private set; }
 
     [field: SerializeField] public List<StateTransition> Transitions { get; private set; }//조건

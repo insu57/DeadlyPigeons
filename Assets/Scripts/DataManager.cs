@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DataManager : Singleton<DataManager>
@@ -11,7 +12,9 @@ public class DataManager : Singleton<DataManager>
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
-    public Dictionary<int, WaveData> WaveDict { get; } = new();
+    
+    //public Dictionary<int, WaveData> WaveDict { get; } = new();
+    public List<WaveData> WaveDataList { get; private set; }
     
     public Dictionary<int, string> TierColorDict { get; } = new();
     private Dictionary<string, Color> HexToColor { get; } = new();
@@ -38,6 +41,7 @@ public class DataManager : Singleton<DataManager>
 
     private void InitData()
     {
+        //SO 데이터 불러오기.
         CharacterData[] characters = Resources.LoadAll<CharacterData>("Data/Characters");
         foreach (var charData in characters)
         {
@@ -66,11 +70,10 @@ public class DataManager : Singleton<DataManager>
             WeaponClassBonusDict[weaponClass] = weaponClassValue.statsValues;
         }
         
-        WaveData[] waves = Resources.LoadAll<WaveData>("Data/Waves");
-        foreach (var waveData in waves)
-        {
-            WaveDict.Add(waveData.WaveNumber, waveData);
-        }
+        //WaveData[] waves = Resources.LoadAll<WaveData>("Data/Waves");
+        //WaveNumber 정렬 리스트
+        WaveDataList = Resources.LoadAll<WaveData>("Data/Waves")
+            .OrderBy(w => w.WaveNumber).ToList();
     }
 
     private void InitColor()

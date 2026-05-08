@@ -72,8 +72,6 @@ public class PlayerManager : MonoBehaviour
             //PlayerWeapon 초기화
         }
         
-        Debug.Log(playerWeapons.Count);
-        
         for (int i = 0; i < initWeaponList.Count; i++)
         {
             if(i >= _weaponSlotCount) break;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,8 +6,12 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour, IDamageable
 {
     [SerializeField] private EnemyData enemyData;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     private int _currentWave = 1;
     private int _health;
+    private bool _initialized = false;
+
+    public event Action<EnemyManager> OnDeath;
 
     public int AttackDamage { get; private set; }
     public float Speed { get; private set; }
@@ -31,12 +36,41 @@ public class EnemyManager : MonoBehaviour, IDamageable
         Target = target;
     }
 
+    // 동적 스폰 시 사용. Instantiate 직후, Start() 전에 호출.
+    public void Init(EnemyData data, int wave, Transform target)
+    {
+        enemyData = data;
+        _currentWave = wave;
+        Target = target;
+        _initialized = true;
+        InitEnemy();
+    }
+
     private void Awake()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
+    {
+        if (!_initialized) InitEnemy(); //씬에 배치된 적 폴백
+    }
+
+    private void Update()
+    {
+        _stateTimer += Time.deltaTime;
+        _currentState?.ExecuteState(this);
+        _currentShootState?.ExecuteState(this);
+        
+        CheckTransitions();//변경 조건 체크
+    }
+
+    private void FixedUpdate()
+    {
+        _currentState?.FixedExecute(this);
+    }
+
+    private void InitEnemy()
     {
         _health = Mathf.FloorToInt(enemyData.EnemyStat.baseHealth 
                                    + enemyData.EnemyStat.healthPerWave * (_currentWave - 1));
@@ -74,21 +108,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
         ChangeState(initState);
         ChangeShootState(initShootState, initStateParameter);
     }
-
-    private void Update()
-    {
-        _stateTimer += Time.deltaTime;
-        _currentState?.ExecuteState(this);
-        _currentShootState?.ExecuteState(this);
-        
-        CheckTransitions();//변경 조건 체크
-    }
-
-    private void FixedUpdate()
-    {
-        _currentState?.FixedExecute(this);
-    }
-
+    
     private void CheckTransitions()
     {
         if (enemyData.Transitions == null || !Target) return;
@@ -153,7 +173,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         if (_health <= 0)
         {
-            Debug.Log("DEAD");
+            OnDeath?.Invoke(this);
+            Destroy(gameObject);
         }
     }
 
