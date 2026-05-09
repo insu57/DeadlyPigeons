@@ -10,15 +10,17 @@ public class PlayerStat : MonoBehaviour, IDamageable
     //무기 클래스 조합 효과
     //레벨업 시 최대체력 증가 + 메인스탯 하나 선택(무작위, 등급 존재)
 
-    [field: SerializeField] private int currentLevel;
+    [field: SerializeField] private int currentLevel = 1;
     [field: SerializeField] private int currentHP;
     private const int DefaultMaxHP = 10;
-    [field: SerializeField] private int money;
-    [field: SerializeField] private int defaultMaxHP = 10;
+    [field: SerializeField] private int money = 0;
     private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
-    private readonly Dictionary<MainStats, int> _mainStatMultiDict = new();
-    private readonly Dictionary<MainStats, int> _finalMainStatDict = new();
+    private readonly Dictionary<MainStats, int> _mainStatClassBonus = new();//무기 클래스 보너스
+    private readonly Dictionary<MainStats, int> _mainStatMultiDict = new();//패시브 스탯 배수
+    private readonly Dictionary<MainStats, int> _finalMainStatDict = new(); //최종 스탯
     private readonly Dictionary<SubStats, int> _subStatDict = new();
+    private readonly Dictionary<SubStats, int> _subStatBonusDict = new();
+    private readonly Dictionary<SubStats, int> _finalSubStatDict = new();
    
     //체력회복은 초당 얼만큼?? 1부터 ~, 패시브, 아이템 등으로 깎인다면? -> 두 개는 별개로?
     public event Action<MainStats, int> OnChangeMainStats;
@@ -29,12 +31,13 @@ public class PlayerStat : MonoBehaviour, IDamageable
         currentLevel = 1;
     }
 
-    public void InitStat()
+    public void InitStat() //스탯 초기화.
     {
         for (int i = 0; i < (int)MainStats.None; i++) //None -> 마지막 항목
         {
             MainStats mainStat = (MainStats)i;
             _baseMainStatDict.Add(mainStat, 0);
+            _mainStatClassBonus.Add(mainStat, 0);
             _mainStatMultiDict.Add(mainStat, 0);
             _finalMainStatDict.Add(mainStat, 0);
         }
@@ -43,17 +46,19 @@ public class PlayerStat : MonoBehaviour, IDamageable
         {
             SubStats subStat = (SubStats)i;
             _subStatDict.Add(subStat, 0);
+            _subStatBonusDict.Add(subStat, 0);
+            _finalSubStatDict.Add(subStat, 0);
         }
         
         UpdateStat(MainStats.MaxHP, DefaultMaxHP); //기본 최대 체력
-        currentHP = defaultMaxHP;
+        currentHP = DefaultMaxHP;
         
         foreach (var (mainStat, value) in _finalMainStatDict)
         {
             OnChangeMainStats?.Invoke(mainStat, value);
         }
 
-        foreach (var (subStat, value) in _subStatDict)
+        foreach (var (subStat, value) in _finalSubStatDict)
         {
             OnChangeSubStats?.Invoke(subStat, value);
         }
@@ -67,6 +72,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
             {
                 if(statAmount.mainStat == MainStats.None) continue;
                 _mainStatMultiDict[statAmount.mainStat] += statAmount.amount;
+                
                 UpdateStat(statAmount.mainStat, 0);
             }
         }
@@ -86,21 +92,51 @@ public class PlayerStat : MonoBehaviour, IDamageable
             }
         }
     }
-    
-    public void UpdateStat(MainStats mainStats, int amount)
+
+    public void ResetStatClassBonus()
     {
-        _baseMainStatDict[mainStats] += amount;
-        int currentAmount =  _baseMainStatDict[mainStats];
-        int multiplier = _mainStatMultiDict[mainStats];
-        _finalMainStatDict[mainStats] = Mathf.FloorToInt(currentAmount * (1f + multiplier / 100f));
+        foreach (var (mainStat, _) in _mainStatClassBonus)
+        {
+            _mainStatClassBonus[mainStat] = 0;
+        }
+
+        foreach (var (subStat, _) in _subStatDict)
+        {
+            _subStatBonusDict[subStat] = 0;
+        }
+    }
     
-        OnChangeMainStats?.Invoke(mainStats, _finalMainStatDict[mainStats]);
+    public void UpdateStatClassBonus(MainStats mainStat, int amount)
+    {
+        _mainStatClassBonus[mainStat] += amount;
+        
+        UpdateStat(mainStat, amount);
     }
 
-    public void UpdateStat(SubStats subStats, int amount)
+    public void UpdateStatClassBonus(SubStats subStat, int amount)
     {
-        _subStatDict[subStats] += amount;
-        OnChangeSubStats?.Invoke(subStats, _subStatDict[subStats]);
+        _subStatBonusDict[subStat] += amount;
+        
+        UpdateStat(subStat, amount);
+    }
+    
+    public void UpdateStat(MainStats mainStat, int amount) //최종 스탯으로 업데이트
+    {
+        _baseMainStatDict[mainStat] += amount;
+        int currentAmount =  _baseMainStatDict[mainStat] + _mainStatClassBonus[mainStat];
+        int multiplier = _mainStatMultiDict[mainStat];
+        _finalMainStatDict[mainStat] = Mathf.FloorToInt(currentAmount * (1f + multiplier / 100f));
+    
+        OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
+    }
+
+    public void UpdateStat(SubStats subStat, int amount)
+    {
+        _subStatDict[subStat] += amount;
+        int currentAmount =  _subStatDict[subStat] + _subStatBonusDict[subStat];
+        _finalSubStatDict[subStat] = currentAmount;
+        
+        OnChangeSubStats?.Invoke(subStat, _finalSubStatDict[subStat]);
     }
 
     public void SyncStat()
@@ -110,37 +146,23 @@ public class PlayerStat : MonoBehaviour, IDamageable
             OnChangeMainStats?.Invoke(mainStat, value);
         }
 
-        foreach (var (subStat, value) in _subStatDict)
+        foreach (var (subStat, value) in _finalSubStatDict)
         {
             OnChangeSubStats?.Invoke(subStat, value);
         }
     }
     
-
-    public CurrentWeaponStat GetCurrentWeaponStat(CurrentWeaponStat currentWeaponStat)
-    {
-        currentWeaponStat.CritChance += _finalMainStatDict[MainStats.CritChance];
-        currentWeaponStat.KnockBack += _subStatDict[SubStats.Knockback];
-        currentWeaponStat.Range += _finalMainStatDict[MainStats.Range];
-        currentWeaponStat.HealthAbsorb += _finalMainStatDict[MainStats.HealthAbsorb];
-
-        return currentWeaponStat;
-    }
-    
     public void Damage(int damage, bool isCrit)
     {
-        
+        //방어도 계산필요
     }
 
     public void Heal(int healAmount)
     {
-        
+        //체력 재생과 분리?
     }
-
-    public void DotDamage(int duration, int damage, float tick)
-    {
-        
-    }
+    
+    public void DotDamage(int duration, int damage, float tick) { } 
     
     public Transform GetTransform() => transform;
 }

@@ -1558,9 +1558,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
+  charPassiveCSV: {fileID: 0}
+  itemCSV: {fileID: 0}
   weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
+  weaponClassCSV: {fileID: 0}
+  weaponEffectCSV: {fileID: 0}
+  enemyStatCSV: {fileID: 0}
+  enemyStateCSV: {fileID: 0}
+  enemyTransitionCSV: {fileID: 0}
   charPath: Assets/Sprites/Characters/
+  itemPath: Assets/Sprites/Items/
   weaponPath: Assets/Sprites/Weapons/
+  classBonusData: {fileID: 0}
 --- !u!4 &698695822
 Transform:
   m_ObjectHideFlags: 0

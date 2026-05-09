@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 

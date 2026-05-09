@@ -11,17 +11,16 @@ public class PlayerManager : MonoBehaviour
     [field: SerializeField] private List<PlayerWeapon> playerWeapons;
     [SerializeField] private PlayerWeapon playerWeaponPrefab;
     private Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
-    private int _weaponSlotCount = 6;
+    private int _weaponSlotCount = 6; //추후 패시브 등으로 바뀔 수 있음.
+    private int _currentWeaponCount = 0;
+    public bool WeaponIsFull => _currentWeaponCount == _weaponSlotCount;
     
     private PlayerControl _playerControl;
     private PlayerStat _playerStat;
     private PlayerInfoUI _playerInfoUI;
-    //private WeaponManager _weaponManager;
     
-    //ranged -> playerStat으로?
-    private int _globalPiercing = 0;
-    private int _globalPiercingDmgPer = 0;
-
+    private readonly Collider2D[] _hitBuffer = new Collider2D[100];
+    
     private void Awake()
     {
         TryGetComponent(out _playerControl);
@@ -40,6 +39,11 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
 
+    private void FindClosestEnemy()
+    {
+        //float maxRange = 하위 무기 중에서 가장 range가 큰 것을...
+    }
+    
     public void InitCharacter(CharacterData charData, List<ItemData> items, List<WeaponData> weapons)
     {
         Debug.Log("InitStat");
@@ -79,6 +83,8 @@ public class PlayerManager : MonoBehaviour
             playerWeapons[i].SetWeaponData(initWeaponList[i], initWeaponList[i].WeaponStat.initTier); // 초기 무기 장착
             playerWeapons[i].gameObject.SetActive(true);
 
+            _currentWeaponCount++;//현재 무기 수
+            
             var classes = initWeaponList[i].WeaponStat.classes;
             foreach (var weaponClass in classes)
             {
@@ -98,6 +104,47 @@ public class PlayerManager : MonoBehaviour
         
         //sync?
         _playerStat.SyncStat();
+    }
+
+    private void AddWeapon(WeaponData weaponData, int tier)
+    {
+        if(WeaponIsFull) return; //무기 최대.
+       
+        int idx = _currentWeaponCount; //PlayerWeaponIdx
+        playerWeapons[idx].SetWeaponData(weaponData, tier);
+        playerWeapons[idx].gameObject.SetActive(true);
+
+        _currentWeaponCount++;//현재 무기 수
+            
+        var classes = weaponData.WeaponStat.classes;
+        foreach (var weaponClass in classes)
+        {
+            WeaponClassDict[weaponClass]++; //무기 클래스 보너스 추가
+        }
+        SetWeaponClassBonus(); //무기 보너스 설정.
+    }
+
+    private void RemoveWeapon(int targetIdx)
+    {
+        //재정렬...
+        var classes = playerWeapons[targetIdx].WeaponData.WeaponStat.classes;
+        foreach (var weaponClass in classes) //보너스 제거.
+        {
+            WeaponClassDict[weaponClass]--;
+        }
+        SetWeaponClassBonus(); //클래스 보너스 업데이트
+        
+        for (int i = targetIdx; i < _currentWeaponCount - 1; i++) //무기 재정렬.(빈 부분 당기기)
+        {
+            var weaponData = playerWeapons[i].WeaponData;
+            var tier = playerWeapons[i].Tier;
+            playerWeapons[i + 1].SetWeaponData(weaponData, tier);
+        }
+        
+        playerWeapons[_currentWeaponCount - 1].SetWeaponData(null, 0); //마지막 무기를 비우고 비활성.
+        playerWeapons[_currentWeaponCount - 1].gameObject.SetActive(false);
+        
+        _currentWeaponCount--;
     }
 
     private void UpdateStat(MainStats stat, int value)
@@ -142,7 +189,7 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.ShowWeaponInfo(currentWeaponStat, selectBtn, index);
     }
 
-    private void SetWeaponClassBonus() //클래스 보너스 초기화
+    private void SetWeaponClassBonus() //클래스 보너스 업데이트
     {
         _playerInfoUI.SetWeaponClassBonus(WeaponClassDict);
         
@@ -150,6 +197,8 @@ public class PlayerManager : MonoBehaviour
         {
             if(bonus <= 1) continue; //1이하는 보너스 x
             var effectList = DataManager.Instance.WeaponClassBonusDict[weaponClass];
+            
+            _playerStat.ResetStatClassBonus();//보너스 업데이트 전 리셋.
             
             foreach (var effect in effectList)
             {
@@ -160,12 +209,11 @@ public class PlayerManager : MonoBehaviour
                 
                 if (effect.IsMain)
                 {
-                    _playerStat.UpdateStat(effect.mainStat, amount); 
-                    //단순히 더하는 방식 말고??? 기존 스탯(패시브, 아이템, 레벨업 보너스)(변동x) + 무기 클래스 보너스(변동o)
+                    _playerStat.UpdateStatClassBonus(effect.mainStat, amount); 
                 }
                 else
                 {
-                    _playerStat.UpdateStat(effect.subStat, amount);
+                    _playerStat.UpdateStatClassBonus(effect.subStat, amount);
                 }
             }
         }

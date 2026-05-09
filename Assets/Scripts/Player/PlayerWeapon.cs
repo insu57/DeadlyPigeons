@@ -109,6 +109,8 @@ public class PlayerWeapon : MonoBehaviour
     public void SetWeaponData(WeaponData weaponData, int tier)
     {
         WeaponData = weaponData;
+        
+        if(!WeaponData) return;
 
         weaponSprite.sprite = weaponData.Sprite;
         weaponSprite.transform.localPosition = weaponData.SpriteOffset;
@@ -201,7 +203,8 @@ public class PlayerWeapon : MonoBehaviour
     
     private void RotateWeapon()
     {
-        //타겟
+        if(!WeaponData) return;
+        
         if(_isAttacking) return; //공격 중(근거리) 회전x
          
         if (!_targetInfo.Target) //타겟이 없으면 기본 각도

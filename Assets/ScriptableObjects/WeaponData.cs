@@ -154,7 +154,7 @@ public class WeaponData : ScriptableObject
     
     
 #if UNITY_EDITOR
-    public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite) //임시
+    public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite)
     {
         Name = weaponName;
         WeaponStat = weaponStat;

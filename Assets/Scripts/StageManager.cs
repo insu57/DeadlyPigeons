@@ -22,7 +22,7 @@ public class StageManager : MonoBehaviour
     [SerializeField] private TMP_Text stageText;
     private PlayerSelected _playerSelected;
     
-    [field: SerializeField] private List<EnemyManager> activeEnemies = new();
+    private HashSet<EnemyManager> activeEnemies = new();
     private const float MaxFindRange = 100f;
 
     [Header("Enemy Spawn")]
@@ -133,13 +133,12 @@ public class StageManager : MonoBehaviour
                 totalSpawned++;
             }
         }
-
-        Debug.Log($"Wave {waveData.WaveNumber} 스폰 완료 (총 {totalSpawned}마리)");
     }
 
     private void SpawnEnemy(WaveData waveData)
     {
         if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;
+        
         if (!enemyBasePrefab) { Debug.LogWarning("enemyBasePrefab이 비어 있습니다."); return; }
 
         var spawnInfo = PickWeightedEnemy(waveData.Enemies);
@@ -152,11 +151,12 @@ public class StageManager : MonoBehaviour
         activeEnemies.Add(enemy);
     }
 
-    private EnemySpawnInfo PickWeightedEnemy(List<EnemySpawnInfo> enemies)
+    private EnemySpawnInfo PickWeightedEnemy(List<EnemySpawnInfo> enemies) //적 선택
     {
         float totalWeight = 0f;
         foreach (var e in enemies) totalWeight += e.weight;
 
+        //가중치를 기반으로 스폰될 적 선택.
         float rand = Random.Range(0f, totalWeight);
         float cumulative = 0f;
         foreach (var e in enemies)
@@ -164,42 +164,43 @@ public class StageManager : MonoBehaviour
             cumulative += e.weight;
             if (rand <= cumulative) return e;
         }
+        
         return enemies[^1];
     }
 
     private Vector3 GetSpawnPosition(SpawnLocationType spawnLocation) //스폰 위치
     {
-        float angle = Random.Range(0f, Mathf.PI * 2f);
+        float angle = Random.Range(0f, Mathf.PI * 2f); //무작위 각도
         float distance = spawnLocation == SpawnLocationType.Near
             ? Random.Range(nearSpawnMin, nearSpawnMax) //근거리 스폰
             : Random.Range(farSpawnMin, farSpawnMax); //원거리 스폰
 
         var playerPos = _playerManager.transform.position;
         return new Vector3(
-            playerPos.x + Mathf.Cos(angle) * distance,
+            playerPos.x + Mathf.Cos(angle) * distance, //각도와 거리로 좌표 계산
             playerPos.y + Mathf.Sin(angle) * distance,
             playerPos.z
         );
     }
 
-    private void OnEnemyDeath(EnemyManager enemy)
+    private void OnEnemyDeath(EnemyManager enemy) //적 사망 처리
     {
-        activeEnemies.Remove(enemy);
+        activeEnemies.Remove(enemy);//활성화 된 적 리스트에서 제거.
     }
     
-    private void FindClosestEnemy() //가장 가까운 적 찾기
+    private void FindClosestEnemy() //가장 가까운 적 찾기 => 개선 점?
     {
         Transform closest = null;
-        float minDistanceSqr = MaxFindRange * MaxFindRange;
+        float minDistanceSqr = MaxFindRange * MaxFindRange;//최대 탐색 범위(제곱)
 
-        foreach (var activeEnemy in activeEnemies)
+        foreach (var activeEnemy in activeEnemies) //활성화 된 적 리스트
         {
             var enemyTransform = activeEnemy.transform;
             
-            Vector3 dir = enemyTransform.position - _playerManager.transform.position;
-            float distSqr = dir.sqrMagnitude;
+            Vector3 dir = enemyTransform.position - _playerManager.transform.position; //방향 벡터.
+            float distSqr = dir.sqrMagnitude; //거리(제곱)
 
-            if (distSqr < minDistanceSqr)
+            if (distSqr < minDistanceSqr) //최소 거리(가장 가까운 적)
             {
                 minDistanceSqr = distSqr;
                 closest = enemyTransform;

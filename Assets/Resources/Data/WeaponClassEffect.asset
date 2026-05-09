@@ -16,52 +16,52 @@ MonoBehaviour:
   - weaponClass: 0
     statsValues:
     - mainStat: 13
-      subStat: 13
+      subStat: 14
       values: 0300000006000000090000000c0000000f000000
   - weaponClass: 1
     statsValues:
     - mainStat: 3
-      subStat: 13
+      subStat: 14
       values: 0100000001000000020000000200000003000000
     - mainStat: 0
-      subStat: 13
+      subStat: 14
       values: 0000000003000000030000000600000006000000
     - mainStat: 5
-      subStat: 13
+      subStat: 14
       values: fefffffffcfffffffafffffff8fffffff6ffffff
   - weaponClass: 2
     statsValues:
     - mainStat: 0
-      subStat: 13
+      subStat: 14
       values: 0300000006000000090000000c0000000f000000
   - weaponClass: 4
     statsValues:
     - mainStat: 3
-      subStat: 13
+      subStat: 14
       values: 0100000001000000020000000200000003000000
     - mainStat: 4
-      subStat: 13
+      subStat: 14
       values: 0000000003000000030000000600000006000000
   - weaponClass: 5
     statsValues:
     - mainStat: 7
-      subStat: 13
+      subStat: 14
       values: 0100000002000000030000000400000005000000
     - mainStat: 2
-      subStat: 13
+      subStat: 14
       values: 0100000002000000030000000400000005000000
   - weaponClass: 3
     statsValues:
     - mainStat: 14
-      subStat: 13
+      subStat: 14
       values: 0a000000140000001e0000002800000032000000
   - weaponClass: 6
     statsValues:
     - mainStat: 6
-      subStat: 13
+      subStat: 14
       values: 050000000a0000000f0000001400000019000000
   - weaponClass: 7
     statsValues:
     - mainStat: 9
-      subStat: 13
+      subStat: 14
       values: 0100000002000000030000000400000005000000
