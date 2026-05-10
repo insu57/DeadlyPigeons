@@ -169,6 +169,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
         dmgTxt.transform.position = transform.position;
+        dmgTxt.Init(ObjectPoolingManager.Instance.Sb);
         dmgTxt.SetText(damage, isCrit);
 
         if (_health <= 0)

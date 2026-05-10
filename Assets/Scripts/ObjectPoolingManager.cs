@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -9,33 +8,23 @@ public enum Pooling
     SelectBtn,
     Projectile,
     DamageTxt,
-    Explosion
+    Explosion,
+    Enemy,
+    Collectable,
 }
 
 public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 {
-    [Header("TitleSelect")] 
-    private PoolingSetting _selectBtnSetting;
-    private ObjectPool<SelectButton> _selectBtnPool;
-    
-    private PoolingSetting _projectileSetting;
-    private  ObjectPool<Projectile> _projectilePool;
-    
-    private PoolingSetting _damageTxtSetting;
-    private ObjectPool<DamageTxt> _damageTxtPool;
+    private Dictionary<Pooling, PoolingSetting> _settings = new();
+    private Dictionary<Pooling, IObjectPool> _pools = new();
 
-    private PoolingSetting _explosionSetting;
-    private ObjectPool<Hitbox> _explosionPool;
-    
-    //늘어나는 풀링 오브젝트 -> 개선 방안?
-    
-    private StringBuilder _sb;
+    public StringBuilder Sb { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
 
-        _sb = new StringBuilder();
+        Sb = new StringBuilder();
         LoadPoolSettings();
     }
 
@@ -43,122 +32,105 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     {
         PoolingSetting[] settings = Resources.LoadAll<PoolingSetting>("Pooling");
 
-        foreach (var poolingSetting in settings)
+        foreach (var setting in settings)
         {
-            switch (poolingSetting.Pooling)
-            {
-                case Pooling.SelectBtn: _selectBtnSetting = poolingSetting; break;
-                case Pooling.Projectile: _projectileSetting = poolingSetting; break;
-                case Pooling.DamageTxt: _damageTxtSetting = poolingSetting; break;
-                case Pooling.Explosion: _explosionSetting =  poolingSetting; break;
-            }
+            _settings[setting.Pooling] = setting;
         }
     }
-    
-    //wip
-    private ObjectPool<T> InitPool<T>(T prefab, PoolingSetting settings) where T : Component
+
+    private void InitPool<T>(Pooling type) where T : Component
     {
+        if (!_settings.TryGetValue(type, out var setting))
+        {
+            Debug.LogError($"No PoolingSetting found for {type}");
+            return;
+        }
+
+        if (!setting.Prefab.TryGetComponent<T>(out var prefab))
+        {
+            Debug.LogError($"Can't find {typeof(T).Name} component on {setting.name}");
+            return;
+        }
+
         var pool = new ObjectPool<T>(
             createFunc: () => Instantiate(prefab),
-            actionOnGet: component => component.gameObject.SetActive(true),
-            actionOnRelease: component => component.gameObject.SetActive(false),
-            actionOnDestroy: component => Destroy(component.gameObject),
+            actionOnGet: c => c.gameObject.SetActive(true),
+            actionOnRelease: c => c.gameObject.SetActive(false),
+            actionOnDestroy: c => Destroy(c.gameObject),
             collectionCheck: false,
-            defaultCapacity: settings.InitSize,
-            maxSize: settings.MaxSize
-            );
+            defaultCapacity: setting.InitSize,
+            maxSize: setting.MaxSize
+        );
 
-        var tempList = new List<T>();
-        for (var i = 0; i < settings.InitSize; i++)
-        {
-            var obj = pool.Get();
-            tempList.Add(obj);
-        }
-
-        foreach (var obj in tempList)
-        {
+        var temp = new List<T>(setting.InitSize);
+        for (var i = 0; i < setting.InitSize; i++)
+            temp.Add(pool.Get());
+        foreach (var obj in temp)
             pool.Release(obj);
-        }
-        
-        return pool;
+
+        _pools[type] = new TypedPool<T>(pool);
     }
-    
+
+    private T GetFromPool<T>(Pooling type) where T : Component
+    {
+        if (_pools.TryGetValue(type, out var pool) && pool is TypedPool<T> typed)
+            return typed.Get();
+
+        Debug.LogError($"Pool {type} is not initialized or type mismatch");
+        return null;
+    }
+
+    private void ReleaseToPool(Pooling type, Component obj) => _pools[type].Release(obj);
+
+    // ── SelectBtn ──────────────────────────────────────────────
+    public void InitSelectBtnPool() => InitPool<SelectButton>(Pooling.SelectBtn);
+
     public SelectButton GetSelectBtn()
     {
-        var selectBtn = _selectBtnPool.Get();
-        selectBtn.ClearSelectBtn();
-        return selectBtn;
+        var btn = GetFromPool<SelectButton>(Pooling.SelectBtn);
+        btn.ClearSelectBtn();
+        return btn;
     }
 
-    public void ReleaseSelectBtn(SelectButton selectBtn) => _selectBtnPool.Release(selectBtn);
+    public void ReleaseSelectBtn(SelectButton btn) => ReleaseToPool(Pooling.SelectBtn, btn);
 
-    public void InitSelectBtnPool()
-    {
-        if (_selectBtnSetting.Prefab.TryGetComponent(out SelectButton selectBtn))
-        {
-            //if(_selectBtnPool != null) return;
-            _selectBtnPool = InitPool(selectBtn, _selectBtnSetting);
-        }
-        else
-        {
-            Debug.LogError("Can't find selectBtn");
-        }
-    }
+    // ── Projectile ─────────────────────────────────────────────
+    public void InitProjectilePool() => InitPool<Projectile>(Pooling.Projectile);
+    public Projectile GetProjectile() => GetFromPool<Projectile>(Pooling.Projectile);
+    public void ReleaseProjectile(Projectile projectile) => ReleaseToPool(Pooling.Projectile, projectile);
+
+    // ── DamageTxt ──────────────────────────────────────────────
+    public void InitDamageTxtPool() => InitPool<DamageTxt>(Pooling.DamageTxt);
+    public DamageTxt GetDamageTxt() => GetFromPool<DamageTxt>(Pooling.DamageTxt);
+    public void ReleaseDamageTxt(DamageTxt damageTxt) => ReleaseToPool(Pooling.DamageTxt, damageTxt);
+
+    // ── Explosion ──────────────────────────────────────────────
+    public void InitExplosivePool() => InitPool<Hitbox>(Pooling.Explosion);
+    public Hitbox GetExplosion() => GetFromPool<Hitbox>(Pooling.Explosion);
+    public void ReleaseExplosion(Hitbox explosion) => ReleaseToPool(Pooling.Explosion, explosion);
+
+    // ── Enemy(Base) ────────────────────────────────────────────── //진행 중
+    public void InitEnemyPool() => InitPool<EnemyManager>(Pooling.Enemy);
+    public EnemyManager GetEnemyBase() => GetFromPool<EnemyManager>(Pooling.Enemy);
+    public void ReleaseEnemy(EnemyManager enemy) => ReleaseToPool(Pooling.Enemy, enemy);
     
-    public void InitProjectilePool()
-    {
-        if (_projectileSetting.Prefab.TryGetComponent(out Projectile projectile))
-        {
-            _projectilePool = InitPool(projectile, _projectileSetting);
-        }
-        else
-        {
-            Debug.LogError("Can't find projectile");
-        }
-    }
-    public Projectile GetProjectile() => _projectilePool.Get();
-    public void ReleaseProjectile(Projectile projectile ) => _projectilePool.Release(projectile);
+    // ── Material ────────────────────────────────────────────── //진행 중
     
-    public void InitDamageTxtPool()
+    
+    // ── 내부 풀 래퍼 ───────────────────────────────────────────
+
+    private interface IObjectPool
     {
-        if (_damageTxtSetting.Prefab.TryGetComponent(out DamageTxt damageTxt))
-        {
-            _damageTxtPool = InitPool(damageTxt, _damageTxtSetting);
-        }
-        else
-        {
-            Debug.LogError("Can't find damageTxt");
-        }
+        void Release(Component obj);
     }
 
-    public DamageTxt GetDamageTxt()
+    private class TypedPool<T> : IObjectPool where T : Component
     {
-        var dmgTxt = _damageTxtPool.Get();
-        dmgTxt.Init(_sb);
-        return dmgTxt;
-    } 
-    public void ReleaseDamageTxt(DamageTxt damageTxt) => _damageTxtPool.Release(damageTxt);
+        private readonly ObjectPool<T> _pool;
 
-    public void InitExplosivePool()
-    {
-        if (_explosionSetting.Prefab.TryGetComponent(out Hitbox explosion))
-        {
-            _explosionPool = InitPool(explosion, _explosionSetting);
-        }
-        else
-        {
-            Debug.LogError("Can't find Explosion");
-        }
+        public TypedPool(ObjectPool<T> pool) => _pool = pool;
+
+        public T Get() => _pool.Get();
+        public void Release(Component obj) => _pool.Release((T)obj);
     }
-
-    public Hitbox GetExplosion(int damage, float scale)
-    {
-        var explosion = _explosionPool.Get();
-        explosion.SetScale(scale);
-        explosion.AttackInit(damage, false, null);
-        return explosion;
-    }
-
-    public void ReleaseExplosion(Hitbox explosion) => _explosionPool.Release(explosion);
 }
-

@@ -30,7 +30,9 @@ public class Explosive : IWeaponEffect
     public void Execute(IDamageable damageable)
     {
         //착탄 시 폭발 오브젝트 활성.
-        var explosion = ObjectPoolingManager.Instance.GetExplosion(_damage, _explosionSize / 100f);
+        var explosion = ObjectPoolingManager.Instance.GetExplosion();
+        explosion.SetScale(_explosionSize / 100f);
+        explosion.AttackInit(_damage, false, null);
         explosion.AddHitTarget(damageable); //예외 타겟(무기가 적중한 타겟은 제외)
         explosion.Collider.enabled = true; //그리고 Collider 활성화
         explosion.transform.position = damageable.GetTransform().position; //폭발 지점

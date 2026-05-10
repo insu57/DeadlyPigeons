@@ -38,11 +38,6 @@ public class PlayerManager : MonoBehaviour
 
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
-
-    private void FindClosestEnemy()
-    {
-        //float maxRange = 하위 무기 중에서 가장 range가 큰 것을...
-    }
     
     public void InitCharacter(CharacterData charData, List<ItemData> items, List<WeaponData> weapons)
     {
@@ -217,5 +212,10 @@ public class PlayerManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void GetCollectable(Collectable collectable)
+    {
+        //
     }
 }

@@ -18,7 +18,7 @@ TagManager:
   - PlayerHitbox
   - EnemyHitbox
   - Wall
-  - 
+  - Collectable
   - 
   - 
   - 
@@ -50,6 +50,9 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 1440280303
+    locked: 0
+  - name: Collectable
+    uniqueID: 2533806651
     locked: 0
   - name: Weapon
     uniqueID: 1460092559
