@@ -71,10 +71,12 @@ public class StageManager : MonoBehaviour
         //플레이어 초기화
         InitPlayer();
         
-        //pooling
+        //Pooling Initialize
         ObjectPoolingManager.Instance.InitProjectilePool();
         ObjectPoolingManager.Instance.InitDamageTxtPool();
         ObjectPoolingManager.Instance.InitExplosivePool();
+        ObjectPoolingManager.Instance.InitEnemyPool();
+        ObjectPoolingManager.Instance.InitCollectablePool();
 
         //웨이브 시작
         var waveData = DataManager.Instance.WaveDataList[_currentWave - 1];
@@ -145,7 +147,10 @@ public class StageManager : MonoBehaviour
         var spawnPos = GetSpawnPosition(spawnInfo.spawnLocation);
 
         //Pooling으로 수정.
-        var enemy = Instantiate(enemyBasePrefab, spawnPos, Quaternion.identity);
+        //var enemy = Instantiate(enemyBasePrefab, spawnPos, Quaternion.identity);
+        var enemy = ObjectPoolingManager.Instance.GetEnemyBase();
+        enemy.transform.position = spawnPos;
+        enemy.transform.rotation = Quaternion.identity;
         enemy.Init(spawnInfo.enemyData, _currentWave, _playerManager.transform);
         enemy.OnDeath += OnEnemyDeath;
         activeEnemies.Add(enemy);

@@ -33,8 +33,8 @@ public struct EnemyStat
     public float damagePerWave;
     public float baseSpeed;
     public float knockbackResistance;
-    public float materialsDrop;
-    public float consumableDropChance;
+    public int materialsDrop;
+    public float meatDropChance;
     public float lootCrateDropChance;
     public int initWave;
 }

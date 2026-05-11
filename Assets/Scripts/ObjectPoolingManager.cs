@@ -17,9 +17,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 {
     private Dictionary<Pooling, PoolingSetting> _settings = new();
     private Dictionary<Pooling, IObjectPool> _pools = new();
-
     public StringBuilder Sb { get; private set; }
-
     protected override void Awake()
     {
         base.Awake();
@@ -40,6 +38,8 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 
     private void InitPool<T>(Pooling type) where T : Component
     {
+        if (_pools.ContainsKey(type)) return;
+
         if (!_settings.TryGetValue(type, out var setting))
         {
             Debug.LogError($"No PoolingSetting found for {type}");
@@ -114,8 +114,10 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     public EnemyManager GetEnemyBase() => GetFromPool<EnemyManager>(Pooling.Enemy);
     public void ReleaseEnemy(EnemyManager enemy) => ReleaseToPool(Pooling.Enemy, enemy);
     
-    // ── Material ────────────────────────────────────────────── //진행 중
-    
+    // ── Collectable ────────────────────────────────────────────── //진행 중
+    public void InitCollectablePool() => InitPool<Collectable>(Pooling.Collectable);
+    public Collectable GetCollectable() => GetFromPool<Collectable>(Pooling.Collectable);
+    public void ReleaseCollectable(Collectable collectable) => ReleaseToPool(Pooling.Collectable, collectable);
     
     // ── 내부 풀 래퍼 ───────────────────────────────────────────
 

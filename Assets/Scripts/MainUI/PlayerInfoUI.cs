@@ -10,6 +10,11 @@ public class PlayerInfoUI : MonoBehaviour
 {
     [SerializeField] private GameObject infoUI;
     private StringBuilder sb;
+    
+    [SerializeField] private Image healthBar;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private Image expBar;
+    [SerializeField] private TextMeshProUGUI expText;
 
     [SerializeField] private PlayerStatInfo[] playerStatInfos;
 
@@ -39,6 +44,22 @@ public class PlayerInfoUI : MonoBehaviour
     private void Start()
     {
         InputManager.Instance.Input.Global.Menu.performed += ShowInfoUI; //상태창
+    }
+
+    public void UpdateHealthBar(int currentHealth, int maxHealth)
+    {
+        sb.Clear();
+        sb.Append(currentHealth + " / " + maxHealth);
+        healthText.SetText(sb);
+        healthBar.fillAmount = (float)currentHealth / maxHealth;
+    }
+
+    public void UpdateExpBar(int lv, float currentExp, float targetExp)
+    {
+        sb.Clear();
+        sb.Append("Lv " + lv);
+        expText.SetText(sb);
+        expBar.fillAmount = currentExp / targetExp;
     }
     
     private void ShowInfoUI(InputAction.CallbackContext context)

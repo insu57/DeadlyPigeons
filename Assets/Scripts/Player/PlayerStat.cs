@@ -12,6 +12,9 @@ public class PlayerStat : MonoBehaviour, IDamageable
 
     [field: SerializeField] private int currentLevel = 1;
     [field: SerializeField] private int currentHP;
+    [field: SerializeField] private float currentExp;
+    private int TargetExp => (currentLevel + 3) * (currentLevel + 3);
+    
     private const int DefaultMaxHP = 10;
     [field: SerializeField] private int money = 0;
     private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
@@ -25,11 +28,10 @@ public class PlayerStat : MonoBehaviour, IDamageable
     //체력회복은 초당 얼만큼?? 1부터 ~, 패시브, 아이템 등으로 깎인다면? -> 두 개는 별개로?
     public event Action<MainStats, int> OnChangeMainStats;
     public event Action<SubStats, int> OnChangeSubStats;
-        
-    private void Start()
-    {
-        currentLevel = 1;
-    }
+
+    public event Action<int, int> OnChangeHealth;
+    public event Action<int, float, float> OnChangeExp;
+    
 
     public void InitStat() //스탯 초기화.
     {
@@ -62,6 +64,11 @@ public class PlayerStat : MonoBehaviour, IDamageable
         {
             OnChangeSubStats?.Invoke(subStat, value);
         }
+        
+        currentLevel = 1;
+        
+        OnChangeHealth?.Invoke(currentHP, _finalMainStatDict[MainStats.MaxHP]);
+        OnChangeExp?.Invoke(currentLevel, currentExp, TargetExp);
     }
 
     public void AddItem(ItemData itemData)

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyManager : MonoBehaviour, IDamageable
 {
@@ -68,6 +69,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
     private void FixedUpdate()
     {
         _currentState?.FixedExecute(this);
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
 
     private void InitEnemy()
@@ -165,6 +171,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     public void Damage(int damage, bool isCrit)
     {
+        if (_health <= 0) return;
+
         _health -= damage;
 
         var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
@@ -175,7 +183,29 @@ public class EnemyManager : MonoBehaviour, IDamageable
         if (_health <= 0)
         {
             OnDeath?.Invoke(this);
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            
+            ObjectPoolingManager.Instance.ReleaseEnemy(this);
+
+            var material = ObjectPoolingManager.Instance.GetCollectable();
+            material.SetType(CollectableType.Material, enemyData.EnemyStat.materialsDrop);
+            material.transform.position = transform.position;
+            
+            var crateChance = Random.Range(0f, 1f);
+            if (crateChance < enemyData.EnemyStat.lootCrateDropChance / 100f)
+            {
+                var crate = ObjectPoolingManager.Instance.GetCollectable();
+                crate.SetType(CollectableType.Crate, 1);
+                crate.transform.position = transform.position;
+            }
+            
+            var meatChance = Random.Range(0f, 1f);
+            if (meatChance < enemyData.EnemyStat.meatDropChance / 100f)
+            {
+                var meat  =  ObjectPoolingManager.Instance.GetCollectable();
+                meat.SetType(CollectableType.Meat, 1);
+                meat.transform.position = transform.position;
+            }
         }
     }
 
@@ -185,6 +215,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     public void DotDamage(int duration, int damage, float tick)
     {
+        if (!gameObject.activeInHierarchy) return;//코루틴은 이것을 기준으로 체크함.
+
         if (_activeDotCoroutine != null)
         {
             StopCoroutine(_activeDotCoroutine);
@@ -211,6 +243,6 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         _activeDotCoroutine = null;
     }
-
+    
     public Transform GetTransform() => transform;
 }

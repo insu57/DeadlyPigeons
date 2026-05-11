@@ -35,6 +35,8 @@ public class PlayerManager : MonoBehaviour
         
         _playerStat.OnChangeMainStats += UpdateStat;
         _playerStat.OnChangeSubStats += UpdateStat;
+        _playerStat.OnChangeHealth += UpdateHealth;
+        _playerStat.OnChangeExp += UpdateExp;
 
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
@@ -50,6 +52,16 @@ public class PlayerManager : MonoBehaviour
             AddItem(itemData);
         }
         InitWeapons(weapons); //초기 무기 장착
+    }
+
+    private void UpdateHealth(int currentHealth, int maxHealth)
+    {
+        _playerInfoUI.UpdateHealthBar(currentHealth, maxHealth);
+    }
+
+    private void UpdateExp(int lv, float currentExp, float targetExp)
+    {
+        _playerInfoUI.UpdateExpBar(lv, currentExp, targetExp);
     }
 
     private void AddItem(ItemData itemData)

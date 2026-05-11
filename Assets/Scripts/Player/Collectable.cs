@@ -4,7 +4,7 @@ using UnityEngine;
 public enum CollectableType
 {
     Material,
-    Food,
+    Meat,
     Crate,
 }
 
@@ -24,7 +24,7 @@ public class Collectable : MonoBehaviour
     {
         if (other.TryGetComponent(out PlayerManager player))
         {
-            
+            ObjectPoolingManager.Instance.ReleaseCollectable(this);
         }
     }
 }

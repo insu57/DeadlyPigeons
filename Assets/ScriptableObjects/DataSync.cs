@@ -705,7 +705,7 @@ public class DataSync : MonoBehaviour
                     baseSpeed = float.Parse(rowData[7]),
                     knockbackResistance = float.Parse(rowData[8]),
                     materialsDrop = int.Parse(rowData[9]),
-                    consumableDropChance = int.Parse(rowData[10]),
+                    meatDropChance = int.Parse(rowData[10]),
                     lootCrateDropChance =  int.Parse(rowData[11]),
                     initWave = int.Parse(rowData[12]),
                 };
