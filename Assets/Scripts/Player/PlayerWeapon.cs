@@ -388,18 +388,21 @@ public class PlayerWeapon : MonoBehaviour
             var stat = statMultiplier.stat; //스탯 종류
             var value = statMultiplier.value[TierIdx]; //계수(티어별)
             var statAmount = _mainStats[stat]; //현재 스탯
-            int statDamage =  Mathf.FloorToInt(statAmount * (value / 100f)); //소수점 이하는 버림
+            int statDamage =  Mathf.FloorToInt(statAmount * (value / 100f)); //소수점 이하 버리기
             statDamageSum += statDamage;
         }
         
         float finalDamage = (baseDamage + statDamageSum) * (1f + _mainStats[MainStats.Damage] / 100f);
         //최종 데미지 배율 적용
         
-        return Mathf.FloorToInt(finalDamage);//소수점 이하 버리기
+        if(finalDamage < 1) finalDamage = 1; //최소치 1 데미지.
+        
+        return (int)Mathf.Round(finalDamage);//반올림.
     }
 
     private float GetRange()
     {
+        //최소 범위 처리?
         if (WeaponData.WeaponStat.isMelee)
         {
             //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)

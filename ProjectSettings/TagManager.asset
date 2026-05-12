@@ -19,7 +19,7 @@ TagManager:
   - EnemyHitbox
   - Wall
   - Collectable
-  - 
+  - PickupRange
   - 
   - 
   - 

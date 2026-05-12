@@ -22,20 +22,10 @@ MonoBehaviour:
     baseSpeed: 3
     knockbackResistance: 0
     materialsDrop: 3
-    consumableDropChance: 1
-    lootCrateDropChance: 1
+    meatDropChance: 80
+    lootCrateDropChance: 80
     initWave: 1
-  <EnemyName>k__BackingField: "\uBE44\uB458\uAE30 \uBCD1\uC0AC"
-  <BaseHealth>k__BackingField: 3
-  <HealthPerWave>k__BackingField: 2
-  <BaseDamage>k__BackingField: 1
-  <DamagePerWave>k__BackingField: 0.6
-  <BaseSpeed>k__BackingField: 3
-  <KnockbackResistance>k__BackingField: 0
-  <MaterialsDrop>k__BackingField: 3
-  <ConsumableDropChance>k__BackingField: 1
-  <LootCrateDropChance>k__BackingField: 1
-  <InitWave>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 0}
   <States>k__BackingField:
   - moveState: 0
     shootState: 0

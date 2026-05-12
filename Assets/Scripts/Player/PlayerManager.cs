@@ -17,7 +17,11 @@ public class PlayerManager : MonoBehaviour
     
     private PlayerControl _playerControl;
     private PlayerStat _playerStat;
+    private PlayerHurtbox  _playerHurtbox;
+    private PickupRange _pickupRange;
+    
     private PlayerInfoUI _playerInfoUI;
+    
     
     private readonly Collider2D[] _hitBuffer = new Collider2D[100];
     
@@ -25,6 +29,9 @@ public class PlayerManager : MonoBehaviour
     {
         TryGetComponent(out _playerControl);
         TryGetComponent(out _playerStat);
+        _playerHurtbox = GetComponentInChildren<PlayerHurtbox>();
+        _pickupRange = GetComponentInChildren<PickupRange>();
+        
         _playerInfoUI = FindFirstObjectByType<PlayerInfoUI>();
         
         for (int i = 0; i < (int)WeaponClasses.None; i++)
@@ -37,7 +44,10 @@ public class PlayerManager : MonoBehaviour
         _playerStat.OnChangeSubStats += UpdateStat;
         _playerStat.OnChangeHealth += UpdateHealth;
         _playerStat.OnChangeExp += UpdateExp;
-
+        _playerStat.OnChangeMoney += UpdateMoney;
+        _playerHurtbox.OnDamage += HandleOnDamage;
+        _playerHurtbox.OnHeal += HandleOnHeal;
+        
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
     
@@ -62,6 +72,11 @@ public class PlayerManager : MonoBehaviour
     private void UpdateExp(int lv, float currentExp, float targetExp)
     {
         _playerInfoUI.UpdateExpBar(lv, currentExp, targetExp);
+    }
+
+    private void UpdateMoney(int money)
+    {
+        _playerInfoUI.UpdateMoney(money);
     }
 
     private void AddItem(ItemData itemData)
@@ -178,6 +193,16 @@ public class PlayerManager : MonoBehaviour
                 playerWeapon.UpdateSubStats(stat, value);
             }
         }
+    }
+
+    private void HandleOnDamage(int damage)
+    {
+        _playerStat.Damage(damage);
+    }
+
+    private void HandleOnHeal(int healAmount)
+    {
+        _playerStat.Heal(healAmount);
     }
 
     public void GetClosestEnemy(TargetInfo enemy) //가장 가까운 적 => PlayerWeapon에 주입

@@ -13,8 +13,9 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
     
-    //public Dictionary<int, WaveData> WaveDict { get; } = new();
     public List<WaveData> WaveDataList { get; private set; }
+    public Dictionary<CollectableType, Sprite> CollectableSpriteDict { get; } = new();
+    [field:SerializeField] public Sprite PlaceHolderSprite { get; private set; }
     
     public Dictionary<int, string> TierColorDict { get; } = new();
     private Dictionary<string, Color> HexToColor { get; } = new();
@@ -63,17 +64,25 @@ public class DataManager : Singleton<DataManager>
             WeaponList.Add(wData);
         }
 
-        var weaponClassData = Resources.LoadAll<WeaponClassBonusData>("")[0];
+        //var weaponClassData = Resources.LoadAll<WeaponClassBonusData>("")[0];
+        var weaponClassData = Resources.Load<WeaponClassBonusData>("Data/WeaponClassEffect");
         foreach (var weaponClassValue in weaponClassData.WeaponClassBonusValues)
         {
             var weaponClass = weaponClassValue.weaponClass;
             WeaponClassBonusDict[weaponClass] = weaponClassValue.statsValues;
         }
         
-        //WaveData[] waves = Resources.LoadAll<WaveData>("Data/Waves");
         //WaveNumber 정렬 리스트
         WaveDataList = Resources.LoadAll<WaveData>("Data/Waves")
             .OrderBy(w => w.WaveNumber).ToList();
+
+        var collectableSpriteData = Resources.Load<CollectableSpriteData>("Data/CollectableSpriteData");
+        foreach (var collectableSprite in collectableSpriteData.CollectableSprites)
+        {
+            CollectableSpriteDict[collectableSprite.collectableType] = collectableSprite.sprite;
+        }
+
+        PlaceHolderSprite = Resources.Load<Sprite>("Sprites/PlaceHolder");
     }
 
     private void InitColor()

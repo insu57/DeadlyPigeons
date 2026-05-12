@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class PlayerStat : MonoBehaviour, IDamageable
+public class PlayerStat : MonoBehaviour
 {
     //기본스탯. 
     //캐릭터 패시브, 아이템
@@ -31,6 +31,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
 
     public event Action<int, int> OnChangeHealth;
     public event Action<int, float, float> OnChangeExp;
+    public event Action<int> OnChangeMoney;
     
 
     public void InitStat() //스탯 초기화.
@@ -126,8 +127,8 @@ public class PlayerStat : MonoBehaviour, IDamageable
         
         UpdateStat(subStat, amount);
     }
-    
-    public void UpdateStat(MainStats mainStat, int amount) //최종 스탯으로 업데이트
+
+    private void UpdateStat(MainStats mainStat, int amount) //최종 스탯으로 업데이트
     {
         _baseMainStatDict[mainStat] += amount;
         int currentAmount =  _baseMainStatDict[mainStat] + _mainStatClassBonus[mainStat];
@@ -137,7 +138,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
         OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
     }
 
-    public void UpdateStat(SubStats subStat, int amount)
+    private void UpdateStat(SubStats subStat, int amount)
     {
         _subStatDict[subStat] += amount;
         int currentAmount =  _subStatDict[subStat] + _subStatBonusDict[subStat];
@@ -159,7 +160,7 @@ public class PlayerStat : MonoBehaviour, IDamageable
         }
     }
     
-    public void Damage(int damage, bool isCrit)
+    public void Damage(int damage)
     {
         //방어도 계산필요
     }
@@ -168,8 +169,21 @@ public class PlayerStat : MonoBehaviour, IDamageable
     {
         //체력 재생과 분리?
     }
-    
-    public void DotDamage(int duration, int damage, float tick) { } 
-    
-    public Transform GetTransform() => transform;
+
+    public void AddMoney(int amount) //상점에서 구매/판매 시
+    {
+        money += amount;
+        
+        OnChangeMoney?.Invoke(money);
+    }
+
+    public void GetMaterial(int amount)
+    {
+        //스탯(아이템) 계산 후 돈,경험치 추가.
+    }
+
+    public void GetMeat()
+    {
+        //스탯(아이템) 계산 후 회복.
+    }
 }

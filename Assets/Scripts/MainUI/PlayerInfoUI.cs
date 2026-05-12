@@ -15,7 +15,8 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Image expBar;
     [SerializeField] private TextMeshProUGUI expText;
-
+    [SerializeField] private TextMeshProUGUI moneyText;
+    
     [SerializeField] private PlayerStatInfo[] playerStatInfos;
 
     [Header("Weapons")] 
@@ -61,6 +62,14 @@ public class PlayerInfoUI : MonoBehaviour
         expText.SetText(sb);
         expBar.fillAmount = currentExp / targetExp;
     }
+
+    public void UpdateMoney(int money)
+    {
+        sb.Clear();
+        sb.Append(money);
+        moneyText.SetText(sb);
+    }
+    
     
     private void ShowInfoUI(InputAction.CallbackContext context)
     {

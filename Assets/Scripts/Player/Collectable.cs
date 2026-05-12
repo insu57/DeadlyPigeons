@@ -8,23 +8,40 @@ public enum CollectableType
     Crate,
 }
 
+[Serializable]
+public struct CollectableSprite
+{
+    public CollectableType collectableType;
+    public Sprite sprite;
+}
+
 public class Collectable : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    private CollectableType _collectableType;
+    [SerializeField] private CollectableSprite[]  collectableSprites;
+
+    public CollectableType CollectableType { get; private set; }
     public int Amount { get; private set; }
 
     public void SetType(CollectableType collectableType, int amount)
     {
-        _collectableType = collectableType;
+        CollectableType = collectableType;
         Amount = amount;
+        if (DataManager.Instance.CollectableSpriteDict.TryGetValue(collectableType, out var sprite))
+        {
+            spriteRenderer.sprite = sprite;
+        }
+        else
+        {
+            spriteRenderer.sprite = DataManager.Instance.PlaceHolderSprite;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.TryGetComponent(out PlayerManager player))
+        if (other.TryGetComponent(out IPickup pickup))
         {
-            ObjectPoolingManager.Instance.ReleaseCollectable(this);
+            pickup.Pickup(this);
         }
     }
 }
