@@ -99,7 +99,7 @@ public static class StatUtil
     {
         return str switch
         {
-            "ConsumableHeal" => SubStats.ConsumableHeal,
+            "FoodHeal" => SubStats.FoodHeal,
             "XPGain"         => SubStats.XPGain,
             "ItemPrice"      => SubStats.ItemPrice,
             "PickUpRange"    => SubStats.PickUpRange,
@@ -120,7 +120,7 @@ public static class StatUtil
     {
         return stat switch
         {
-            SubStats.ConsumableHeal  => nameof(SubStats.ConsumableHeal),
+            SubStats.FoodHeal  => nameof(SubStats.FoodHeal),
             SubStats.XPGain          => nameof(SubStats.XPGain),
             SubStats.ItemPrice       => nameof(SubStats.ItemPrice),
             SubStats.PickUpRange     => nameof(SubStats.PickUpRange),

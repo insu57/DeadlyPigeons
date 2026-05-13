@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[Serializable]
+public struct PlayerLevelInfo
+{
+    public int currentLevel;
+    public bool hasLevelUp;
+    public float currentExp;
+    public float targetExp;
+}
+
 public class PlayerStat : MonoBehaviour
 {
     //기본스탯. 
@@ -14,8 +23,10 @@ public class PlayerStat : MonoBehaviour
     [field: SerializeField] private int currentHP;
     [field: SerializeField] private float currentExp;
     private int TargetExp => (currentLevel + 3) * (currentLevel + 3);
+    private int MaxHp => _finalMainStatDict[MainStats.MaxHP];
     
     private const int DefaultMaxHP = 10;
+    private const int DefaultFoodHeal = 3;
     [field: SerializeField] private int money = 0;
     private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
     private readonly Dictionary<MainStats, int> _mainStatClassBonus = new();//무기 클래스 보너스
@@ -30,7 +41,7 @@ public class PlayerStat : MonoBehaviour
     public event Action<SubStats, int> OnChangeSubStats;
 
     public event Action<int, int> OnChangeHealth;
-    public event Action<int, float, float> OnChangeExp;
+    public event Action<PlayerLevelInfo> OnChangeExp;
     public event Action<int> OnChangeMoney;
     
 
@@ -68,8 +79,19 @@ public class PlayerStat : MonoBehaviour
         
         currentLevel = 1;
         
-        OnChangeHealth?.Invoke(currentHP, _finalMainStatDict[MainStats.MaxHP]);
-        OnChangeExp?.Invoke(currentLevel, currentExp, TargetExp);
+        OnChangeHealth?.Invoke(currentHP, MaxHp);
+
+        var lvInfo = new PlayerLevelInfo()
+        {
+            currentLevel = currentLevel,
+            hasLevelUp = false,
+            currentExp = currentExp,
+            targetExp = TargetExp
+        };
+        
+        OnChangeExp?.Invoke(lvInfo);
+        
+        OnChangeMoney?.Invoke(money);
     }
 
     public void AddItem(ItemData itemData)
@@ -167,10 +189,13 @@ public class PlayerStat : MonoBehaviour
 
     public void Heal(int healAmount)
     {
+        currentHP += healAmount;
+        if(currentHP>= MaxHp) currentHP = MaxHp;
+        OnChangeHealth?.Invoke(currentHP, MaxHp);
         //체력 재생과 분리?
     }
 
-    public void AddMoney(int amount) //상점에서 구매/판매 시
+    private void AddMoney(int amount) //상점에서 구매/판매 시
     {
         money += amount;
         
@@ -180,10 +205,34 @@ public class PlayerStat : MonoBehaviour
     public void GetMaterial(int amount)
     {
         //스탯(아이템) 계산 후 돈,경험치 추가.
+        AddMoney(amount);
+        var expAmount = amount * (1 + _finalSubStatDict[SubStats.XPGain] / 100f);
+        currentExp += expAmount;
+
+        var hasLvUp = false;
+        
+        if(currentExp >= TargetExp) //레벨 업. 한번에 여러번가능하도록 수정?
+        {
+            currentExp = TargetExp - currentExp;
+            currentLevel++;
+            hasLvUp = true;
+        }
+
+        var lvInfo = new PlayerLevelInfo()
+        {
+            currentLevel = currentLevel,
+            hasLevelUp = hasLvUp,
+            currentExp = currentExp,
+            targetExp = TargetExp
+        };
+        
+        OnChangeExp?.Invoke(lvInfo);
     }
 
     public void GetMeat()
     {
         //스탯(아이템) 계산 후 회복.
+        var healAmount = DefaultFoodHeal + _finalSubStatDict[SubStats.FoodHeal];
+        Heal(healAmount);
     }
 }

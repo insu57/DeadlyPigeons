@@ -45,8 +45,12 @@ public class PlayerManager : MonoBehaviour
         _playerStat.OnChangeHealth += UpdateHealth;
         _playerStat.OnChangeExp += UpdateExp;
         _playerStat.OnChangeMoney += UpdateMoney;
+        
         _playerHurtbox.OnDamage += HandleOnDamage;
         _playerHurtbox.OnHeal += HandleOnHeal;
+        _playerHurtbox.OnGetCollectable += HandleOnGetCollectable;
+
+        _pickupRange.OnGetMaterial += HandleOnGetMaterial;
         
         _playerInfoUI.OnShowWeaponInfo += HandleOnShowWeaponInfo;
     }
@@ -69,9 +73,18 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.UpdateHealthBar(currentHealth, maxHealth);
     }
 
-    private void UpdateExp(int lv, float currentExp, float targetExp)
+    private void UpdateExp(PlayerLevelInfo playerLevelInfo)
     {
+        var lv = playerLevelInfo.currentLevel;
+        var currentExp = playerLevelInfo.currentExp;
+        var targetExp = playerLevelInfo.targetExp;
+        
         _playerInfoUI.UpdateExpBar(lv, currentExp, targetExp);
+
+        if (playerLevelInfo.hasLevelUp)
+        {
+            //레벨업...
+        }
     }
 
     private void UpdateMoney(int money)
@@ -205,6 +218,20 @@ public class PlayerManager : MonoBehaviour
         _playerStat.Heal(healAmount);
     }
 
+    private void HandleOnGetCollectable(CollectableType collectableType)
+    {
+        _playerStat.GetMeat(); //공통적으로 회복 아이템 처리
+        if (collectableType == CollectableType.Crate)
+        {
+            //Crate...
+        }
+    }
+
+    private void HandleOnGetMaterial(int amount)
+    {
+        _playerStat.GetMaterial(amount);
+    }
+
     public void GetClosestEnemy(TargetInfo enemy) //가장 가까운 적 => PlayerWeapon에 주입
     {
         foreach (var playerWeapon in playerWeapons)
@@ -250,9 +277,5 @@ public class PlayerManager : MonoBehaviour
             }
         }
     }
-
-    public void GetCollectable(Collectable collectable)
-    {
-        //
-    }
+    
 }

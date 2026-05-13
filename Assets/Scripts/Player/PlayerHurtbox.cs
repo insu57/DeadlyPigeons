@@ -5,6 +5,7 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
 {
     public event Action<int> OnDamage;
     public event Action<int> OnHeal;
+    public event Action<CollectableType> OnGetCollectable;
     
     public void Damage(int damage, bool isCrit)
     {
@@ -22,8 +23,9 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
     
     public void Pickup(Collectable collectable)
     {
-        if (collectable.CollectableType != CollectableType.Material)
+        if (collectable.CollectableType != CollectableType.Material) //재료 획득(Exp, Money)
         {
+            OnGetCollectable?.Invoke(collectable.CollectableType);
             ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
         }
     }

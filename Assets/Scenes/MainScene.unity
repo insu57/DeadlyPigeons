@@ -5460,7 +5460,7 @@ MonoBehaviour:
   healthText: {fileID: 657756206}
   expBar: {fileID: 1694920877}
   expText: {fileID: 1038833022}
-  moneyText: {fileID: 0}
+  moneyText: {fileID: 837816587}
   playerStatInfos:
   - {fileID: 7239190149225446066}
   - {fileID: 1544483574}
@@ -5641,8 +5641,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8b5a293e43e0c24cad5917e07b589d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _globalPiercing: 0
-  _globalPiercingDmgPer: 0
 --- !u!4 &1673933075 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 590437252670662585, guid: 986b7a2daaad7b74bae41bfd3d1e5971, type: 3}

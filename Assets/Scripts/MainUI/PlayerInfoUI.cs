@@ -61,6 +61,11 @@ public class PlayerInfoUI : MonoBehaviour
         sb.Append("Lv " + lv);
         expText.SetText(sb);
         expBar.fillAmount = currentExp / targetExp;
+
+        foreach (var playerStatInfo in playerStatInfos)
+        {
+            playerStatInfo.UpdateLevel(lv);
+        }
     }
 
     public void UpdateMoney(int money)

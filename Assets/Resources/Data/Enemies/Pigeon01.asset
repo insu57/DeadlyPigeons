@@ -19,7 +19,7 @@ MonoBehaviour:
     healthPerWave: 2
     baseDamage: 1
     damagePerWave: 0.6
-    baseSpeed: 3
+    baseSpeed: 2
     knockbackResistance: 0
     materialsDrop: 3
     meatDropChance: 80

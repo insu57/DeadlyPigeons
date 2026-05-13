@@ -27,10 +27,12 @@ public class StageManager : MonoBehaviour
 
     [Header("Enemy Spawn")]
     [SerializeField] private EnemyManager enemyBasePrefab;
+    [SerializeField] private Collider2D mapCollider;
     [SerializeField] private float nearSpawnMin = 3f;
     [SerializeField] private float nearSpawnMax = 6f;
     [SerializeField] private float farSpawnMin = 10f;
     [SerializeField] private float farSpawnMax = 15f;
+    private const int MaxSpawnRetries = 10;
 
     //test
     [SerializeField] private CharacterData testChar;
@@ -145,9 +147,7 @@ public class StageManager : MonoBehaviour
 
         var spawnInfo = PickWeightedEnemy(waveData.Enemies);
         var spawnPos = GetSpawnPosition(spawnInfo.spawnLocation);
-
-        //Pooling으로 수정.
-        //var enemy = Instantiate(enemyBasePrefab, spawnPos, Quaternion.identity);
+        
         var enemy = ObjectPoolingManager.Instance.GetEnemyBase();
         enemy.transform.position = spawnPos;
         enemy.transform.rotation = Quaternion.identity;
@@ -173,19 +173,28 @@ public class StageManager : MonoBehaviour
         return enemies[^1];
     }
 
-    private Vector3 GetSpawnPosition(SpawnLocationType spawnLocation) //스폰 위치
+    private Vector3 GetSpawnPosition(SpawnLocationType spawnLocation)
     {
-        float angle = Random.Range(0f, Mathf.PI * 2f); //무작위 각도
-        float distance = spawnLocation == SpawnLocationType.Near
-            ? Random.Range(nearSpawnMin, nearSpawnMax) //근거리 스폰
-            : Random.Range(farSpawnMin, farSpawnMax); //원거리 스폰
-
         var playerPos = _playerManager.transform.position;
-        return new Vector3(
-            playerPos.x + Mathf.Cos(angle) * distance, //각도와 거리로 좌표 계산
-            playerPos.y + Mathf.Sin(angle) * distance,
-            playerPos.z
-        );
+        
+        for (int i = 0; i < MaxSpawnRetries; i++)
+        {
+            float angle = Random.Range(0f, Mathf.PI * 2f);
+            float distance = spawnLocation == SpawnLocationType.Near
+                ? Random.Range(nearSpawnMin, nearSpawnMax)
+                : Random.Range(farSpawnMin, farSpawnMax);
+
+            var candidate = new Vector3(
+                playerPos.x + Mathf.Cos(angle) * distance,
+                playerPos.y + Mathf.Sin(angle) * distance,
+                playerPos.z
+            );
+
+            if (!mapCollider || mapCollider.OverlapPoint(candidate))
+                return candidate;
+        }
+        
+        return playerPos;
     }
 
     private void OnEnemyDeath(EnemyManager enemy) //적 사망 처리

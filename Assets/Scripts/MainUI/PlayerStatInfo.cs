@@ -13,7 +13,6 @@ public class PlayerStatInfo : MonoBehaviour
 
     [SerializeField] private GameObject mainStatPanel;
     [SerializeField] private GameObject mainStatGrid;
-    [SerializeField] private TMP_Text currentLevelLabel;
     [SerializeField] private TMP_Text currentLevelValue;
 
     [Header("Sub Stats")] [SerializeField] private GameObject subStatPanel;
@@ -121,5 +120,12 @@ public class PlayerStatInfo : MonoBehaviour
             labelTxt.color = DataManager.Instance.GetHexToColor(StatUtil.RedColor);
             valueTxt.color = DataManager.Instance.GetHexToColor(StatUtil.RedColor);
         }
+    }
+
+    public void UpdateLevel(int lv)
+    {
+        _sb.Clear();
+        _sb.Append(lv);
+        currentLevelValue.SetText(_sb);
     }
 }
