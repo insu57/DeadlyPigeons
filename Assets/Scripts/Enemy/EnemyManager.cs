@@ -11,6 +11,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
     private int _currentWave = 1;
     private int _health;
     private bool _initialized = false;
+    [SerializeField] private Hitbox hitbox;
 
     public event Action<EnemyManager> OnDeath;
 
@@ -80,8 +81,10 @@ public class EnemyManager : MonoBehaviour, IDamageable
     {
         _health = Mathf.FloorToInt(enemyData.EnemyStat.baseHealth 
                                    + enemyData.EnemyStat.healthPerWave * (_currentWave - 1));
-        AttackDamage = Mathf.FloorToInt(enemyData.EnemyStat.baseDamage 
+        AttackDamage = Mathf.CeilToInt(enemyData.EnemyStat.baseDamage 
                                         + enemyData.EnemyStat.damagePerWave * (_currentWave - 1));
+        //적 데미지는 올림으로.
+        
         Speed = enemyData.EnemyStat.baseSpeed;
 
         _enemyStates[EnemyStateType.Chase] = new ChaseState();
@@ -113,6 +116,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
         
         ChangeState(initState);
         ChangeShootState(initShootState, initStateParameter);
+        
+        hitbox.ContactInit(AttackDamage);
     }
     
     private void CheckTransitions()

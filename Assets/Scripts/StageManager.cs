@@ -17,7 +17,6 @@ public struct TargetInfo
 
 public class StageManager : MonoBehaviour
 {
-    //WIP
     private PlayerManager _playerManager;
     [SerializeField] private TMP_Text stageText;
     private PlayerSelected _playerSelected;
@@ -34,6 +33,10 @@ public class StageManager : MonoBehaviour
     [SerializeField] private float farSpawnMax = 15f;
     private const int MaxSpawnRetries = 10;
 
+    [Header("Wave")] 
+    [SerializeField] private int waveLevelUp = 0;
+    [SerializeField] private int cratePickup = 0;
+    
     //test
     [SerializeField] private CharacterData testChar;
     [SerializeField] private List<WeaponData> testWeapon;
@@ -45,6 +48,7 @@ public class StageManager : MonoBehaviour
     private void Awake()
     {
         _playerManager = FindFirstObjectByType<PlayerManager>();
+        
     }
     
     private void Start()
@@ -114,14 +118,18 @@ public class StageManager : MonoBehaviour
         }
         
         _playerManager.InitCharacter(charData,items, weapons);
+
+        _playerManager.OnPlayerLevelUp += () => waveLevelUp++;
+        _playerManager.OnCratrPickup += () => cratePickup++;
     }
 
     private IEnumerator WaveCoroutine(WaveData waveData)
     {
+        _playerManager.WavePlayerInit();//웨이브 시작시 플레이어 초기화.
+        
         float elapsed = 0f;
         int totalSpawned = 0;
         int maxSpawn = waveData.EnemySpawnCount;
-        
         var spawnTick = new WaitForSeconds(waveData.SpawnTick);
 
         while (elapsed < waveData.WaveLength && totalSpawned < maxSpawn)

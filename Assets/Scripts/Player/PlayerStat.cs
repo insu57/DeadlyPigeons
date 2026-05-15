@@ -94,6 +94,12 @@ public class PlayerStat : MonoBehaviour
         OnChangeMoney?.Invoke(money);
     }
 
+    public void WaveStatInit()
+    {
+        currentHP = MaxHp;
+        OnChangeHealth?.Invoke(currentHP, MaxHp);
+    }
+
     public void AddItem(ItemData itemData)
     {
         if (itemData.StatMultipliers != null) //스탯 배수
@@ -184,7 +190,29 @@ public class PlayerStat : MonoBehaviour
     
     public void Damage(int damage)
     {
-        //방어도 계산필요
+        var armor = _finalMainStatDict[MainStats.Armor];
+        var ratio =  CalculateArmorRatio(damage, armor);
+        var finalDamage = Mathf.FloorToInt(damage * ratio + 0.5f);
+        currentHP -= finalDamage;
+        OnChangeHealth?.Invoke(currentHP, MaxHp);
+    }
+    
+    public static float CalculateArmorRatio(float rawDamage, float armor)
+    {
+        float damageRatio;
+
+        if (armor >= 0)
+        {
+            // 양수 방어도 — 감쇠
+            damageRatio = 1f / (1f + armor / 15f);
+        }
+        else
+        {
+            // 음수 방어도 — 피해 증가
+            damageRatio = (15f - 2f * armor) / (15f - armor);
+        }
+
+        return rawDamage * damageRatio;
     }
 
     public void Heal(int healAmount)

@@ -14,7 +14,6 @@ public enum AttackType
 public class PlayerWeapon : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer weaponSprite;
-    [SerializeField] private Transform hitbox;
     [SerializeField] private CapsuleCollider2D meleeCollider;
     [SerializeField] private Transform muzzle;
     private Transform _center;
@@ -54,7 +53,7 @@ public class PlayerWeapon : MonoBehaviour
     [SerializeField] private float sweepAngle = 90;
     private float _startAngle;
     private float _endAngle;
-    [SerializeField] private float thrustDist = 2;
+    
     private float _thrustDist;
     private const float MinMeleeRange = .5f;
     private float _meleeRange;
@@ -259,7 +258,7 @@ public class PlayerWeapon : MonoBehaviour
         _meleeRange = MathF.Max(MinMeleeRange, _targetDist - 1); //1유닛 여유(스프라이트 크기고려) -> 개선 방안?   
         Vector3 dirToTarget = _targetInfo.Target.position - _center.position; //방향벡터
         float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
-        hitbox.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
+        _hitbox.transform.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
 
         var (isCrit, damage) = CritDamage();
             
@@ -302,8 +301,8 @@ public class PlayerWeapon : MonoBehaviour
             _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
-            hitbox.localPosition = Vector3.zero;
-            hitbox.localRotation = Quaternion.identity;
+            _hitbox.transform.localPosition = Vector3.zero;
+            _hitbox.transform.localRotation = Quaternion.identity;
             meleeCollider.enabled = false;
             return;
         }
@@ -318,7 +317,7 @@ public class PlayerWeapon : MonoBehaviour
         else if (attackType == AttackType.Thrust)
         {
             float moveFactor = Mathf.PingPong(percent * 2f, attackDuration);
-            hitbox.localPosition = new Vector3(moveFactor * _meleeRange, 0, 0);
+            _hitbox.transform.localPosition = new Vector3(moveFactor * _meleeRange, 0, 0);
         }
     }
 
@@ -397,7 +396,7 @@ public class PlayerWeapon : MonoBehaviour
         
         if(finalDamage < 1) finalDamage = 1; //최소치 1 데미지.
         
-        return (int)Mathf.Round(finalDamage);//반올림.
+        return Mathf.FloorToInt(finalDamage + 0.5f);//반올림.
     }
 
     private float GetRange()

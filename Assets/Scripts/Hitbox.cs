@@ -12,6 +12,10 @@ public class Hitbox : MonoBehaviour
     private List<IWeaponEffect> _weaponEffects;
     private HashSet<IDamageable> _hitTargets = new(); //공격했던 타겟 해시셋(중복 타격 방지)
     
+    //적 접촉 데미지
+    private bool _isStayCheck = false;
+    
+    
     private void Awake()
     {
         Collider = GetComponent<CapsuleCollider2D>();
@@ -23,8 +27,16 @@ public class Hitbox : MonoBehaviour
         _isCrit = isCrit;
         _weaponEffects = weaponEffects;
         _hitTargets.Clear();//공격했던 타겟 해시셋 비우기
+        _isStayCheck = false;
     }
 
+    public void ContactInit(int damage)
+    {
+        _damage = damage;
+        _isCrit = false;
+        _isStayCheck = true;
+    }
+    
     public void SetScale(float scale)
     {
         transform.localScale = new Vector3(scale, scale, scale);
@@ -41,10 +53,9 @@ public class Hitbox : MonoBehaviour
         StartCoroutine(routine);
     }
     
-    
-
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if(_isStayCheck) return;
         if (other.TryGetComponent(out IDamageable target))
         {
             if(!_hitTargets.Add(target)) return; //타겟이 이미 있다면 스킵 아니라면 해시셋에 추가
@@ -55,6 +66,16 @@ public class Hitbox : MonoBehaviour
             {
                 weaponEffect.Execute(target);
             }
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if(!_isStayCheck) return;
+        if (other.TryGetComponent(out IDamageable target))
+        {
+            //적 접촉 데미지
+            target.Damage(_damage, _isCrit);
         }
     }
 }

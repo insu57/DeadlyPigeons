@@ -22,8 +22,8 @@ MonoBehaviour:
     baseSpeed: 2
     knockbackResistance: 0
     materialsDrop: 3
-    meatDropChance: 80
-    lootCrateDropChance: 80
+    meatDropChance: 1
+    lootCrateDropChance: 1
     initWave: 1
   <Sprite>k__BackingField: {fileID: 0}
   <States>k__BackingField:

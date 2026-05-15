@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Wave 01
   m_EditorClassIdentifier: 
   <WaveNumber>k__BackingField: 1
-  <WaveLength>k__BackingField: 10
+  <WaveLength>k__BackingField: 100
   <Enemies>k__BackingField:
   - enemyData: {fileID: 11400000, guid: 96311c7f302320e4dafef1dd6220504f, type: 2}
     weight: 0.5
     spawnLocation: 0
   <SpawnTick>k__BackingField: 1
   <EnemySpawnCount>k__BackingField: 100
-  <SpawnPerTick>k__BackingField: 3
+  <SpawnPerTick>k__BackingField: 2

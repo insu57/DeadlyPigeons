@@ -13,4 +13,5 @@ public class PickupRange : MonoBehaviour, IPickup
             ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
         }
     }
+    
 }

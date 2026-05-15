@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,6 +23,8 @@ public class PlayerManager : MonoBehaviour
     
     private PlayerInfoUI _playerInfoUI;
     
+    public event Action OnPlayerLevelUp;
+    public event Action OnCratrPickup;
     
     private readonly Collider2D[] _hitBuffer = new Collider2D[100];
     
@@ -68,6 +71,11 @@ public class PlayerManager : MonoBehaviour
         InitWeapons(weapons); //초기 무기 장착
     }
 
+    public void WavePlayerInit()
+    {
+        _playerStat.WaveStatInit();
+    }
+    
     private void UpdateHealth(int currentHealth, int maxHealth)
     {
         _playerInfoUI.UpdateHealthBar(currentHealth, maxHealth);
@@ -84,6 +92,7 @@ public class PlayerManager : MonoBehaviour
         if (playerLevelInfo.hasLevelUp)
         {
             //레벨업...
+            OnPlayerLevelUp?.Invoke();
         }
     }
 
@@ -224,6 +233,7 @@ public class PlayerManager : MonoBehaviour
         if (collectableType == CollectableType.Crate)
         {
             //Crate...
+            OnCratrPickup?.Invoke();
         }
     }
 

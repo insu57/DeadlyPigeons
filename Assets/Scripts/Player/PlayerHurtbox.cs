@@ -6,10 +6,25 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
     public event Action<int> OnDamage;
     public event Action<int> OnHeal;
     public event Action<CollectableType> OnGetCollectable;
+    private float _invincibleTimer;
+    private const float InvincibleDuration = 0.5f;
+    private bool IsInvincible => _invincibleTimer > 0f;
+
+    public void Update()
+    {
+        if(IsInvincible) 
+        {
+            _invincibleTimer -= Time.deltaTime;
+        }
+    }
     
     public void Damage(int damage, bool isCrit)
     {
+        if(IsInvincible) return;
+        
         OnDamage?.Invoke(damage);
+        
+        _invincibleTimer = InvincibleDuration;
     }
 
     public void Heal(int healAmount)
