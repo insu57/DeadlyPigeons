@@ -1,5 +1,0 @@
-ID,Name,ID:NAME,BaseHealth(i),HealthPerWave(f),BaseDamage(i),DamagePerWave(f),BaseSpeed(f),KnockbackResi,Materials Drop,Cosum Chance%,Crate Chance%,InitWave
-0,1,2,3,4,5,6,7,8,9,10,11,12
-5001,비둘기 병사,5001 : 비둘기 병사,3,2,1,0.6,3,0,3,1,1,1
-5002,비둘기 사수,5002 : 비둘기 사수,8,1,1,0.6,3,0.95,3,3,10,4
-5003,비둘기 돌격병,5003 : 비둘기 돌격병,4,2.5,1,0.85,6,0.8,3,1,1,3

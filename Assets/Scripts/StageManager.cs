@@ -36,6 +36,7 @@ public class StageManager : MonoBehaviour
     [Header("Wave")] 
     [SerializeField] private int waveLevelUp = 0;
     [SerializeField] private int cratePickup = 0;
+    private StageUI _stageUI;
     
     //test
     [SerializeField] private CharacterData testChar;
@@ -48,7 +49,7 @@ public class StageManager : MonoBehaviour
     private void Awake()
     {
         _playerManager = FindFirstObjectByType<PlayerManager>();
-        
+        _stageUI = FindFirstObjectByType<StageUI>();
     }
     
     private void Start()
@@ -86,6 +87,7 @@ public class StageManager : MonoBehaviour
 
         //웨이브 시작
         var waveData = DataManager.Instance.WaveDataList[_currentWave - 1];
+        _stageUI.SetCurrentWaveText(_currentWave);
         StartCoroutine(WaveCoroutine(waveData));
     }
 
@@ -137,6 +139,9 @@ public class StageManager : MonoBehaviour
             yield return spawnTick;
             
             elapsed += waveData.SpawnTick;
+
+            var leftTime = waveData.WaveLength - elapsed;
+            _stageUI.UpdateWaveTimer(leftTime);
 
             int toSpawn = Mathf.Min(waveData.SpawnPerTick, maxSpawn - totalSpawned);
             for (int i = 0; i < toSpawn; i++)

@@ -19,6 +19,7 @@ public class PlayerInfoUI : MonoBehaviour
     
     [SerializeField] private PlayerStatInfo[] playerStatInfos;
 
+    //grid 분리...
     [Header("Weapons")] 
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private GridLayoutGroup weaponGrid;

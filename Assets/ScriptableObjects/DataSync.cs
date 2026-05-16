@@ -23,6 +23,12 @@ public class DataSync : MonoBehaviour
     [SerializeField] private string charPath = "Assets/Sprites/Characters/";
     [SerializeField] private string itemPath = "Assets/Sprites/Items/";
     [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
+    [SerializeField] private Sprite placeHolder;
+    private const string CharSpritePath = "Sprites/Characters/";
+    private const string ItemSpritePath = "Sprites/Items/";
+    private const string WeaponSpritePath = "Sprites/Weapons/";
+    private const string EnemySpritePath = "Sprites/Enemies/";
+    
     [SerializeField] private WeaponClassBonusData classBonusData;
     
     [ContextMenu("Sync Character Data")]
@@ -35,6 +41,19 @@ public class DataSync : MonoBehaviour
         }
         
         CharacterData[] characters = Resources.LoadAll<CharacterData>("Data/Characters");
+        Sprite[] sprites = Resources.LoadAll<Sprite>(CharSpritePath);
+        Dictionary<int, Sprite> spriteDict = new();
+        foreach (var sprite in sprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                spriteDict[id] = sprite;
+            }
+            else
+            {
+                Debug.LogWarning("Character Sprite is Not INT type. : " + sprite.name);
+            }
+        }
         
         string[] lines = characterCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
         Dictionary<int, string[]> charDict = new();
@@ -58,6 +77,8 @@ public class DataSync : MonoBehaviour
                 string initWeapons = rowData[2];
                 string[] weaponStrArray =  initWeapons.Split('|');
                 List<int> parsedWeaponID = new();
+
+                var charSprite = spriteDict.GetValueOrDefault(so.ID, placeHolder);
 
                 foreach (var str in weaponStrArray)
                 {
@@ -111,13 +132,6 @@ public class DataSync : MonoBehaviour
                 
                 
 #if  UNITY_EDITOR
-                string charSpritePath = $"{charPath}{so.ID}.png";
-                Sprite charSprite = AssetDatabase.LoadAssetAtPath<Sprite>(charSpritePath);
-                if (!charSprite)
-                {
-                    Debug.LogError("Character Sprite Not Found : " + so.ID);
-                }
-
                 so.SyncDataCSV(characterName, description, parsedWeaponID, initStatsList, charSprite);
                 
                 charUpdateCount++;
@@ -147,6 +161,33 @@ public class DataSync : MonoBehaviour
         }
 
         ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
+        Sprite[] charSprites = Resources.LoadAll<Sprite>(CharSpritePath);
+        Sprite[] itemSprites = Resources.LoadAll<Sprite>(ItemSpritePath);
+        Dictionary<int, Sprite> spriteDict = new();
+        
+        foreach (var sprite in charSprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                spriteDict[id] = sprite;
+            }
+            else
+            {
+                Debug.LogWarning("Character Sprite is Not INT type. : " + sprite.name);
+            }
+        }
+
+        foreach (var sprite in itemSprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                spriteDict[id] = sprite;
+            }
+            else
+            {
+                Debug.LogWarning("Item Sprite is Not INT type. : " + sprite.name);
+            }
+        }
         
         // 캐릭터 패시브 CSV 파싱 준비
         string[] passiveLines = charPassiveCSV.text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
@@ -180,12 +221,13 @@ public class DataSync : MonoBehaviour
             bool isFound = false;
 
             ItemStat itemStat = new();
-            string itemSpritePath = null;
+            
             if (passiveDict.TryGetValue(so.ID, out var rowData))
             {
                 isFound = true;
-                itemSpritePath = $"{charPath}{so.ID}.png";
-                // TODO: 캐릭터 패시브 데이터 파싱 로직
+                
+                itemStat.icon = spriteDict.GetValueOrDefault(so.ID, placeHolder);
+                
                 itemStat.itemName =  rowData[1];
                 itemStat.tier = 1; //패시브는 티어 1로
                 itemStat.itemClass = ItemClass.Character;
@@ -226,8 +268,9 @@ public class DataSync : MonoBehaviour
             else if (itemDict.TryGetValue(so.ID, out rowData))
             {
                 isFound = true;
-                itemSpritePath = $"{itemPath}{so.ID}.png";
-                // TODO: 일반 아이템 데이터 파싱 로직
+               
+                itemStat.icon = spriteDict.GetValueOrDefault(so.ID, placeHolder);
+                
                 itemStat.itemName = rowData[1];
                 itemStat.tier = int.Parse(rowData[2]);
                 string itemClassString = rowData[3];
@@ -263,12 +306,6 @@ public class DataSync : MonoBehaviour
                 
 #if UNITY_EDITOR
                 // TODO: 파싱된 데이터를 기반으로 so.SyncItemData 호출
-                Sprite itemSprite = AssetDatabase.LoadAssetAtPath<Sprite>(itemSpritePath);
-                if (!itemSprite)
-                {
-                    Debug.LogError("Item Sprite Not Found : " + so.ID);
-                }
-                itemStat.icon = itemSprite;
                 so.SyncItemData(itemStat);
                 
                 itemUpdateCount++;
@@ -291,7 +328,21 @@ public class DataSync : MonoBehaviour
     public void SyncWeaponDataFromCSV()
     {
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
-        string[] lines = weaponCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
+        Sprite[] sprites = Resources.LoadAll<Sprite>(WeaponSpritePath);
+        Dictionary<int, Sprite>  spriteDict = new();
+        foreach (var sprite in sprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                spriteDict[id] = sprite;
+            }
+            else
+            {
+                Debug.LogWarning("Weapon Sprite is Not INT type. : " + sprite.name);
+            }
+        }
+        
+        string[] lines = weaponCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
         Dictionary<int, string[]> csvDict = new();
         
         for (int i = 1; i < lines.Length; i++)
@@ -310,7 +361,7 @@ public class DataSync : MonoBehaviour
             if (csvDict.TryGetValue(so.ID, out string[] rowData))
             {
                 var weaponName =  rowData[1];
-                //0: ID, 1:Name, 3: id-name
+                var weaponSprite = spriteDict.GetValueOrDefault(so.ID, placeHolder);
                 
                 var attackType = AttackType.None;
                 if (rowData[5] == nameof(AttackType.Sweep)) attackType = AttackType.Sweep;
@@ -451,12 +502,6 @@ public class DataSync : MonoBehaviour
                 };
                 
 #if UNITY_EDITOR
-                string weaponSpritePath = $"{weaponPath}{so.ID}.png";
-                Sprite weaponSprite = AssetDatabase.LoadAssetAtPath<Sprite>(weaponSpritePath);
-                if (!weaponSprite)
-                {
-                    Debug.LogError("Weapon Sprite Not Found : " + so.ID);
-                }
                 
                 so.SyncDataCSV(weaponName, parsed, weaponSprite);
 
