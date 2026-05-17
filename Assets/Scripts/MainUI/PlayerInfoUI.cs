@@ -17,19 +17,26 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI expText;
     [SerializeField] private TextMeshProUGUI moneyText;
     
+    //StatInfo
     [SerializeField] private PlayerStatInfo[] playerStatInfos;
-
+    public event Action<int> OnUpdateLevel;
+    public event Action<MainStats, int> OnUpdateMainStat;
+    public event Action<SubStats, int> OnUpdateSubStat;
+    
     //grid 분리...
+    [SerializeField] private ItemGridUI itemGridUI;
     [Header("Weapons")] 
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private GridLayoutGroup weaponGrid;
     [SerializeField] private GridLayoutGroup itemGrid;
-    [SerializeField] private Transform selectBtnParent;
-    private Transform _weaponInfoPanelParent;
+    //[SerializeField] private Transform selectBtnParent;
+    //private Transform _weaponInfoPanelParent;
     [SerializeField] private InfoPanel infoPanel;
     [SerializeField] private ClassInfo classInfo;
     private int _weaponSlot;
     public event Action<int, SelectButton> OnShowWeaponInfo; //ID
+    
+    
     
     private void Awake()
     {
@@ -37,7 +44,7 @@ public class PlayerInfoUI : MonoBehaviour
  
         foreach (var playerStatInfo in playerStatInfos)
         {
-            playerStatInfo.InitStatGrid();
+            playerStatInfo.InitStatGrid(this);
         }
         
         ObjectPoolingManager.Instance.InitSelectBtnPool();
@@ -46,6 +53,11 @@ public class PlayerInfoUI : MonoBehaviour
     private void Start()
     {
         InputManager.Instance.Input.Global.Menu.performed += ShowInfoUI; //상태창
+    }
+
+    public void Init(PlayerManager playerManager)
+    {
+        itemGridUI.Init(playerManager);
     }
 
     public void UpdateHealthBar(int currentHealth, int maxHealth)
@@ -63,10 +75,7 @@ public class PlayerInfoUI : MonoBehaviour
         expText.SetText(sb);
         expBar.fillAmount = currentExp / targetExp;
 
-        foreach (var playerStatInfo in playerStatInfos)
-        {
-            playerStatInfo.UpdateLevel(lv);
-        }
+        OnUpdateLevel?.Invoke(lv);
     }
 
     public void UpdateMoney(int money)
@@ -95,91 +104,12 @@ public class PlayerInfoUI : MonoBehaviour
 
     public void UpdateMainStat(MainStats stat, int value)
     {
-        foreach (var playerStatInfo in playerStatInfos)
-        {
-            playerStatInfo.UpdateMainStat(stat, value);
-        }
-        
+        OnUpdateMainStat?.Invoke(stat, value);
     }
 
     public void UpdateSubStat(SubStats stat, int value)
     {
-        foreach (var playerStatInfo in playerStatInfos)
-        {
-            playerStatInfo.UpdateSubStat(stat, value);
-        }
-       
-    }
-    
-    public void InitWeaponSlots(int slots) //슬롯 초기화.
-    {
-        _weaponSlot = slots;
-        if (_weaponSlot <= 0)
-        {
-            weaponGrid.gameObject.SetActive(false);
-        }
-    }
-    
-    public void AddWeapon(Sprite sprite, int index) //무기 장착(UI)
-    {
-        var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        selectBtn.SetButtonImg(sprite);
-        selectBtn.transform.SetParent(weaponGrid.transform);
-        
-        selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index, selectBtn);
-        selectBtn.OnBtnPointerExit += CloseInfoPanel;
-    }
-
-    public void AddItem(ItemData item, int idx)
-    {
-        var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        selectBtn.SetButtonImg(item.Icon);
-        selectBtn.transform.SetParent(itemGrid.transform);
-        
-        selectBtn.OnBtnPointerEnter += () => ShowItemInfo(item, selectBtn, idx);
-        selectBtn.OnBtnPointerExit += CloseInfoPanel;
-    }
-    
-    public void SetWeaponClassBonus(Dictionary<WeaponClasses, int> weaponsBonusDict)
-    {
-        classInfo.SetWeaponClassBonusDict(weaponsBonusDict);
-    }
-
-    private void SetInfoPanel(int cols, int idx, SelectButton selectButton)
-    {
-        Transform panelParent;
-        var panelRT = (RectTransform)infoPanel.transform;
-        if (idx < cols / 2)
-        {
-            panelParent = selectButton.InfoPanelParentLeft;
-            panelRT.pivot = new Vector2(0, 1);
-        }
-        else
-        {
-            panelParent = selectButton.InfoPanelParentRight;
-            panelRT.pivot = new Vector2(1, 1);
-        }
-        infoPanel.transform.position = panelParent.position;
-        infoPanel.gameObject.SetActive(true);
-    }
-
-    public void ShowWeaponInfo(CurrentWeaponStat currentWeaponStat,SelectButton selectButton, int weaponIdx) //무기 정보 표시
-    {
-        SetInfoPanel(weaponGrid.constraintCount, weaponIdx, selectButton);//피봇 설정 관련 개선?
-        infoPanel.ShowWeaponInfo(currentWeaponStat, sb);
-        var classes = currentWeaponStat.WeaponData.WeaponStat.classes;
-        infoPanel.ShowWeaponClassInfo(classes, sb);
-    }
-
-    private void ShowItemInfo(ItemData item, SelectButton selectButton,int idx)
-    {
-        SetInfoPanel(itemGrid.constraintCount, idx, selectButton);
-        infoPanel.ShowItemInfo(item, sb);
-    }
-    
-    private void CloseInfoPanel()
-    {
-        infoPanel.gameObject.SetActive(false);
+        OnUpdateSubStat?.Invoke(stat, value);
     }
     
 }

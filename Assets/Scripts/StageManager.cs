@@ -102,7 +102,9 @@ public class StageManager : MonoBehaviour
         InputManager.Instance.Input.Player.Enable();
         InputManager.Instance.Input.UI.Disable();
         InputManager.Instance.Input.Global.Enable();
-        Debug.Log("init stage");
+        
+        //상점 UI
+        _stageUI.Init(_playerManager);
     }
 
     private void InitPlayer() //플레이어 초기화.
@@ -122,7 +124,7 @@ public class StageManager : MonoBehaviour
         _playerManager.InitCharacter(charData,items, weapons);
 
         _playerManager.OnPlayerLevelUp += () => waveLevelUp++;
-        _playerManager.OnCratrPickup += () => cratePickup++;
+        _playerManager.OnCratePickup += () => cratePickup++;
     }
 
     private IEnumerator WaveCoroutine(WaveData waveData)

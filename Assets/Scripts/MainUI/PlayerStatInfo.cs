@@ -23,16 +23,14 @@ public class PlayerStatInfo : MonoBehaviour
     private Dictionary<SubStats, PlayerStatTxt> _subStatDict = new();
 
     private StringBuilder _sb = new();
-
-  
-
+    
     private void Start()
     {
         mainStatBtn.onClick.AddListener(ShowMainStat);
         subStatBtn.onClick.AddListener(ShowSubStat);
     }
     
-    public void InitStatGrid() //스탯 텍스트 초기화
+    public void InitStatGrid(PlayerInfoUI playerInfoUI) //스탯 텍스트 초기화
     {
         for(int i = 0; i < (int)MainStats.None; i++)
         {
@@ -56,6 +54,10 @@ public class PlayerStatInfo : MonoBehaviour
             statTxt.StatLabel.SetText(_sb);
             _subStatDict[subStat] = statTxt;
         }
+        
+        playerInfoUI.OnUpdateLevel += UpdateLevel;
+        playerInfoUI.OnUpdateMainStat += UpdateMainStat;
+        playerInfoUI.OnUpdateSubStat += UpdateSubStat;
     }
     
     private void ShowMainStat()
@@ -69,8 +71,8 @@ public class PlayerStatInfo : MonoBehaviour
         subStatPanel.SetActive(true);
         mainStatPanel.SetActive(false);
     }
-    
-    public void UpdateMainStat(MainStats stat, int value)
+
+    private void UpdateMainStat(MainStats stat, int value)
     {
         var labelTxt = _mainStatDict[stat].StatLabel;
         var valueTxt = _mainStatDict[stat].StatValue;
@@ -97,7 +99,7 @@ public class PlayerStatInfo : MonoBehaviour
         }
     }
 
-    public void UpdateSubStat(SubStats stat, int value)
+    private void UpdateSubStat(SubStats stat, int value)
     {
         var labelTxt = _subStatDict[stat].StatLabel;
         var valueTxt = _subStatDict[stat].StatValue;
@@ -122,7 +124,7 @@ public class PlayerStatInfo : MonoBehaviour
         }
     }
 
-    public void UpdateLevel(int lv)
+    private void UpdateLevel(int lv)
     {
         _sb.Clear();
         _sb.Append(lv);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -12,11 +13,18 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private Image panelBorder;
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
-    
-    public void ShowWeaponInfo(CurrentWeaponStat weapon, StringBuilder sb)
-    {
-        sb.Clear();
 
+    public void Init()
+    {
+        classInfo.Init();
+    }
+    
+    public void ShowWeaponInfo(CurrentWeaponStat weapon)
+    {
+        var sb = StatUtil.StringBuilder;
+        
+        sb.Clear();
+        
         var weaponStat = weapon.WeaponData.WeaponStat;
         
         nameTxt.text = weapon.WeaponData.Name;
@@ -122,13 +130,15 @@ public class InfoPanel : MonoBehaviour
         descriptionTxt.SetText(sb);
     }
 
-    public void ShowWeaponClassInfo(List<WeaponClasses> weaponClasses, StringBuilder sb)
+    public void ShowWeaponClassInfo(List<WeaponClasses> weaponClasses)
     {
-        classInfo.ShowWeaponClassInfo(weaponClasses, sb);
+        classInfo.ShowWeaponClassInfo(weaponClasses);
     }
 
-    public void ShowItemInfo(ItemData item, StringBuilder sb)
+    public void ShowItemInfo(ItemData item)
     {
+        var sb = StatUtil.StringBuilder;
+        
         nameTxt.text = item.ItemName;
         img.sprite = item.Icon;
         var tier = item.Tier;
@@ -141,15 +151,17 @@ public class InfoPanel : MonoBehaviour
         var itemClass = ItemData.ToString(item.ItemClass);
         classesTxt.SetText(itemClass);
         
-        GetItemStatTxt(sb, item.ID);
+        GetItemStatTxt(item.ID);
         descriptionTxt.SetText(sb);
         
         classInfo.ShowItemClassInfo(item.ItemClass, sb);
     }
 
-    public static void GetItemStatTxt(StringBuilder stringBuilder, int itemID)
+    public static void GetItemStatTxt(int itemID)
     {
         var passiveData = DataManager.Instance.ItemDict[itemID];
+
+        var stringBuilder = StatUtil.StringBuilder;
         
         stringBuilder.Clear();
 

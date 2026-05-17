@@ -30,7 +30,7 @@ public class SelectWindow : MonoBehaviour
     public PlayerSelected PlayerSelected { get; private set; }
 
     private SelectWindowState _currentState;
-    StringBuilder sb = new();
+    private StringBuilder sb;
 
     [Header("Char Select")] [SerializeField]
     private GameObject charSelect;
@@ -74,6 +74,8 @@ public class SelectWindow : MonoBehaviour
 
     private void Awake()
     {
+        sb = StatUtil.StringBuilder;
+        
         _selectWindowDict.Add(SelectWindowState.CharSelect, charSelect);
         _selectWindowDict.Add(SelectWindowState.WeaponSelect, weaponSelect);
         _selectWindowDict.Add(SelectWindowState.StageSelect, stageSelect);
@@ -175,7 +177,7 @@ public class SelectWindow : MonoBehaviour
         
         sb.Clear();
 
-        InfoPanel.GetItemStatTxt(sb, charID);
+        InfoPanel.GetItemStatTxt(charID);
 
         charPassive.SetText(sb);
     }
@@ -283,7 +285,7 @@ public class SelectWindow : MonoBehaviour
             HealthAbsorb = weaponData.WeaponStat.healthAbsorb[0],
         };
         
-        weaponPanel.ShowWeaponInfo(currentWeaponStat, sb);
+        weaponPanel.ShowWeaponInfo(currentWeaponStat);
     }
 
 

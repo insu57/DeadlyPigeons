@@ -19,6 +19,11 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         infoPanelParent.SetActive(false);
     }
+
+    public void Init()
+    {
+        infoPanelParent.SetActive(false);
+    }
     
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -35,17 +40,20 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         _weaponsBonusDict = weaponsBonusDict;
     }
     
-    public void ShowWeaponClassInfo(List<WeaponClasses> classes, StringBuilder sb) //무기 클래스 정보
+    public void ShowWeaponClassInfo(List<WeaponClasses> classes) //무기 클래스 정보
     {
         infoPanelParent.SetActive(true);
+        
+        var sb = StatUtil.StringBuilder;
+        
         sb.Clear();
-
+        
         //클래스 1번
         infoPanel1.SetActive(true);
         var class1 = classes[0]; 
         classText1.text = WeaponData.WeaponClassToString(class1);
         var effectList1 = DataManager.Instance.WeaponClassBonusDict[class1];
-        GetWeaponClassEffectTxt(sb, effectList1, _weaponsBonusDict[class1]);
+        GetWeaponClassEffectTxt(effectList1, _weaponsBonusDict[class1]);
         infoText1.SetText(sb);
 
         if (classes.Count <= 1) 
@@ -59,12 +67,14 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         classText2.text = WeaponData.WeaponClassToString(class2);
         var effectList2 = DataManager.Instance.WeaponClassBonusDict[class2];
         sb. Clear();
-        GetWeaponClassEffectTxt(sb, effectList2, _weaponsBonusDict[class2]);
+        GetWeaponClassEffectTxt(effectList2, _weaponsBonusDict[class2]);
         infoText2.SetText(sb);
     }
 
-    private void GetWeaponClassEffectTxt(StringBuilder sb, List<WeaponClassBonus> effectList, int bonus)
+    private void GetWeaponClassEffectTxt(List<WeaponClassBonus> effectList, int bonus)
     {
+        var sb = StatUtil.StringBuilder;
+        
         var statNameList = new List<string>();
         foreach (var effect in effectList)
         {

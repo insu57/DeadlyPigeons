@@ -20,9 +20,6 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset enemyStateCSV;
     [SerializeField] private TextAsset enemyTransitionCSV;
     
-    [SerializeField] private string charPath = "Assets/Sprites/Characters/";
-    [SerializeField] private string itemPath = "Assets/Sprites/Items/";
-    [SerializeField] private string weaponPath =  "Assets/Sprites/Weapons/";
     [SerializeField] private Sprite placeHolder;
     private const string CharSpritePath = "Sprites/Characters/";
     private const string ItemSpritePath = "Sprites/Items/";

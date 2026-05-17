@@ -10,7 +10,7 @@ public class StageUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentWaveTxt;
     [Header("Store")]
     [SerializeField] private GameObject storeUI;
-    
+    [SerializeField] private ItemGridUI itemGridUI;
     [SerializeField] private Button nextWaveBtn;
 
     private StringBuilder _sb;
@@ -19,7 +19,11 @@ public class StageUI : MonoBehaviour
     {
         _sb = StatUtil.StringBuilder;
     }
-    
+
+    public void Init(PlayerManager playerManager)
+    {
+        itemGridUI.Init(playerManager);
+    }
     
     public void SetCurrentWaveText(int wave)
     {
