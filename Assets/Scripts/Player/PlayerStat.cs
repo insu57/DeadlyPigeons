@@ -244,6 +244,8 @@ public class PlayerStat : MonoBehaviour
             currentExp = TargetExp - currentExp;
             currentLevel++;
             hasLvUp = true;
+            
+            UpdateStat(MainStats.MaxHP, 1);
         }
 
         var lvInfo = new PlayerLevelInfo()

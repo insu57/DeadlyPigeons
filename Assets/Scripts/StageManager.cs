@@ -123,8 +123,20 @@ public class StageManager : MonoBehaviour
         
         _playerManager.InitCharacter(charData,items, weapons);
 
-        _playerManager.OnPlayerLevelUp += () => waveLevelUp++;
-        _playerManager.OnCratePickup += () => cratePickup++;
+        _playerManager.OnPlayerLevelUp += OnLevelUp;
+        _playerManager.OnCratePickup += OnCratePickup;
+    }
+
+    private void OnLevelUp()
+    {
+        waveLevelUp++;
+        _stageUI.UpdateLvUpCount(waveLevelUp);
+    }
+
+    private void OnCratePickup()
+    {
+        cratePickup++;
+        _stageUI.UpdateCrateCount(cratePickup);
     }
 
     private IEnumerator WaveCoroutine(WaveData waveData)
@@ -152,6 +164,22 @@ public class StageManager : MonoBehaviour
                 totalSpawned++;
             }
         }
+        
+        //Wave 종료
+        WaveEnd();
+    }
+
+    private void WaveEnd()
+    {
+        //레벨 업.
+        //아이템 획득.
+
+        foreach (var enemy in activeEnemies)
+        {
+            ObjectPoolingManager.Instance.ReleaseEnemy(enemy);
+        }
+        
+        _stageUI.OpenStoreUI(true);
     }
 
     private void SpawnEnemy(WaveData waveData)

@@ -16,9 +16,11 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset weaponCSV;
     [SerializeField] private TextAsset weaponClassCSV;
     [SerializeField] private TextAsset weaponEffectCSV;
+    [SerializeField] private TextAsset levelUpUpgradeCSV;
     [SerializeField] private TextAsset enemyStatCSV;
     [SerializeField] private TextAsset enemyStateCSV;
     [SerializeField] private TextAsset enemyTransitionCSV;
+    [SerializeField] private TextAsset waveCSV;
     
     [SerializeField] private Sprite placeHolder;
     private const string CharSpritePath = "Sprites/Characters/";
@@ -27,6 +29,7 @@ public class DataSync : MonoBehaviour
     private const string EnemySpritePath = "Sprites/Enemies/";
     
     [SerializeField] private WeaponClassBonusData classBonusData;
+    [SerializeField] private LevelUpStat levelUpStat;
     
     [ContextMenu("Sync Character Data")]
     public void SyncCharDataFromCSV()
@@ -717,6 +720,48 @@ public class DataSync : MonoBehaviour
         Debug.Log("Sync WeaponClass Data");
     }
 
+    [ContextMenu("Sync LevelUp Upgrades")]
+    public void SyncLevelUpUpgrades()
+    {
+        string[] lines = levelUpUpgradeCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<string, string[]> csvDict = new();
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            string stat = rowData[0];
+            csvDict[stat] = rowData;
+        }
+        
+        List<MainStatUpgradeValue> upgrades = new();
+
+        foreach (var (stat, rowData) in csvDict)
+        {
+            var mainStat = stat.StringToMainStats();
+            if(mainStat == MainStats.None) continue;
+            var values = new int[4];
+            int startIdx = 1;
+            int maxTier = 4;
+            for (int i = 0; i < maxTier; i++)
+            {
+                values[i] = int.Parse(rowData[startIdx + i].Trim());
+            }
+
+            var mainStatValue = new MainStatUpgradeValue
+            {
+                mainStat = mainStat,
+                values = values
+            };
+            upgrades.Add(mainStatValue);
+        }
+#if UNITY_EDITOR
+        levelUpStat.SetUpgrades(upgrades);
+        EditorUtility.SetDirty(levelUpStat);
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Sync LevelUp Upgrades");
+    }
+
     [ContextMenu("Sync Enemy Stat Data")]
     public void SyncEnemyStatDataFromCSV()
     {
@@ -903,4 +948,8 @@ public class DataSync : MonoBehaviour
             Debug.Log("Enemy State Transition Updated: " + enemyTransitionUpdateCount);
         }
     }
+    
+    [ContextMenu("Sync Wave Data")]
+    public void SyncWaveDatatFromCSV()
+    {}
 }
