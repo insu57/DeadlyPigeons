@@ -179,7 +179,20 @@ public class StageManager : MonoBehaviour
             ObjectPoolingManager.Instance.ReleaseEnemy(enemy);
         }
         
-        _stageUI.OpenStoreUI(true);
+        //_stageUI.OpenStoreUI(true);
+        //개선방안?
+        if (waveLevelUp > 0)
+        {
+            _stageUI.OpenWaveEndUI(WaveEndState.Upgrade);
+        }
+        else if (cratePickup > 0)
+        {
+            _stageUI.OpenWaveEndUI(WaveEndState.Crate);
+        }
+        else
+        {
+            _stageUI.OpenWaveEndUI(WaveEndState.Store);
+        }
     }
 
     private void SpawnEnemy(WaveData waveData)
