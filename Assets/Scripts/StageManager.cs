@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public struct TargetInfo
 {
@@ -20,12 +23,13 @@ public class StageManager : MonoBehaviour
     private PlayerManager _playerManager;
     [SerializeField] private TMP_Text stageText;
     private PlayerSelected _playerSelected;
-    
+
     private HashSet<EnemyManager> activeEnemies = new();
     private const float MaxFindRange = 100f;
 
-    [Header("Enemy Spawn")]
-    [SerializeField] private EnemyManager enemyBasePrefab;
+    [Header("Enemy Spawn")] [SerializeField]
+    private EnemyManager enemyBasePrefab;
+
     [SerializeField] private Collider2D mapCollider;
     [SerializeField] private float nearSpawnMin = 3f;
     [SerializeField] private float nearSpawnMax = 6f;
@@ -33,11 +37,31 @@ public class StageManager : MonoBehaviour
     [SerializeField] private float farSpawnMax = 15f;
     private const int MaxSpawnRetries = 10;
 
-    [Header("Wave")] 
-    [SerializeField] private int waveLevelUp = 0;
+    [Header("Wave")] [SerializeField] private int waveLevelUp = 0;
     [SerializeField] private int cratePickup = 0;
     private StageUI _stageUI;
+    //수정?
+    private const int UpgradeOptionCount = 4;
     
+    //시트로 관리?
+    [Serializable]
+    public struct TierWeightConfig
+    {
+        public float baseWeight;
+        public float perLevel;
+        public float minWeight;
+    }
+
+    [SerializeField] private TierWeightConfig[] tierWeightConfigs =
+    {
+        new() { baseWeight = 95, perLevel = -2, minWeight = 5 },
+        new() { baseWeight = 5, perLevel = 2, minWeight = 0 },
+        new() { baseWeight = 0, perLevel = 3, minWeight = 0 },
+        new() { baseWeight = 0, perLevel = 1, minWeight = 0 },
+    }; //Config 수정?
+
+    [SerializeField] private float[] bonusUpgradeMultipliers = { 1f, 1.2f, 1.5f, 2f };
+
     //test
     [SerializeField] private CharacterData testChar;
     [SerializeField] private List<WeaponData> testWeapon;
@@ -45,13 +69,13 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int testWave;
 
     private int _currentWave = 1; //1~20
-    
+
     private void Awake()
     {
         _playerManager = FindFirstObjectByType<PlayerManager>();
         _stageUI = FindFirstObjectByType<StageUI>();
     }
-    
+
     private void Start()
     {
         InitStage();
@@ -71,13 +95,13 @@ public class StageManager : MonoBehaviour
             {
                 _playerSelected.WeaponIDList.Add(weaponData.ID);
             }
-            
+
             _playerSelected.ItemIDList.Add(testChar.ID);
         }
-        
+
         //플레이어 초기화
         InitPlayer();
-        
+
         //Pooling Initialize
         ObjectPoolingManager.Instance.InitProjectilePool();
         ObjectPoolingManager.Instance.InitDamageTxtPool();
@@ -95,33 +119,34 @@ public class StageManager : MonoBehaviour
     {
         FindClosestEnemy();
     }
-    
+
     private void InitStage()
     {
         _playerSelected = SceneChanger.Instance.PlayerSelected;
         InputManager.Instance.Input.Player.Enable();
         InputManager.Instance.Input.UI.Disable();
         InputManager.Instance.Input.Global.Enable();
-        
+
         //상점 UI
-        _stageUI.Init(_playerManager);
+        _stageUI.Init(_playerManager, UpgradeOptionCount);
     }
 
     private void InitPlayer() //플레이어 초기화.
     {
-        var charData = DataManager.Instance.CharDict[_playerSelected.CharID]; 
+        var charData = DataManager.Instance.CharDict[_playerSelected.CharID];
         List<WeaponData> weapons = new();
         foreach (var weaponID in _playerSelected.WeaponIDList)
         {
             weapons.Add(DataManager.Instance.WeaponDict[weaponID]);
         }
+
         List<ItemData> items = new();
         foreach (var itemID in _playerSelected.ItemIDList)
         {
             items.Add(DataManager.Instance.ItemDict[itemID]);
         }
-        
-        _playerManager.InitCharacter(charData,items, weapons);
+
+        _playerManager.InitCharacter(charData, items, weapons);
 
         _playerManager.OnPlayerLevelUp += OnLevelUp;
         _playerManager.OnCratePickup += OnCratePickup;
@@ -141,8 +166,8 @@ public class StageManager : MonoBehaviour
 
     private IEnumerator WaveCoroutine(WaveData waveData)
     {
-        _playerManager.WavePlayerInit();//웨이브 시작시 플레이어 초기화.
-        
+        _playerManager.WavePlayerInit(); //웨이브 시작시 플레이어 초기화.
+
         float elapsed = 0f;
         int totalSpawned = 0;
         int maxSpawn = waveData.EnemySpawnCount;
@@ -151,7 +176,7 @@ public class StageManager : MonoBehaviour
         while (elapsed < waveData.WaveLength && totalSpawned < maxSpawn)
         {
             yield return spawnTick;
-            
+
             elapsed += waveData.SpawnTick;
 
             var leftTime = waveData.WaveLength - elapsed;
@@ -164,7 +189,7 @@ public class StageManager : MonoBehaviour
                 totalSpawned++;
             }
         }
-        
+
         //Wave 종료
         WaveEnd();
     }
@@ -178,24 +203,80 @@ public class StageManager : MonoBehaviour
         {
             ObjectPoolingManager.Instance.ReleaseEnemy(enemy);
         }
-        
+
         //_stageUI.OpenStoreUI(true);
         //개선방안?
         if (waveLevelUp > 0)
         {
-            _stageUI.OpenWaveEndUI(WaveEndState.Upgrade);
+            GetUpgrade();
         }
         else if (cratePickup > 0)
         {
-            _stageUI.OpenWaveEndUI(WaveEndState.Crate);
+            _stageUI.OpenCrateUI(null, 0); //WIP
         }
         else
         {
-            _stageUI.OpenWaveEndUI(WaveEndState.Store);
+            _stageUI.OpenStoreUI();
         }
     }
 
-    private void SpawnEnemy(WaveData waveData)
+    private void GetUpgrade()
+    {
+        int upgradeLv = _playerManager.CurrentLevel - waveLevelUp + 1; //레벨업처리를 할 해당 레벨.
+
+        var upgrades = new (MainStats stat, int tier)[4];
+        for (int i = 0; i < UpgradeOptionCount; i++)
+        {
+            var stat = (MainStats)Random.Range(0, (int)MainStats.None);
+            var tier = RollUpgradeTier(upgradeLv);
+            
+            upgrades[i] = (stat, tier);
+        }
+        
+        _stageUI.OpenUpgradeUI(upgrades);
+    }
+
+    private float[] GetUpgradeTierWeights(int level)
+    {
+        var weights = new float[tierWeightConfigs.Length];
+        for (int i = 0; i < tierWeightConfigs.Length; i++)
+        {
+            var config = tierWeightConfigs[i];
+            weights[i] = Mathf.Max(config.minWeight, config.baseWeight + config.perLevel * (level - 1));
+        }
+
+        if (level % 5 == 0)
+        {
+            for (int i = 0; i < weights.Length; i++)
+            {
+                weights[i] *= bonusUpgradeMultipliers[i];
+            }
+        }
+
+        return weights;
+    }
+
+    private int RollUpgradeTier(int level)
+    {
+        float[] weights = GetUpgradeTierWeights(level);
+        float total = weights.Sum();
+        float rand = Random.Range(0f, total);
+
+        float cumulative = 0;
+        
+        for (int i = 0; i < weights.Length; i++)
+        {
+            cumulative += weights[i];
+            if (rand < cumulative)
+            {
+                return i + 1; //Tier 1~4
+            }
+        }
+
+        return 1;
+    }
+
+private void SpawnEnemy(WaveData waveData)
     {
         if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;
         

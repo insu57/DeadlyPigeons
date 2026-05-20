@@ -725,7 +725,16 @@ public class DataSync : MonoBehaviour
     {
         string[] lines = levelUpUpgradeCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
         Dictionary<string, string[]> csvDict = new();
-
+        Dictionary<MainStats, Sprite> mainStatIcon = new();
+        var icons = Resources.LoadAll<Sprite>("Sprites/MainStat");
+        foreach (var icon in icons)
+        {
+            var iconName = icon.name;
+            var mainStat = iconName.StringToMainStats();
+            if (mainStat == MainStats.None) continue;
+            mainStatIcon[mainStat] = icon;
+        }
+        
         for (int i = 1; i < lines.Length; i++)
         {
             string[] rowData = lines[i].Split(',');
@@ -749,6 +758,7 @@ public class DataSync : MonoBehaviour
 
             var mainStatValue = new MainStatUpgradeValue
             {
+                icon =  mainStatIcon[mainStat],
                 mainStat = mainStat,
                 values = values
             };

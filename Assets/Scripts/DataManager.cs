@@ -13,6 +13,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
     public Dictionary<MainStats, int[]> LevelUpStatsDict { get; } = new();
+    public Dictionary<MainStats, Sprite> MainStatSpriteDict { get; } = new();
     
     public List<WaveData> WaveDataList { get; private set; }
     public Dictionary<CollectableType, Sprite> CollectableSpriteDict { get; } = new();
@@ -77,6 +78,7 @@ public class DataManager : Singleton<DataManager>
         {
             var mainStat = upgradeValue.mainStat;
             LevelUpStatsDict[mainStat] = upgradeValue.values;
+            MainStatSpriteDict[mainStat] = upgradeValue.icon;
         }
         
         

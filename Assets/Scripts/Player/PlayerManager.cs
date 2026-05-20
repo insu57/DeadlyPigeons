@@ -18,6 +18,7 @@ public class PlayerManager : MonoBehaviour
     
     private PlayerControl _playerControl;
     private PlayerStat _playerStat;
+    public int CurrentLevel => _playerStat?.CurrentLevel ?? 1;
     private PlayerHurtbox  _playerHurtbox;
     private PickupRange _pickupRange;
     

@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum WaveEndState
+public enum WaveEndState //늘어나면 수정.
 {
     Upgrade,
     Crate,
@@ -31,7 +31,8 @@ public class StageUI : MonoBehaviour
     [SerializeField] private GameObject upgradeUI;
     [SerializeField] private GridLayoutGroup upgradePanelGrid;
     [SerializeField] private UpgradePanel upgradePanelPrefab;
-    private const int UpgradePanelCount = 4; //고정?
+    private  int _upgradeOptionCount; //고정?
+    private UpgradePanel[] _upgradePanels;
     
     [Header("Crate")]
     [SerializeField] private GameObject crateUI;
@@ -42,8 +43,6 @@ public class StageUI : MonoBehaviour
     [SerializeField] private Button nextWaveBtn;
 
     private StringBuilder _sb;
-
-    
     
     private void Awake()
     {
@@ -53,16 +52,21 @@ public class StageUI : MonoBehaviour
         waveEndDict[WaveEndState.Upgrade] = upgradeUI;
         waveEndDict[WaveEndState.Crate] = crateUI;
         waveEndDict[WaveEndState.Store] =  storeUI;
-
-        for (int i = 0; i < UpgradePanelCount; i++)
-        {
-            Instantiate(upgradePanelPrefab, upgradePanelGrid.transform);
-        }
+        
     }
 
-    public void Init(PlayerManager playerManager)
+    public void Init(PlayerManager playerManager, int upgradeOptionCount)
     {
         itemGridUI.Init(playerManager);
+        
+        _upgradeOptionCount = upgradeOptionCount;
+        _upgradePanels = new UpgradePanel[_upgradeOptionCount];
+        
+        for (int i = 0; i < _upgradeOptionCount; i++)
+        {
+            var upgradePanel = Instantiate(upgradePanelPrefab, upgradePanelGrid.transform);
+            _upgradePanels[i] = upgradePanel;
+        }
     }
     
     public void SetCurrentWaveText(int wave)
@@ -95,21 +99,32 @@ public class StageUI : MonoBehaviour
         if (count > 0) lvUpIcon.SetActive(true);
     }
     
-    public void OpenWaveEndUI(WaveEndState waveEndState)
+    private void ShowWaveEndPanel(WaveEndState waveEndState)
     {
         waveEndUI.SetActive(true);
-        foreach (var (key, ui) in waveEndDict)
+        upgradeUI.gameObject.SetActive(waveEndState == WaveEndState.Upgrade);
+        crateUI.gameObject.SetActive(waveEndState == WaveEndState.Crate);
+        storeUI.gameObject.SetActive(waveEndState == WaveEndState.Store);
+    }
+
+    public void OpenUpgradeUI((MainStats mainstat, int tier)[] upgrades)
+    {
+        ShowWaveEndPanel(WaveEndState.Upgrade);
+
+        for (int i = 0; i < upgrades.Length; i++)
         {
-            waveEndDict[key].SetActive(key == waveEndState); //해당 UI만 활성화.
+            var upgradePanel = _upgradePanels[i];
+            upgradePanel.SetUpgrade(upgrades[i].mainstat, upgrades[i].tier);
         }
     }
     
-    public void OpenStoreUI(bool isOpen)
+    public void OpenCrateUI(ItemData itemData, int price)
     {
-        waveEndUI.SetActive(isOpen);
-        if (isOpen)
-        {
-            
-        }
+        ShowWaveEndPanel(WaveEndState.Crate);
+    }
+
+    public void OpenStoreUI()
+    {
+        //?
     }
 }

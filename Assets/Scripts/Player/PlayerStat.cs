@@ -19,10 +19,10 @@ public class PlayerStat : MonoBehaviour
     //무기 클래스 조합 효과
     //레벨업 시 최대체력 증가 + 메인스탯 하나 선택(무작위, 등급 존재)
 
-    [field: SerializeField] private int currentLevel = 1;
+    [field: SerializeField] public int CurrentLevel { get; private set; } = 1;
     [field: SerializeField] private int currentHP;
     [field: SerializeField] private float currentExp;
-    private int TargetExp => (currentLevel + 3) * (currentLevel + 3);
+    private int TargetExp => (CurrentLevel + 3) * (CurrentLevel + 3);
     private int MaxHp => _finalMainStatDict[MainStats.MaxHP];
     
     private const int DefaultMaxHP = 10;
@@ -77,13 +77,13 @@ public class PlayerStat : MonoBehaviour
             OnChangeSubStats?.Invoke(subStat, value);
         }
         
-        currentLevel = 1;
+        CurrentLevel = 1;
         
         OnChangeHealth?.Invoke(currentHP, MaxHp);
 
         var lvInfo = new PlayerLevelInfo()
         {
-            currentLevel = currentLevel,
+            currentLevel = CurrentLevel,
             hasLevelUp = false,
             currentExp = currentExp,
             targetExp = TargetExp
@@ -242,7 +242,7 @@ public class PlayerStat : MonoBehaviour
         if(currentExp >= TargetExp) //레벨 업. 한번에 여러번가능하도록 수정?
         {
             currentExp = TargetExp - currentExp;
-            currentLevel++;
+            CurrentLevel++;
             hasLvUp = true;
             
             UpdateStat(MainStats.MaxHP, 1);
@@ -250,7 +250,7 @@ public class PlayerStat : MonoBehaviour
 
         var lvInfo = new PlayerLevelInfo()
         {
-            currentLevel = currentLevel,
+            currentLevel = CurrentLevel,
             hasLevelUp = hasLvUp,
             currentExp = currentExp,
             targetExp = TargetExp

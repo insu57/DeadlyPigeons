@@ -5,6 +5,7 @@ using UnityEngine;
 [Serializable]
 public struct MainStatUpgradeValue
 {
+    public Sprite icon;
     public MainStats mainStat;
     public int[] values;
 }
