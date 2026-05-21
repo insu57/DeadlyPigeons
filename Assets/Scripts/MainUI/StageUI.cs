@@ -33,6 +33,7 @@ public class StageUI : MonoBehaviour
     [SerializeField] private UpgradePanel upgradePanelPrefab;
     private  int _upgradeOptionCount; //고정?
     private UpgradePanel[] _upgradePanels;
+    public event Action<int> OnSelectStatUpgrade;
     
     [Header("Crate")]
     [SerializeField] private GameObject crateUI;
@@ -66,8 +67,11 @@ public class StageUI : MonoBehaviour
         {
             var upgradePanel = Instantiate(upgradePanelPrefab, upgradePanelGrid.transform);
             _upgradePanels[i] = upgradePanel;
+            int panelIdx = i;
+            _upgradePanels[i].SelectBtn.onClick.AddListener( () => OnSelectStatUpgrade?.Invoke(panelIdx) );
         }
     }
+    
     
     public void SetCurrentWaveText(int wave)
     {

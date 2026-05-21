@@ -37,30 +37,25 @@ public class StageManager : MonoBehaviour
     [SerializeField] private float farSpawnMax = 15f;
     private const int MaxSpawnRetries = 10;
 
-    [Header("Wave")] [SerializeField] private int waveLevelUp = 0;
+    [Header("Wave")]
+    [SerializeField] private int waveLevelUp = 0;
     [SerializeField] private int cratePickup = 0;
     private StageUI _stageUI;
+    private (MainStats stat, int tier)[] _currentUpgradeOptions;
     //수정?
     private const int UpgradeOptionCount = 4;
     
     //시트로 관리?
-    [Serializable]
-    public struct TierWeightConfig
-    {
-        public float baseWeight;
-        public float perLevel;
-        public float minWeight;
-    }
 
-    [SerializeField] private TierWeightConfig[] tierWeightConfigs =
+    /*/[SerializeField] private TierLevelWeightConfig[] tierWeightConfigs =
     {
-        new() { baseWeight = 95, perLevel = -2, minWeight = 5 },
-        new() { baseWeight = 5, perLevel = 2, minWeight = 0 },
-        new() { baseWeight = 0, perLevel = 3, minWeight = 0 },
-        new() { baseWeight = 0, perLevel = 1, minWeight = 0 },
-    }; //Config 수정?
+        new() { baseWeight = 100, minLevel = 0, perLevel = 0, maxChance = 100 },
+        new() { baseWeight = 0, minLevel = 2, perLevel = 6, maxChance = 60 },
+        new() { baseWeight = 0, minLevel = 4, perLevel = 2, maxChance = 25 },
+        new() { baseWeight = 0, minLevel = 8, perLevel = 0.23f, maxChance = 8 },
+    }; //Config 수정?*/
 
-    [SerializeField] private float[] bonusUpgradeMultipliers = { 1f, 1.2f, 1.5f, 2f };
+  
 
     //test
     [SerializeField] private CharacterData testChar;
@@ -109,10 +104,14 @@ public class StageManager : MonoBehaviour
         ObjectPoolingManager.Instance.InitEnemyPool();
         ObjectPoolingManager.Instance.InitCollectablePool();
 
+        //StageUI
+        _stageUI.OnSelectStatUpgrade += HandleOnSelectStatUpgrade;
+        
         //웨이브 시작
         var waveData = DataManager.Instance.WaveDataList[_currentWave - 1];
         _stageUI.SetCurrentWaveText(_currentWave);
         StartCoroutine(WaveCoroutine(waveData));
+        
     }
 
     private void Update()
@@ -206,9 +205,14 @@ public class StageManager : MonoBehaviour
 
         //_stageUI.OpenStoreUI(true);
         //개선방안?
+        HandleOnWaveEnd();
+    }
+
+    private void HandleOnWaveEnd()
+    {
         if (waveLevelUp > 0)
         {
-            GetUpgrade();
+            ShowStatUpgradePanel();
         }
         else if (cratePickup > 0)
         {
@@ -219,44 +223,85 @@ public class StageManager : MonoBehaviour
             _stageUI.OpenStoreUI();
         }
     }
-
-    private void GetUpgrade()
+    
+    private void ShowStatUpgradePanel()
     {
-        int upgradeLv = _playerManager.CurrentLevel - waveLevelUp + 1; //레벨업처리를 할 해당 레벨.
+        int upgradeLv = _playerManager.CurrentLevel - waveLevelUp + 1;//기준이 될 레벨.
 
-        var upgrades = new (MainStats stat, int tier)[4];
-        for (int i = 0; i < UpgradeOptionCount; i++)
+        //스탯 섞기 (Fisher-Yates 셔플)
+        var allStats = new List<MainStats>();
+        for (int i = 0; i < (int)MainStats.None; i++)
+            allStats.Add((MainStats)i);
+
+        for (int i = allStats.Count - 1; i > 0; i--)
         {
-            var stat = (MainStats)Random.Range(0, (int)MainStats.None);
-            var tier = RollUpgradeTier(upgradeLv);
-            
-            upgrades[i] = (stat, tier);
+            int j = Random.Range(0, i + 1);
+            (allStats[i], allStats[j]) = (allStats[j], allStats[i]);
         }
+        //0~3의 무작위 스탯 리스트.
         
-        _stageUI.OpenUpgradeUI(upgrades);
+        _currentUpgradeOptions = new (MainStats stat, int tier)[UpgradeOptionCount];
+        
+        int guaranteedTier = GetGuaranteedTier(upgradeLv);
+        if (guaranteedTier > 0) //확정 티어
+        {
+            for (int i = 0; i < UpgradeOptionCount; i++)
+            {
+                _currentUpgradeOptions[i] = (allStats[i], guaranteedTier);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < UpgradeOptionCount; i++)
+            {
+                var tier = RollUpgradeTier(upgradeLv); //확률(가중치)에 따른 티어 뽑기.
+                _currentUpgradeOptions[i] = (allStats[i], tier);
+            }
+        }
+
+        _stageUI.OpenUpgradeUI(_currentUpgradeOptions);
+    }
+
+    private int GetGuaranteedTier(int level)
+    {
+        foreach (var config in DataManager.Instance.GuaranteedLvUpStatTier.GuaranteedTierConfigs)
+        {
+            if (config.level == level) return config.tier;
+        }
+
+        if (level % 5 == 0 && level > 25)
+        {
+            return 4; //25이상의 5의 배수 레벨 -> 티어4 확정
+        }
+        //csv수정 필요?
+        return 0;
     }
 
     private float[] GetUpgradeTierWeights(int level)
     {
-        var weights = new float[tierWeightConfigs.Length];
-        for (int i = 0; i < tierWeightConfigs.Length; i++)
-        {
-            var config = tierWeightConfigs[i];
-            weights[i] = Mathf.Max(config.minWeight, config.baseWeight + config.perLevel * (level - 1));
-        }
+        var tierLevelWeightConfigs = DataManager.Instance.LvUpStatUpgradeWeight.TierLevelWeightConfigs;
+        int n = tierLevelWeightConfigs.Length;
+        var raw = new float[n];
 
-        if (level % 5 == 0)
+        // 높은 티어부터 "해당 티어 이상이 나올 확률" 계산
+        for (int i = n - 1; i > 0; i--)
         {
-            for (int i = 0; i < weights.Length; i++)
-            {
-                weights[i] *= bonusUpgradeMultipliers[i];
-            }
+            var config = tierLevelWeightConfigs[i];
+            raw[i] = level < config.minLevel
+                ? 0f
+                : Mathf.Clamp(config.baseWeight + config.perLevel * (level - config.minLevel), 0f, config.maxChance);
         }
+        
+        // 실제 확률 = raw[i] - raw[i+1]
+        var chances = new float[n];
+        for (int i = 0; i < n - 1; i++)
+            chances[i] = raw[i] - raw[i + 1];
+        chances[n - 1] = raw[n - 1];
 
-        return weights;
+        return chances;
     }
 
-    private int RollUpgradeTier(int level)
+    private int RollUpgradeTier(int level) //티어 뽑기
     {
         float[] weights = GetUpgradeTierWeights(level);
         float total = weights.Sum();
@@ -276,7 +321,21 @@ public class StageManager : MonoBehaviour
         return 1;
     }
 
-private void SpawnEnemy(WaveData waveData)
+    private void HandleOnSelectStatUpgrade(int optionIdx)
+    {
+        var (stat, tier) = _currentUpgradeOptions[optionIdx];
+        _playerManager.GetStatUpgrade(stat, tier);
+        waveLevelUp--;//잔여 레벨업 업그레이드 감소.
+        
+        HandleOnWaveEnd();//웨이브 종료 처리(업그레이드, 상자...)
+    }
+
+    private void ShowCrateSelectPanel()
+    {
+        
+    }
+    
+    private void SpawnEnemy(WaveData waveData)
     {
         if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;
         

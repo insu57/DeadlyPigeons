@@ -19,7 +19,8 @@ public class PlayerStat : MonoBehaviour
     //무기 클래스 조합 효과
     //레벨업 시 최대체력 증가 + 메인스탯 하나 선택(무작위, 등급 존재)
 
-    [field: SerializeField] public int CurrentLevel { get; private set; } = 1;
+    public int CurrentLevel { get; private set; }
+    private const int StartLevel = 0;
     [field: SerializeField] private int currentHP;
     [field: SerializeField] private float currentExp;
     private int TargetExp => (CurrentLevel + 3) * (CurrentLevel + 3);
@@ -77,7 +78,7 @@ public class PlayerStat : MonoBehaviour
             OnChangeSubStats?.Invoke(subStat, value);
         }
         
-        CurrentLevel = 1;
+        CurrentLevel = StartLevel;
         
         OnChangeHealth?.Invoke(currentHP, MaxHp);
 
@@ -156,7 +157,7 @@ public class PlayerStat : MonoBehaviour
         UpdateStat(subStat, amount);
     }
 
-    private void UpdateStat(MainStats mainStat, int amount) //최종 스탯으로 업데이트
+    public void UpdateStat(MainStats mainStat, int amount) //최종 스탯으로 업데이트
     {
         _baseMainStatDict[mainStat] += amount;
         int currentAmount =  _baseMainStatDict[mainStat] + _mainStatClassBonus[mainStat];

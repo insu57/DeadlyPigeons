@@ -199,6 +199,12 @@ public class PlayerManager : MonoBehaviour
     }
 
     //Remove Item 구현?
+
+    public void GetStatUpgrade(MainStats stat, int tier)
+    {
+        var amount = DataManager.Instance.LvUpStatUpgradeDict[stat][tier - 1];//idx 0~3
+        _playerStat.UpdateStat(stat, amount);
+    }
     
     private void UpdateStat(MainStats stat, int value)
     {

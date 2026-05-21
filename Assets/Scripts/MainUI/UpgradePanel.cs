@@ -9,13 +9,13 @@ public class UpgradePanel : MonoBehaviour
     [field: SerializeField] private Image tierBorder;
     [field: SerializeField] private Image statIcon;
     [field: SerializeField] public Button SelectBtn { get; private set; }
-
+    
     public void SetUpgrade(MainStats mainStat, int tier)
     {
         statName.text = mainStat.MainStatsToString();
         var sb = StatUtil.StringBuilder;
         sb.Clear();
-        var upgradeValue = DataManager.Instance.LevelUpStatsDict[mainStat][tier - 1];//Tier 1~4(idx는 0~3)
+        var upgradeValue = DataManager.Instance.LvUpStatUpgradeDict[mainStat][tier - 1];//Tier 1~4(idx는 0~3)
         sb.Append(mainStat.GetIcons());
         sb.AppendColor("+", 1);
         sb.AppendColorValue(upgradeValue);

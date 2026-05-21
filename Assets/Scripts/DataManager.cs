@@ -12,7 +12,9 @@ public class DataManager : Singleton<DataManager>
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
-    public Dictionary<MainStats, int[]> LevelUpStatsDict { get; } = new();
+    public Dictionary<MainStats, int[]> LvUpStatUpgradeDict { get; } = new();
+    public LvUpStatUpgradeWeight LvUpStatUpgradeWeight { get; private set; }
+    public GuaranteedLvUpStatTier GuaranteedLvUpStatTier { get; private set; }
     public Dictionary<MainStats, Sprite> MainStatSpriteDict { get; } = new();
     
     public List<WaveData> WaveDataList { get; private set; }
@@ -77,10 +79,12 @@ public class DataManager : Singleton<DataManager>
         foreach (var upgradeValue in levelUpData.MainStatUpgrades)
         {
             var mainStat = upgradeValue.mainStat;
-            LevelUpStatsDict[mainStat] = upgradeValue.values;
+            LvUpStatUpgradeDict[mainStat] = upgradeValue.values;
             MainStatSpriteDict[mainStat] = upgradeValue.icon;
         }
         
+        LvUpStatUpgradeWeight = Resources.Load<LvUpStatUpgradeWeight>("Data/LvUpStatUpgradeWeight");
+        GuaranteedLvUpStatTier = Resources.Load<GuaranteedLvUpStatTier>("Data/GuaranteedLvUpStatTier");
         
         //WaveNumber 정렬 리스트
         WaveDataList = Resources.LoadAll<WaveData>("Data/Waves")

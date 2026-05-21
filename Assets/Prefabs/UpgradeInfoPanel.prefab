@@ -507,7 +507,7 @@ MonoBehaviour:
   statValue: {fileID: 7415905512076043026}
   tierBorder: {fileID: 9037222271417631378}
   statIcon: {fileID: 4206263310382587484}
-  <SelectBtn>k__BackingField: {fileID: 0}
+  <SelectBtn>k__BackingField: {fileID: 8285379239977185502}
 --- !u!1 &4265012379970729453
 GameObject:
   m_ObjectHideFlags: 0
