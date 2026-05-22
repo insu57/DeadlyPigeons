@@ -18,7 +18,7 @@ public class PlayerManager : MonoBehaviour
     
     private PlayerControl _playerControl;
     private PlayerStat _playerStat;
-    public int CurrentLevel => _playerStat?.CurrentLevel ?? 1;
+    public int CurrentLevel => _playerStat?.CurrentLevel ?? 0;
     private PlayerHurtbox  _playerHurtbox;
     private PickupRange _pickupRange;
     
@@ -106,6 +106,13 @@ public class PlayerManager : MonoBehaviour
         _playerInfoUI.UpdateMoney(money);
     }
 
+    public int GetMoney => _playerStat.Money;
+    
+    public void ChangeMoney(int money)
+    {
+        _playerStat.ChangeMoney(money);
+    }
+    
     private void AddItem(ItemData itemData)
     {
         itemDataList.Add(itemData);

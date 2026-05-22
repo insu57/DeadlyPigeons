@@ -6,14 +6,19 @@ public class DataManager : Singleton<DataManager>
 {
     public Dictionary<int, CharacterData> CharDict { get; } = new();
     public List<CharacterData> CharList { get; } = new();
+   
+    public const int MaxTier = 4;
     public Dictionary<int, ItemData> ItemDict { get; } = new();
+    public Dictionary<int, List<ItemData>> ItemTierDict { get; } = new();
     public List<ItemData> ItemList { get; } = new();
+    
     public Dictionary<int, WeaponData> WeaponDict { get; } = new();
+    public Dictionary<int, List<WeaponData>> WeaponTierDict { get; } = new();
     public List<WeaponData> WeaponList { get; } = new();
     public Dictionary<WeaponClasses, List<WeaponClassBonus>> WeaponClassBonusDict { get; } = new();
     //무기 클래스 - 클래스 별 보너스(각 스탯 리스트(스탯 - 보너스 수치))
     public Dictionary<MainStats, int[]> LvUpStatUpgradeDict { get; } = new();
-    public LvUpStatUpgradeWeight LvUpStatUpgradeWeight { get; private set; }
+    public ProgressionTierWeightData ProgressionTierWeightData { get; private set; }
     public GuaranteedLvUpStatTier GuaranteedLvUpStatTier { get; private set; }
     public Dictionary<MainStats, Sprite> MainStatSpriteDict { get; } = new();
     
@@ -55,10 +60,20 @@ public class DataManager : Singleton<DataManager>
         }
         
         ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
+
+        for (int i = 1; i <= MaxTier; i++)
+        {
+            //Debug.Log("tier:"+i);
+            ItemTierDict[i] = new List<ItemData>();
+            WeaponTierDict[i] = new List<WeaponData>();
+        }
+        
         foreach (var itemData in items)
         {
             ItemDict.Add(itemData.ID, itemData);
             ItemList.Add(itemData);
+            int tier = itemData.Tier;
+            ItemTierDict[tier].Add(itemData);
         }
         
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
@@ -66,6 +81,12 @@ public class DataManager : Singleton<DataManager>
         {
             WeaponDict.Add(wData.ID, wData);
             WeaponList.Add(wData);
+            int initTier = wData.WeaponStat.initTier;
+            var maxTier = 4;
+            for (int tier = initTier; tier <= maxTier; tier++)
+            {
+                WeaponTierDict[tier].Add(wData);
+            }
         }
         
         var weaponClassData = Resources.Load<WeaponClassBonusData>("Data/WeaponClassBonus");
@@ -83,7 +104,7 @@ public class DataManager : Singleton<DataManager>
             MainStatSpriteDict[mainStat] = upgradeValue.icon;
         }
         
-        LvUpStatUpgradeWeight = Resources.Load<LvUpStatUpgradeWeight>("Data/LvUpStatUpgradeWeight");
+        ProgressionTierWeightData = Resources.Load<ProgressionTierWeightData>("Data/LvUpStatUpgradeWeight");
         GuaranteedLvUpStatTier = Resources.Load<GuaranteedLvUpStatTier>("Data/GuaranteedLvUpStatTier");
         
         //WaveNumber 정렬 리스트

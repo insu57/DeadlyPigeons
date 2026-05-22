@@ -37,25 +37,22 @@ public class StageManager : MonoBehaviour
     [SerializeField] private float farSpawnMax = 15f;
     private const int MaxSpawnRetries = 10;
 
-    [Header("Wave")]
-    [SerializeField] private int waveLevelUp = 0;
+    [Header("Wave")] [SerializeField] private int waveLevelUp = 0;
     [SerializeField] private int cratePickup = 0;
     private StageUI _stageUI;
+
     private (MainStats stat, int tier)[] _currentUpgradeOptions;
+
     //수정?
     private const int UpgradeOptionCount = 4;
-    
-    //시트로 관리?
+    private int _upgradeRerollPrice;
+    private int _upgradeRerollIncrease;
+    private int _upgradeRerollCount;
 
-    /*/[SerializeField] private TierLevelWeightConfig[] tierWeightConfigs =
-    {
-        new() { baseWeight = 100, minLevel = 0, perLevel = 0, maxChance = 100 },
-        new() { baseWeight = 0, minLevel = 2, perLevel = 6, maxChance = 60 },
-        new() { baseWeight = 0, minLevel = 4, perLevel = 2, maxChance = 25 },
-        new() { baseWeight = 0, minLevel = 8, perLevel = 0.23f, maxChance = 8 },
-    }; //Config 수정?*/
-
-  
+    private const int StoreOptionCount = 4;
+    private int _storeRerollPrice;
+    private int _storeRerollIncrease;
+    private int _storeRerollCount;
 
     //test
     [SerializeField] private CharacterData testChar;
@@ -63,7 +60,7 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int testStage;
     [SerializeField] private int testWave;
 
-    private int _currentWave = 1; //1~20
+    private int _currentWave = 1; //1~20...
 
     private void Awake()
     {
@@ -106,12 +103,10 @@ public class StageManager : MonoBehaviour
 
         //StageUI
         _stageUI.OnSelectStatUpgrade += HandleOnSelectStatUpgrade;
-        
+        _stageUI.OnRerollUpgrade += HandleOnRerollUpgrade;
+
         //웨이브 시작
-        var waveData = DataManager.Instance.WaveDataList[_currentWave - 1];
-        _stageUI.SetCurrentWaveText(_currentWave);
-        StartCoroutine(WaveCoroutine(waveData));
-        
+        StartWave();
     }
 
     private void Update()
@@ -151,6 +146,13 @@ public class StageManager : MonoBehaviour
         _playerManager.OnCratePickup += OnCratePickup;
     }
 
+    private void StartWave()
+    {
+        var waveData = DataManager.Instance.WaveDataList[_currentWave - 1];
+        _stageUI.SetCurrentWaveText(_currentWave);
+        StartCoroutine(WaveCoroutine(waveData));
+    }
+    
     private void OnLevelUp()
     {
         waveLevelUp++;
@@ -210,20 +212,47 @@ public class StageManager : MonoBehaviour
 
     private void HandleOnWaveEnd()
     {
+        SetupRerollPrice();
+
+        OpenWaveEndUI();
+    }
+
+    private void SetupRerollPrice()
+    {
+        var rerollIncreasePerLv = DataManager.Instance.ProgressionTierWeightData.RerollIncreasePerProgression;
+        var firstRerollPricePerLv = DataManager.Instance.ProgressionTierWeightData.FirstRerollPricePerProgression;
+
+        _upgradeRerollIncrease =
+            Mathf.FloorToInt(rerollIncreasePerLv * (_playerManager.CurrentLevel - waveLevelUp + 1));
+        //리롤 증가 = 내림(레벨 * 계수(레벨 당 리롤 증가)) (리롤할 때 마다 증가)
+        if (_upgradeRerollIncrease < 1) _upgradeRerollIncrease = 1;
+        _upgradeRerollPrice = Mathf.FloorToInt(firstRerollPricePerLv * (_playerManager.CurrentLevel - waveLevelUp + 1))
+                              + _upgradeRerollIncrease;
+        //초기 리롤 가격 = 내림(레벨 * 계수(레벨 당 초기 리롤)) + 리롤 증가
+        
+
+        _storeRerollIncrease = Mathf.FloorToInt(rerollIncreasePerLv * _currentWave);
+        if (_storeRerollIncrease < 1) _storeRerollIncrease = 1;
+        _storeRerollPrice = Mathf.FloorToInt(firstRerollPricePerLv * _currentWave) + _storeRerollIncrease;
+     
+    }
+
+    private void OpenWaveEndUI()
+    {
         if (waveLevelUp > 0)
         {
             ShowStatUpgradePanel();
         }
         else if (cratePickup > 0)
         {
-            _stageUI.OpenCrateUI(null, 0); //WIP
+            ShowCrateSelectPanel();
         }
         else
         {
             _stageUI.OpenStoreUI();
         }
     }
-    
+
     private void ShowStatUpgradePanel()
     {
         int upgradeLv = _playerManager.CurrentLevel - waveLevelUp + 1;//기준이 될 레벨.
@@ -254,10 +283,16 @@ public class StageManager : MonoBehaviour
         {
             for (int i = 0; i < UpgradeOptionCount; i++)
             {
-                var tier = RollUpgradeTier(upgradeLv); //확률(가중치)에 따른 티어 뽑기.
+                var tier = RollTier(upgradeLv); //확률(가중치)에 따른 티어 뽑기.
                 _currentUpgradeOptions[i] = (allStats[i], tier);
             }
         }
+
+        bool canReroll = false;
+        
+        if(_playerManager.GetMoney >= _upgradeRerollPrice) canReroll = true;
+        
+        _stageUI.UpdateUpgradeRerollPrice(_upgradeRerollPrice, canReroll);
 
         _stageUI.OpenUpgradeUI(_currentUpgradeOptions);
     }
@@ -277,19 +312,19 @@ public class StageManager : MonoBehaviour
         return 0;
     }
 
-    private float[] GetUpgradeTierWeights(int level)
+    private float[] GetTierWeights(int progression)
     {
-        var tierLevelWeightConfigs = DataManager.Instance.LvUpStatUpgradeWeight.TierLevelWeightConfigs;
-        int n = tierLevelWeightConfigs.Length;
+        var tierWeightConfigs = DataManager.Instance.ProgressionTierWeightData.TierWeightConfigs;
+        int n = tierWeightConfigs.Length;
         var raw = new float[n];
 
         // 높은 티어부터 "해당 티어 이상이 나올 확률" 계산
         for (int i = n - 1; i > 0; i--)
         {
-            var config = tierLevelWeightConfigs[i];
-            raw[i] = level < config.minLevel
+            var config = tierWeightConfigs[i];
+            raw[i] = progression < config.minProgression
                 ? 0f
-                : Mathf.Clamp(config.baseWeight + config.perLevel * (level - config.minLevel), 0f, config.maxChance);
+                : Mathf.Clamp(config.baseWeight + config.perProgression * (progression - config.minProgression), 0f, config.maxChance);
         }
         
         // 실제 확률 = raw[i] - raw[i+1]
@@ -301,9 +336,10 @@ public class StageManager : MonoBehaviour
         return chances;
     }
 
-    private int RollUpgradeTier(int level) //티어 뽑기
+    private int RollTier(int progression) 
     {
-        float[] weights = GetUpgradeTierWeights(level);
+        //티어 뽑기 - 레벨/웨이브
+        float[] weights = GetTierWeights(progression);
         float total = weights.Sum();
         float rand = Random.Range(0f, total);
 
@@ -327,13 +363,36 @@ public class StageManager : MonoBehaviour
         _playerManager.GetStatUpgrade(stat, tier);
         waveLevelUp--;//잔여 레벨업 업그레이드 감소.
         
-        HandleOnWaveEnd();//웨이브 종료 처리(업그레이드, 상자...)
+        OpenWaveEndUI();//웨이브 종료 처리(업그레이드, 상자...)
     }
 
+    private void HandleOnRerollUpgrade()
+    {
+        //RerollCost...
+        if(_playerManager.GetMoney < _upgradeRerollPrice) return;
+        
+        _playerManager.ChangeMoney(-_upgradeRerollPrice);
+
+        _upgradeRerollPrice += _upgradeRerollIncrease;
+        
+        ShowStatUpgradePanel();
+    }
+    
     private void ShowCrateSelectPanel()
     {
+        //아이템 뽑기.
+        var tier = RollTier(_currentWave);
         
+        var itemList = DataManager.Instance.ItemTierDict[tier];
+        var randIdx =  Random.Range(0, itemList.Count);
+        
+        var itemData = itemList[randIdx];
+        
+        //Price계산 (구매가의 절반)
+        
+        _stageUI.OpenCrateUI(itemData,0);
     }
+    
     
     private void SpawnEnemy(WaveData waveData)
     {

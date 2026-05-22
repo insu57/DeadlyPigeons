@@ -31,9 +31,12 @@ public class StageUI : MonoBehaviour
     [SerializeField] private GameObject upgradeUI;
     [SerializeField] private GridLayoutGroup upgradePanelGrid;
     [SerializeField] private UpgradePanel upgradePanelPrefab;
+    [SerializeField] private Button rerollUpgradeBtn;
+    [SerializeField] private TextMeshProUGUI upgradeRerollPriceTxt;
     private  int _upgradeOptionCount; //고정?
     private UpgradePanel[] _upgradePanels;
     public event Action<int> OnSelectStatUpgrade;
+    public event Action OnRerollUpgrade;
     
     [Header("Crate")]
     [SerializeField] private GameObject crateUI;
@@ -54,6 +57,7 @@ public class StageUI : MonoBehaviour
         waveEndDict[WaveEndState.Crate] = crateUI;
         waveEndDict[WaveEndState.Store] =  storeUI;
         
+        rerollUpgradeBtn.onClick.AddListener( () => OnRerollUpgrade?.Invoke() );
     }
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount)
@@ -120,6 +124,22 @@ public class StageUI : MonoBehaviour
             var upgradePanel = _upgradePanels[i];
             upgradePanel.SetUpgrade(upgrades[i].mainstat, upgrades[i].tier);
         }
+    }
+
+    public void UpdateUpgradeRerollPrice(int rerollPrice, bool canReroll)
+    {
+        _sb.Clear();
+
+        if (canReroll)
+        {
+            _sb.AppendColor("-" + rerollPrice, 1);
+        }
+        else
+        {
+            _sb.AppendColor("-" + rerollPrice, -1);
+        }
+        
+        upgradeRerollPriceTxt.SetText(_sb);
     }
     
     public void OpenCrateUI(ItemData itemData, int price)

@@ -16,7 +16,7 @@ public enum SubStats
 {
     FoodHeal, XPGain, ItemPrice, PickUpRange, ExplosiveDamage, ExplosiveSize, 
     Bounces,  Piercing, PiercingDamage ,FreeRerolls, Enemies, EnemiesSpeed, RerollPrice,
-    Knockback,
+    Knockback, BurningSpeed,
     None
 }
 

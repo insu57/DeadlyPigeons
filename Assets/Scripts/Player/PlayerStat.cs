@@ -28,7 +28,7 @@ public class PlayerStat : MonoBehaviour
     
     private const int DefaultMaxHP = 10;
     private const int DefaultFoodHeal = 3;
-    [field: SerializeField] private int money = 0;
+    public int Money { get; private set; }
     private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
     private readonly Dictionary<MainStats, int> _mainStatClassBonus = new();//무기 클래스 보너스
     private readonly Dictionary<MainStats, int> _mainStatMultiDict = new();//패시브 스탯 배수
@@ -92,7 +92,7 @@ public class PlayerStat : MonoBehaviour
         
         OnChangeExp?.Invoke(lvInfo);
         
-        OnChangeMoney?.Invoke(money);
+        OnChangeMoney?.Invoke(Money);
     }
 
     public void WaveStatInit()
@@ -224,17 +224,22 @@ public class PlayerStat : MonoBehaviour
         //체력 재생과 분리?
     }
 
-    private void AddMoney(int amount) //상점에서 구매/판매 시
+    public void ChangeMoney(int amount) //상점에서 구매/판매 시
     {
-        money += amount;
+        if (Money + amount < 0)
+        {
+            Debug.LogWarning("Not enough money");
+        }
         
-        OnChangeMoney?.Invoke(money);
+        Money += amount;
+        
+        OnChangeMoney?.Invoke(Money);
     }
 
     public void GetMaterial(int amount)
     {
         //스탯(아이템) 계산 후 돈,경험치 추가.
-        AddMoney(amount);
+        ChangeMoney(amount);
         var expAmount = amount * (1 + _finalSubStatDict[SubStats.XPGain] / 100f);
         currentExp += expAmount;
 
