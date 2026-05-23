@@ -161,6 +161,7 @@ public class DataSync : MonoBehaviour
         }
 
         ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
+        ItemData[] passives = Resources.LoadAll<ItemData>("Data/Characters/Passive");
         Sprite[] charSprites = Resources.LoadAll<Sprite>(CharSpritePath);
         Sprite[] itemSprites = Resources.LoadAll<Sprite>(ItemSpritePath);
         Dictionary<int, Sprite> spriteDict = new();
@@ -216,12 +217,12 @@ public class DataSync : MonoBehaviour
 
         int itemUpdateCount = 0;
 
-        foreach (var so in items)
+
+        foreach (var so in passives)
         {
             bool isFound = false;
 
             ItemStat itemStat = new();
-            
             if (passiveDict.TryGetValue(so.ID, out var rowData))
             {
                 isFound = true;
@@ -265,7 +266,33 @@ public class DataSync : MonoBehaviour
                 itemStat.statValues = values;
                 itemStat.description = rowData[17];
             }
-            else if (itemDict.TryGetValue(so.ID, out rowData))
+            
+            if (isFound)
+            {
+                
+#if UNITY_EDITOR
+                // TODO: 파싱된 데이터를 기반으로 so.SyncItemData 호출
+                so.SyncItemData(itemStat);
+                
+                itemUpdateCount++;
+                EditorUtility.SetDirty(so);
+#endif
+            }
+            else
+            {
+                Debug.LogError("Item Data Not Found : " + so.ID);
+            }
+        }
+        
+        
+        
+        foreach (var so in items)
+        {
+            bool isFound = false;
+
+            ItemStat itemStat = new();
+            
+            if (itemDict.TryGetValue(so.ID, out var rowData))
             {
                 isFound = true;
                
@@ -299,6 +326,8 @@ public class DataSync : MonoBehaviour
                 }
                 itemStat.statValues = values;
                 itemStat.description = rowData[14];
+                itemStat.max = int.Parse(rowData[15]);
+                itemStat.price = int.Parse(rowData[16]);
             }
 
             if (isFound)
@@ -321,7 +350,7 @@ public class DataSync : MonoBehaviour
 #if UNITY_EDITOR
         AssetDatabase.SaveAssets();
 #endif
-        Debug.Log("Item Data Updated: " + itemUpdateCount + "/" + items.Length);
+        Debug.Log("Item Data Updated: " + itemUpdateCount + "/" + (items.Length + passives.Length));
     }
 
     [ContextMenu("Sync Weapon Data")]

@@ -44,10 +44,8 @@ public class InfoPanel : MonoBehaviour
             sb.Append(", ").Append(WeaponData.WeaponClassToString(weaponClass[i]));
         } 
         classesTxt.SetText(sb);
+        
         sb.Clear();
-
-        
-        
         sb.AppendHeadString("데미지: ");
         sb.AppendColorCompare(weapon.Damage, weaponStat.baseDamage[tierIdx]);
         sb.Append(" ("); //기본 데미지
@@ -154,7 +152,7 @@ public class InfoPanel : MonoBehaviour
         GetItemStatTxt(item.ID);
         descriptionTxt.SetText(sb);
         
-        classInfo.ShowItemClassInfo(item.ItemClass, sb);
+        classInfo.ShowItemClassInfo(item.ItemClass);
     }
 
     public static void GetItemStatTxt(int itemID)

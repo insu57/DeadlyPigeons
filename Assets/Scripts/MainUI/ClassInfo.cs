@@ -137,7 +137,7 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    public void ShowItemClassInfo(ItemClass itemClass, StringBuilder sb)
+    public void ShowItemClassInfo(ItemClass itemClass)
     {
         //추가 설명이 필요한 클래스 구현시 변경
         infoPanelParent.SetActive(false);

@@ -37,9 +37,15 @@ public class StageUI : MonoBehaviour
     private UpgradePanel[] _upgradePanels;
     public event Action<int> OnSelectStatUpgrade;
     public event Action OnRerollUpgrade;
+    public event Action OnUseCrateItem;
+    public event Action OnSellCrateItem;
     
     [Header("Crate")]
     [SerializeField] private GameObject crateUI;
+    [SerializeField] private InfoPanel crateInfoPanel;
+    [SerializeField] private Button crateItemUseBtn;
+    [SerializeField] private Button crateItemSellBtn;
+    [SerializeField] private TextMeshProUGUI crateItemPriceTxt;
     
     [Header("Store")]
     [SerializeField] private GameObject storeUI;
@@ -58,6 +64,8 @@ public class StageUI : MonoBehaviour
         waveEndDict[WaveEndState.Store] =  storeUI;
         
         rerollUpgradeBtn.onClick.AddListener( () => OnRerollUpgrade?.Invoke() );
+        crateItemUseBtn.onClick.AddListener( () => OnUseCrateItem?.Invoke() );
+        crateItemSellBtn.onClick.AddListener( () => OnSellCrateItem?.Invoke() );
     }
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount)
@@ -145,10 +153,17 @@ public class StageUI : MonoBehaviour
     public void OpenCrateUI(ItemData itemData, int price)
     {
         ShowWaveEndPanel(WaveEndState.Crate);
+        
+        _sb.Clear();
+        _sb.Append("판매").Append("(+").Append(price).Append(')');
+        crateItemPriceTxt.SetText(_sb);
+        
+        crateInfoPanel.ShowItemInfo(itemData);
     }
 
     public void OpenStoreUI()
     {
-        //?
+        ShowWaveEndPanel(WaveEndState.Store);
+        //상점...
     }
 }

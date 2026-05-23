@@ -59,11 +59,11 @@ public class DataManager : Singleton<DataManager>
             CharList.Add(charData);
         }
         
-        ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
-
+        ItemData[] items = Resources.LoadAll<ItemData>("Data/Items"); //캐릭터 패시브, 일반 아이템 분리.
+        ItemData[] charPassive = Resources.LoadAll<ItemData>("Data/Characters/Passive");
+        
         for (int i = 1; i <= MaxTier; i++)
         {
-            //Debug.Log("tier:"+i);
             ItemTierDict[i] = new List<ItemData>();
             WeaponTierDict[i] = new List<WeaponData>();
         }
@@ -74,6 +74,12 @@ public class DataManager : Singleton<DataManager>
             ItemList.Add(itemData);
             int tier = itemData.Tier;
             ItemTierDict[tier].Add(itemData);
+        }
+
+        foreach (var itemData in charPassive)
+        {
+            ItemDict.Add(itemData.ID, itemData);
+            ItemList.Add(itemData);
         }
         
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");

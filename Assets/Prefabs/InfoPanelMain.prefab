@@ -901,7 +901,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3692854540360748949, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
       propertyPath: m_Name
-      value: WeaponInfoMain
+      value: InfoPanelMain
       objectReference: {fileID: 0}
     - target: {fileID: 6211748217451619634, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
       propertyPath: classInfo
@@ -922,6 +922,10 @@ PrefabInstance:
     - target: {fileID: 6974209421520483918, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7183626244325728124, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
+      propertyPath: m_text
+      value: "<sprite=\"critchance\" index=0>\uC77C \uC544\uC774\uD15C \uC124\uBA85"
       objectReference: {fileID: 0}
     - target: {fileID: 7183626244325728124, guid: 990491d8a6c20994693b8f8a003cc41b, type: 3}
       propertyPath: m_fontSize

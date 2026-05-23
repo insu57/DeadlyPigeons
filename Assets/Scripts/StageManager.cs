@@ -48,6 +48,9 @@ public class StageManager : MonoBehaviour
     private int _upgradeRerollPrice;
     private int _upgradeRerollIncrease;
     private int _upgradeRerollCount;
+    
+    private ItemData _currentCrateItem;
+    private int _currentCrateItemPrice;
 
     private const int StoreOptionCount = 4;
     private int _storeRerollPrice;
@@ -104,6 +107,8 @@ public class StageManager : MonoBehaviour
         //StageUI
         _stageUI.OnSelectStatUpgrade += HandleOnSelectStatUpgrade;
         _stageUI.OnRerollUpgrade += HandleOnRerollUpgrade;
+        _stageUI.OnUseCrateItem += HandleOnUseCrateItem;
+        _stageUI.OnSellCrateItem += HandleOnSellCrateItem;
 
         //웨이브 시작
         StartWave();
@@ -387,12 +392,42 @@ public class StageManager : MonoBehaviour
         var randIdx =  Random.Range(0, itemList.Count);
         
         var itemData = itemList[randIdx];
+        _currentCrateItem = itemData;
         
         //Price계산 (구매가의 절반)
+        _currentCrateItemPrice = Mathf.FloorToInt(GetItemPrice(itemData) / 2f);
+
+        _stageUI.OpenCrateUI(itemData, _currentCrateItemPrice);
+    }
+
+    private void HandleOnUseCrateItem()
+    {
+        _playerManager.AddItem(_currentCrateItem);
+
+        cratePickup--;
         
-        _stageUI.OpenCrateUI(itemData,0);
+        OpenWaveEndUI();
+    }
+
+
+    private void HandleOnSellCrateItem()
+    {
+        _playerManager.ChangeMoney(_currentCrateItemPrice);
+
+        cratePickup--;
+        
+        OpenWaveEndUI();
     }
     
+    private int GetItemPrice(ItemData itemData)
+    {
+        var basePrice = itemData.Price;
+        var itemPriceStat = _playerManager.GetItemPriceStat;
+        var finalPrice = (basePrice + _currentWave + (basePrice * 0.1f * _currentWave)) 
+            * (100 + itemPriceStat) / 100f;
+        
+        return Mathf.FloorToInt(finalPrice);
+    }
     
     private void SpawnEnemy(WaveData waveData)
     {

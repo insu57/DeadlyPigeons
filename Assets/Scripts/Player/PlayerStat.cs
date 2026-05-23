@@ -25,6 +25,7 @@ public class PlayerStat : MonoBehaviour
     [field: SerializeField] private float currentExp;
     private int TargetExp => (CurrentLevel + 3) * (CurrentLevel + 3);
     private int MaxHp => _finalMainStatDict[MainStats.MaxHP];
+    public int ItemPrice => _finalSubStatDict[SubStats.ItemPrice];
     
     private const int DefaultMaxHP = 10;
     private const int DefaultFoodHeal = 3;

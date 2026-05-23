@@ -23,6 +23,7 @@ public struct ItemStat
     public ItemClass itemClass;
     public int tier;
     public int max;
+    public int price;
     public Sprite icon;
     public List<StatAmount> statValues;
     public List<StatAmount> statMultipliers;
@@ -40,6 +41,7 @@ public class ItemData : ScriptableObject
     [field: SerializeField] public string Description { get; private set; }
     [field: SerializeField] public int Tier { get; private set; }
     [field: SerializeField] public int Max { get; private set; }
+    [field: SerializeField] public int Price { get; private set; }
     [field: SerializeField] public Sprite Icon { get; private set; }
     [field: SerializeField] public ItemClass ItemClass { get; private set; }
     [field: SerializeField] public List<StatAmount> StatValues { get; private set; } //스탯 수치 증감량
@@ -78,6 +80,8 @@ public class ItemData : ScriptableObject
         Description = itemStat.description;
         ItemClass = itemStat.itemClass;
         Tier = itemStat.tier;
+        Max =  itemStat.max;
+        Price = itemStat.price;
         Icon = itemStat.icon;
         StatValues = itemStat.statValues;
         StatMultipliers = itemStat.statMultipliers;

@@ -113,13 +113,15 @@ public class PlayerManager : MonoBehaviour
         _playerStat.ChangeMoney(money);
     }
     
-    private void AddItem(ItemData itemData)
+    public void AddItem(ItemData itemData)
     {
         itemDataList.Add(itemData);
         _playerStat.AddItem(itemData);
         int idx = itemDataList.Count - 1;
         OnAddItem?.Invoke(itemData, idx);
     }
+
+    public int GetItemPriceStat => _playerStat.ItemPrice;
     
     private void InitWeapons(List<WeaponData> initWeaponList) //무기 초기화
     {
