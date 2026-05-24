@@ -56,7 +56,8 @@ public class StageManager : MonoBehaviour
     private int _storeRerollPrice;
     private int _storeRerollIncrease;
     private int _storeRerollCount;
-
+    private StoreData _storeData;
+    
     //test
     [SerializeField] private CharacterData testChar;
     [SerializeField] private List<WeaponData> testWeapon;
@@ -109,6 +110,7 @@ public class StageManager : MonoBehaviour
         _stageUI.OnRerollUpgrade += HandleOnRerollUpgrade;
         _stageUI.OnUseCrateItem += HandleOnUseCrateItem;
         _stageUI.OnSellCrateItem += HandleOnSellCrateItem;
+        _stageUI.OnStorePanelShowClassInfo += HandleOnStorePanelShowClassInfo;
 
         //웨이브 시작
         StartWave();
@@ -127,7 +129,7 @@ public class StageManager : MonoBehaviour
         InputManager.Instance.Input.Global.Enable();
 
         //상점 UI
-        _stageUI.Init(_playerManager, UpgradeOptionCount);
+        _stageUI.Init(_playerManager, UpgradeOptionCount, StoreOptionCount);
     }
 
     private void InitPlayer() //플레이어 초기화.
@@ -149,6 +151,7 @@ public class StageManager : MonoBehaviour
 
         _playerManager.OnPlayerLevelUp += OnLevelUp;
         _playerManager.OnCratePickup += OnCratePickup;
+        _playerManager.OnUpdateMoney += money => _stageUI.UpdateMoney(money);
     }
 
     private void StartWave()
@@ -254,7 +257,7 @@ public class StageManager : MonoBehaviour
         }
         else
         {
-            _stageUI.OpenStoreUI();
+            ShowStorePanel();
         }
     }
 
@@ -400,6 +403,49 @@ public class StageManager : MonoBehaviour
         _stageUI.OpenCrateUI(itemData, _currentCrateItemPrice);
     }
 
+    private void ShowStorePanel()
+    {
+        var items = new List<(ItemData itemData, int price, int idx)>();
+        var weapons = new List<(CurrentWeaponStat weaponStat, int price, int idx)>();
+        
+        for (int idx = 0; idx < StoreOptionCount; idx++)
+        {
+            var isItem = Random.Range(0, 2);
+            var tier = RollTier(_currentWave);
+            if (isItem == 1)
+            {
+                //Item
+                var itemDataList = DataManager.Instance.ItemTierDict[tier];
+                var itemDataIdx = Random.Range(0, itemDataList.Count);
+                var itemData = itemDataList[itemDataIdx];
+                var price = GetItemPrice(itemData);
+                items.Add((itemData, price, idx));
+            }
+            else
+            {
+                //Weapon
+                var weaponDataList = DataManager.Instance.WeaponTierDict[tier];
+                var weaponDataIdx = Random.Range(0, weaponDataList.Count);
+                var weaponData = weaponDataList[weaponDataIdx];
+                var price = GetWeaponPrice(weaponData, tier);
+
+                var weaponStat = _playerManager.GetWeaponStat(weaponData, tier);
+                
+                weapons.Add((weaponStat,price, idx));
+            }
+        }
+
+        var storeData = new StoreData
+        {
+            Items =  items, Weapons = weapons,
+            RerollPrice = _storeRerollPrice
+        };
+        
+        _storeData = storeData;
+        
+        _stageUI.OpenStoreUI(storeData);
+    }
+    
     private void HandleOnUseCrateItem()
     {
         _playerManager.AddItem(_currentCrateItem);
@@ -408,7 +454,6 @@ public class StageManager : MonoBehaviour
         
         OpenWaveEndUI();
     }
-
 
     private void HandleOnSellCrateItem()
     {
@@ -427,6 +472,43 @@ public class StageManager : MonoBehaviour
             * (100 + itemPriceStat) / 100f;
         
         return Mathf.FloorToInt(finalPrice);
+    }
+
+    private int GetWeaponPrice(WeaponData weaponData, int tier)
+    {
+        var initTier = weaponData.WeaponStat.initTier;
+        var tierIdx = tier - initTier;
+        var basePrice = weaponData.WeaponStat.prices[tierIdx];
+        var itemPriceStat = _playerManager.GetItemPriceStat;
+        var finalPrice = (basePrice + _currentWave + (basePrice * 0.1f * _currentWave)) 
+            * (100 + itemPriceStat) / 100f;
+        
+        return Mathf.FloorToInt(finalPrice);
+    }
+
+    private void HandleOnStorePanelShowClassInfo(int idx)
+    {
+        foreach (var (itemData, _, itemIdx) in _storeData.Items)
+        {
+            if (itemIdx == idx)
+            {
+                var classes = new List<ItemClass> { itemData.ItemClass }; //수정?
+
+                _stageUI.ShowStorePanelClassInfo(classes, idx);
+                return;
+            }
+        }
+
+        foreach (var (weaponStat, _, weaponIdx) in _storeData.Weapons)
+        {
+            if (weaponIdx == idx)
+            {
+                var classes = weaponStat.WeaponData.WeaponStat.classes;
+                
+                _stageUI.ShowStorePanelClassInfo(classes, idx);
+                return;
+            }
+        }
     }
     
     private void SpawnEnemy(WaveData waveData)

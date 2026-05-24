@@ -11,7 +11,7 @@ public class PlayerManager : MonoBehaviour
     [field: SerializeField] private List<GameObject> weaponParents;
     [field: SerializeField] private List<PlayerWeapon> playerWeapons;
     [SerializeField] private PlayerWeapon playerWeaponPrefab;
-    private Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
+    public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
     private int _weaponSlotCount = 6; //추후 패시브 등으로 바뀔 수 있음.
     private int _currentWeaponCount = 0;
     public bool WeaponIsFull => _currentWeaponCount == _weaponSlotCount;
@@ -26,10 +26,11 @@ public class PlayerManager : MonoBehaviour
     
     public event Action OnPlayerLevelUp;
     public event Action OnCratePickup;
+    public event Action<int> OnUpdateMoney; 
 
     public event Action<Sprite, int> OnAddWeapon;
     public event Action<ItemData, int> OnAddItem;
-    public event Action<Dictionary<WeaponClasses, int>> OnSetWeaponClassBonus; 
+    //public event Action<Dictionary<WeaponClasses, int>> OnSetWeaponClassBonus; 
     
     private readonly Collider2D[] _hitBuffer = new Collider2D[100];
     
@@ -104,6 +105,7 @@ public class PlayerManager : MonoBehaviour
     private void UpdateMoney(int money)
     {
         _playerInfoUI.UpdateMoney(money);
+        OnUpdateMoney?.Invoke(money);
     }
 
     public int GetMoney => _playerStat.Money;
@@ -122,6 +124,9 @@ public class PlayerManager : MonoBehaviour
     }
 
     public int GetItemPriceStat => _playerStat.ItemPrice;
+
+    public CurrentWeaponStat GetWeaponStat(WeaponData weaponData, int tier) =>
+        _playerStat.GetWeaponStat(weaponData, tier);
     
     private void InitWeapons(List<WeaponData> initWeaponList) //무기 초기화
     {
@@ -131,6 +136,7 @@ public class PlayerManager : MonoBehaviour
             playerWeapons.Add(playerWeapon);
             playerWeapon.SetCenter(transform);
             playerWeapon.gameObject.SetActive(false);
+            playerWeapon.InitPlayerWeapon(_playerStat.FinalMainStat, _playerStat.FinalSubStat);
             //PlayerWeapon 초기화
         }
         
@@ -223,7 +229,7 @@ public class PlayerManager : MonoBehaviour
         {
             if (playerWeapon.WeaponData)
             {
-                playerWeapon.UpdateMainStats(stat, value);
+                playerWeapon.UpdateStat(stat);
             }
         }
     }
@@ -236,7 +242,7 @@ public class PlayerManager : MonoBehaviour
         {
             if (playerWeapon.WeaponData)
             {
-                playerWeapon.UpdateSubStats(stat, value);
+                playerWeapon.UpdateStat(stat);
             }
         }
     }
@@ -277,13 +283,19 @@ public class PlayerManager : MonoBehaviour
     public void HandleOnShowWeaponInfo(int index, SelectButton selectBtn, ItemGridUI itemGridUI) //무기 정보 표시
     {
         var playerWeapon =  playerWeapons[index];
-        var currentWeaponStat = playerWeapon.GetCurrentWeaponStat();
-        itemGridUI.GetCurrentWeaponInfo(currentWeaponStat, selectBtn, index);
+        //var currentWeaponStat = playerWeapon.GetCurrentWeaponStat();
+        var finalMain = _playerStat.FinalMainStat;
+        var finalSub = _playerStat.FinalSubStat;
+        var currentWeaponStat = WeaponStatCalculator.GetCurrentWeaponStat
+            (playerWeapon.WeaponData, playerWeapon.Tier, finalMain, finalSub);
+        itemGridUI.ShowWeaponInfo(currentWeaponStat, selectBtn, index);
     }
+
+    
 
     private void SetWeaponClassBonus() //클래스 보너스 업데이트
     { 
-        OnSetWeaponClassBonus?.Invoke(WeaponClassDict);
+        //OnSetWeaponClassBonus?.Invoke(WeaponClassDict); //개선?
         
         foreach (var (weaponClass,bonus) in WeaponClassDict)
         {

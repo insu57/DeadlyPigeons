@@ -12,6 +12,14 @@ public enum WaveEndState //늘어나면 수정.
     Store,
 }
 
+public struct StoreData
+{
+    //최대 4개
+    public List<(ItemData itemData, int price, int idx)> Items;
+    public List<(CurrentWeaponStat weaponStat, int price, int idx)> Weapons;
+    public int RerollPrice;
+}
+
 public class StageUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI waveTimer;
@@ -50,7 +58,15 @@ public class StageUI : MonoBehaviour
     [Header("Store")]
     [SerializeField] private GameObject storeUI;
     [SerializeField] private ItemGridUI itemGridUI;
+    [SerializeField] private GridLayoutGroup storePanelGrid;
+    private StorePanel[] _storePanels;
+    [SerializeField] private StorePanel storePanelPrefab;
     [SerializeField] private Button nextWaveBtn;
+    [SerializeField] private Button storeRerollBtn;
+    [SerializeField] private TextMeshProUGUI storeRerollPriceTxt;
+    [SerializeField] private ClassInfoPanel storeClassInfoPanel;
+    [SerializeField] private TextMeshProUGUI playerMoney;
+    public event Action<int> OnStorePanelShowClassInfo; 
 
     private StringBuilder _sb;
     
@@ -68,7 +84,7 @@ public class StageUI : MonoBehaviour
         crateItemSellBtn.onClick.AddListener( () => OnSellCrateItem?.Invoke() );
     }
 
-    public void Init(PlayerManager playerManager, int upgradeOptionCount)
+    public void Init(PlayerManager playerManager, int upgradeOptionCount, int storeOptionCount)
     {
         itemGridUI.Init(playerManager);
         
@@ -82,6 +98,19 @@ public class StageUI : MonoBehaviour
             int panelIdx = i;
             _upgradePanels[i].SelectBtn.onClick.AddListener( () => OnSelectStatUpgrade?.Invoke(panelIdx) );
         }
+
+        _storePanels = new StorePanel[storeOptionCount];
+        
+        for (int i = 0; i < storeOptionCount; i++)
+        {
+            var storePanel = Instantiate(storePanelPrefab, storePanelGrid.transform);
+            storePanel.InitStorePanel(i);
+            storePanel.InitInfoPanel(storeClassInfoPanel);
+            storePanel.OnShowClassInfoPanel += idx => OnStorePanelShowClassInfo?.Invoke(idx);
+            _storePanels[i] = storePanel;
+        }
+        
+        storeClassInfoPanel.SetClassBonusDict(playerManager.WeaponClassDict);
     }
     
     
@@ -113,6 +142,13 @@ public class StageUI : MonoBehaviour
         _sb.Append('x').Append(count);
         lvUpCountTxt.SetText(_sb);
         if (count > 0) lvUpIcon.SetActive(true);
+    }
+
+    public void UpdateMoney(int money)
+    {
+        _sb.Clear();
+        _sb.Append(money);
+        playerMoney.SetText(_sb);
     }
     
     private void ShowWaveEndPanel(WaveEndState waveEndState)
@@ -161,9 +197,39 @@ public class StageUI : MonoBehaviour
         crateInfoPanel.ShowItemInfo(itemData);
     }
 
-    public void OpenStoreUI()
+    public void OpenStoreUI(StoreData storeData)
     {
         ShowWaveEndPanel(WaveEndState.Store);
+        
+        _sb.Clear();
+        _sb.Append(storeData.RerollPrice);
+        storeRerollPriceTxt.SetText(_sb);
+
+        foreach (var (itemData, price, idx) in storeData.Items)
+        {
+            _storePanels[idx].SetStorePanel(itemData, price);
+        }
+
+        foreach (var (weaponStat, price, idx) in storeData.Weapons)
+        {
+            //wip
+            _storePanels[idx].SetStorePanel(weaponStat, price);
+        }
+        
+        // 무기 리스트, 아이템 리스트. 각 wave+itemPrice 반영된 구매가격
+
+
         //상점...
+    }
+
+    public void ShowStorePanelClassInfo(List<ItemClass> classes, int idx)
+    {
+        //StorePanel.
+        _storePanels[idx].ShowClassInfoPanel(classes);
+    }
+    
+    public void ShowStorePanelClassInfo(List<WeaponClasses> classes, int idx)
+    {
+        _storePanels[idx].ShowClassInfoPanel(classes);
     }
 }

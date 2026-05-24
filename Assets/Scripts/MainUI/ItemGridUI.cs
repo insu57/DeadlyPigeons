@@ -19,10 +19,10 @@ public class ItemGridUI : MonoBehaviour
         playerManager.OnAddWeapon += AddWeapon;
         playerManager.OnAddItem +=  AddItem;
        
-        playerManager.OnSetWeaponClassBonus += SetWeaponClassBonus;
-        OnShowWeaponInfo += playerManager.HandleOnShowWeaponInfo;
+        //playerManager.OnSetWeaponClassBonus += SetWeaponClassBonus;
+        classInfo.SetWeaponClassBonusDict(playerManager.WeaponClassDict);
         
-        infoPanel.Init();
+        OnShowWeaponInfo += playerManager.HandleOnShowWeaponInfo;
     }
     
     private void AddWeapon(Sprite sprite, int index)
@@ -63,7 +63,7 @@ public class ItemGridUI : MonoBehaviour
         infoPanel.gameObject.SetActive(true);
     }
 
-    public void GetCurrentWeaponInfo(CurrentWeaponStat currentWeaponStat, SelectButton selectButton, int weaponIdx) //무기 정보 표시
+    public void ShowWeaponInfo(CurrentWeaponStat currentWeaponStat, SelectButton selectButton, int weaponIdx) //무기 정보 표시
     {
         SetInfoPanel(weaponGrid.constraintCount, weaponIdx, selectButton);//피봇 설정 관련 개선?
         infoPanel.ShowWeaponInfo(currentWeaponStat);
@@ -81,9 +81,5 @@ public class ItemGridUI : MonoBehaviour
     {
         infoPanel.gameObject.SetActive(false);
     }
-    
-    private void SetWeaponClassBonus(Dictionary<WeaponClasses, int> weaponsBonusDict)
-    {
-        classInfo.SetWeaponClassBonusDict(weaponsBonusDict);
-    }
+
 }

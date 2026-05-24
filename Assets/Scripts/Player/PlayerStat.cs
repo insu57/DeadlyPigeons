@@ -37,7 +37,15 @@ public class PlayerStat : MonoBehaviour
     private readonly Dictionary<SubStats, int> _subStatDict = new();
     private readonly Dictionary<SubStats, int> _subStatBonusDict = new();
     private readonly Dictionary<SubStats, int> _finalSubStatDict = new();
+
+    public IReadOnlyDictionary<MainStats, int> FinalMainStat => _finalMainStatDict;
+    public IReadOnlyDictionary<SubStats, int> FinalSubStat => _finalSubStatDict;
    
+    //Weapons Stat 
+    private const float AttackSpeedScaler = 0.01f; //공격 속도 상수(스탯이 늘어나면 속도가 0에 가까워짐)
+    private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
+    private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
+    
     //체력회복은 초당 얼만큼?? 1부터 ~, 패시브, 아이템 등으로 깎인다면? -> 두 개는 별개로?
     public event Action<MainStats, int> OnChangeMainStats;
     public event Action<SubStats, int> OnChangeSubStats;
@@ -272,4 +280,11 @@ public class PlayerStat : MonoBehaviour
         var healAmount = DefaultFoodHeal + _finalSubStatDict[SubStats.FoodHeal];
         Heal(healAmount);
     }
+
+    public CurrentWeaponStat GetWeaponStat(WeaponData weaponData, int tier)
+    {
+        return WeaponStatCalculator.GetCurrentWeaponStat(weaponData, tier, _finalMainStatDict, _finalSubStatDict);
+    }
 }
+
+

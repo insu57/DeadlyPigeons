@@ -14,9 +14,13 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
 
-    public void Init()
+    public event Action OnShowClassInfoPanel;
+    
+    public void Init(ClassInfoPanel classInfoPanel)
     {
-        classInfo.Init();
+        classInfo.Init(classInfoPanel);
+        
+        classInfo.OnShowClassInfoPanel += () => OnShowClassInfoPanel?.Invoke();
     }
     
     public void ShowWeaponInfo(CurrentWeaponStat weapon)
@@ -135,6 +139,7 @@ public class InfoPanel : MonoBehaviour
 
     public void ShowItemInfo(ItemData item)
     {
+        //PlayerStat 정보가 필요하면 수정.
         var sb = StatUtil.StringBuilder;
         
         nameTxt.text = item.ItemName;
@@ -152,9 +157,15 @@ public class InfoPanel : MonoBehaviour
         GetItemStatTxt(item.ID);
         descriptionTxt.SetText(sb);
         
-        classInfo.ShowItemClassInfo(item.ItemClass);
+        var classes = new List<ItemClass> { item.ItemClass }; //개선 필요
+        classInfo.ShowItemClassInfo(classes);
     }
 
+    public void ShowItemClassInfo(List<ItemClass> itemClasses)
+    {
+        classInfo.ShowItemClassInfo(itemClasses);
+    }
+    
     public static void GetItemStatTxt(int itemID)
     {
         var passiveData = DataManager.Instance.ItemDict[itemID];

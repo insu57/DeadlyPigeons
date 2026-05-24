@@ -30,8 +30,11 @@ public class PlayerWeapon : MonoBehaviour
     private Hitbox _hitbox;
     private float _targetDist;
 
-    private Dictionary<MainStats, int> _mainStats = new();
-    private Dictionary<SubStats, int> _subStats = new();
+   // private Dictionary<MainStats, int> _mainStats = new();
+    //private Dictionary<SubStats, int> _subStats = new();
+
+    private IReadOnlyDictionary<MainStats, int> _mainStats;
+    private IReadOnlyDictionary<SubStats, int> _subStats;
 
     public int FinalDamage {get; private set;}
 
@@ -84,17 +87,6 @@ public class PlayerWeapon : MonoBehaviour
     private void Awake()
     {
         _hitbox = GetComponentInChildren<Hitbox>();
-        
-        for (int i = 0; i < (int)MainStats.None; i++)
-        {
-            _mainStats[(MainStats)i] = 0;
-        }
-
-        for (int i = 0; i < (int)SubStats.None; i++)
-        {
-            _subStats[(SubStats)i] = 0;
-        }
-        
     }
     
     private void Update()
@@ -105,6 +97,15 @@ public class PlayerWeapon : MonoBehaviour
         MeleeAnimation();
     }
 
+
+    public void InitPlayerWeapon(IReadOnlyDictionary<MainStats, int> mainStats,
+        IReadOnlyDictionary<SubStats, int> subStats)
+    {
+        _mainStats = mainStats;
+        _subStats = subStats;
+    }
+    
+    
     public void SetWeaponData(WeaponData weaponData, int tier)
     {
         WeaponData = weaponData;
@@ -146,7 +147,7 @@ public class PlayerWeapon : MonoBehaviour
             effect.Init(this, initValues); //수치 주입
         }
         
-        FinalDamage = GetDamage();
+        FinalDamage = WeaponStatCalculator.GetWeaponDamage(weaponData,  tier, _mainStats);
         
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
     }
@@ -174,25 +175,18 @@ public class PlayerWeapon : MonoBehaviour
         _targetInfo = target;
     }
 
-    public void UpdateMainStats(MainStats stat, int value)
+    public void UpdateStat(MainStats stat)
     {
-        _mainStats[stat] = value;
-        FinalDamage = GetDamage();
-     
-        if (stat == MainStats.Range)
-        {
-            _finalRange = GetRange();
-        }
-        else if (stat == MainStats.AttackSpeed)
-        {
-            FinalAttackSpeed = GetAttackSpeed();
-        }
+        FinalDamage = WeaponStatCalculator.GetWeaponDamage(WeaponData, Tier, _mainStats);
+        if(stat ==  MainStats.Range) 
+            _finalRange = WeaponStatCalculator.GetRealRange(WeaponData, Tier, _mainStats);
+        else if(stat == MainStats.AttackSpeed) 
+           FinalAttackSpeed = WeaponStatCalculator.GetAttackSpeed(WeaponData, Tier, _mainStats);
     }
 
-    public void UpdateSubStats(SubStats stat, int value)
+    public void UpdateStat(SubStats stat)
     {
-        _subStats[stat] = value;
-        FinalDamage = GetDamage();
+        FinalDamage = WeaponStatCalculator.GetWeaponDamage(WeaponData, Tier, _mainStats);
     }
 
     public void SetCenter(Transform center)
@@ -375,6 +369,7 @@ public class PlayerWeapon : MonoBehaviour
         }
     }
 
+    /*
     private int GetDamage()
     {
         //(기본 데미지 + (스탯 * 계수 + ...)) * 데미지 배율 + 고유효과 적용
@@ -427,6 +422,7 @@ public class PlayerWeapon : MonoBehaviour
         return finalAttackSpeed;
     }
 
+    //개선방안?
     public CurrentWeaponStat GetCurrentWeaponStat()
     {
         var weaponStat = WeaponData.WeaponStat;
@@ -453,5 +449,105 @@ public class PlayerWeapon : MonoBehaviour
         };
 
         return currentWeaponStat;
+    }*/
+}
+
+public static class WeaponStatCalculator
+{
+    //Weapons Stat 
+    private const float AttackSpeedScaler = 0.01f; //공격 속도 상수(스탯이 늘어나면 속도가 0에 가까워짐)
+    private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
+    private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
+    
+    public static CurrentWeaponStat GetCurrentWeaponStat(WeaponData weaponData, int tier, 
+        IReadOnlyDictionary<MainStats, int> finalMainStatDict, IReadOnlyDictionary<SubStats, int> finalSubStatDict)
+    {
+        var weaponStat = weaponData.WeaponStat;
+        var statMultipliers = new List<(MainStats MainStats, int multipleir)>();
+
+        var tierIdx = tier - weaponStat.initTier;
+        
+        foreach (var statMultiplier in weaponStat.damageMultipliers)
+        {
+            var mainStat = statMultiplier.stat;
+            var multiplier = statMultiplier.value[tierIdx];
+            statMultipliers.Add((mainStat, multiplier));
+        }
+        var currentWeaponStat = new CurrentWeaponStat
+        {
+            WeaponData = weaponData,
+            Tier = tier,
+            Damage = GetWeaponDamage(weaponData, tier, finalMainStatDict),
+            StatMultipliers = statMultipliers,
+            CritDamage = weaponStat.critDamage[tierIdx],
+            CritChance = weaponStat.critChance[tierIdx] + finalMainStatDict[MainStats.CritChance],
+            AttackSpeed = GetAttackSpeed(weaponData, tier, finalMainStatDict),
+            KnockBack = weaponStat.knockBack[tierIdx] + finalSubStatDict[SubStats.Knockback],
+            Range =  weaponStat.range[tierIdx] + finalMainStatDict[MainStats.Range],
+            IsMelee = weaponStat.isMelee,
+            HealthAbsorb = weaponStat.healthAbsorb[tierIdx] + finalMainStatDict[MainStats.HealthAbsorb],
+        };
+        
+        return currentWeaponStat;
+    }
+    
+    public static int GetWeaponDamage(WeaponData weaponData, int tier, 
+        IReadOnlyDictionary<MainStats, int> finalMainStatDict)
+    {
+        //(기본 데미지 + (스탯 * 계수 + ...)) * 데미지 배율 + 고유효과 적용
+
+        var tierIdx = tier - weaponData.WeaponStat.initTier;
+        
+        int baseDamage = weaponData.WeaponStat.baseDamage[tierIdx]; //기본데미지(티어별)
+        int statDamageSum = 0;//총 스탯 추가 데미지
+        
+        foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers)
+        {
+            var stat = statMultiplier.stat; //스탯 종류 -> SubStat도 추가?
+            var value = statMultiplier.value[tierIdx]; //계수(티어별)
+            var statAmount = finalMainStatDict[stat]; //현재 스탯
+            int statDamage =  Mathf.FloorToInt(statAmount * (value / 100f)); //소수점 이하 버리기
+            statDamageSum += statDamage;
+        }
+        
+        float finalDamage = (baseDamage + statDamageSum) * (1f + finalMainStatDict[MainStats.Damage] / 100f);
+        //최종 데미지 배율 적용
+        
+        if(finalDamage < 1) finalDamage = 1; //최소치 1 데미지.
+        
+        return Mathf.FloorToInt(finalDamage + 0.5f);//반올림.
+    }
+    
+    public static float GetAttackSpeed(WeaponData weaponData, int tier, 
+        IReadOnlyDictionary<MainStats, int> finalMainStatDict)
+    {
+        var tierIdx = tier - weaponData.WeaponStat.initTier;
+        var baseAttackSpeed = weaponData.WeaponStat.attackSpeed[tierIdx];
+        var attackSpeedStat = finalMainStatDict[MainStats.AttackSpeed];
+        var finalAttackSpeed = baseAttackSpeed / (1 + (AttackSpeedScaler * attackSpeedStat)); 
+        //공격 속도 스탯이 늘어나면 0에 가까워짐.(0은 되지않음) 스탯 100이면 공격 간 시간(대기시간)이 절반으로 감소
+        return finalAttackSpeed;
+    }
+    
+    public static float GetRealRange(WeaponData weaponData, int tier, 
+        IReadOnlyDictionary<MainStats, int> finalMainStatDict)
+    {
+        var tierIdx = tier - weaponData.WeaponStat.initTier;
+        
+        //최소 범위 처리?
+        if (weaponData.WeaponStat.isMelee)
+        {
+            //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
+            var finalRange = (weaponData.WeaponStat.range[tierIdx] 
+                              + finalMainStatDict[MainStats.Range] * MeleeRangeMultiplier) / RangeScaler;
+            return finalRange;
+        }
+        else
+        {
+            //(기본 범위 + 범위 스탯) / 범위 조절(유닛)
+            float finalRange = (float)(weaponData.WeaponStat.range[tierIdx] + finalMainStatDict[MainStats.Range] )
+                               /  RangeScaler;
+            return finalRange;
+        }
     }
 }
