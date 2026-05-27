@@ -15,6 +15,7 @@ public enum WaveEndState //늘어나면 수정.
 public struct StoreData
 {
     //최대 4개
+    public int Money;
     public List<(ItemData itemData, int price, int idx)> Items;
     public List<(CurrentWeaponStat weaponStat, int price, int idx)> Weapons;
     public int RerollPrice;
@@ -45,8 +46,7 @@ public class StageUI : MonoBehaviour
     private UpgradePanel[] _upgradePanels;
     public event Action<int> OnSelectStatUpgrade;
     public event Action OnRerollUpgrade;
-    public event Action OnUseCrateItem;
-    public event Action OnSellCrateItem;
+    
     
     [Header("Crate")]
     [SerializeField] private GameObject crateUI;
@@ -54,6 +54,8 @@ public class StageUI : MonoBehaviour
     [SerializeField] private Button crateItemUseBtn;
     [SerializeField] private Button crateItemSellBtn;
     [SerializeField] private TextMeshProUGUI crateItemPriceTxt;
+    public event Action OnUseCrateItem;
+    public event Action OnSellCrateItem;
     
     [Header("Store")]
     [SerializeField] private GameObject storeUI;
@@ -66,7 +68,9 @@ public class StageUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI storeRerollPriceTxt;
     [SerializeField] private ClassInfoPanel storeClassInfoPanel;
     [SerializeField] private TextMeshProUGUI playerMoney;
-    public event Action<int> OnStorePanelShowClassInfo; 
+    public event Action<int> OnStorePanelShowClassInfo;
+    public event Action OnRerollStore;
+    public event Action<int> OnBuyStore;
 
     private StringBuilder _sb;
     
@@ -82,6 +86,8 @@ public class StageUI : MonoBehaviour
         rerollUpgradeBtn.onClick.AddListener( () => OnRerollUpgrade?.Invoke() );
         crateItemUseBtn.onClick.AddListener( () => OnUseCrateItem?.Invoke() );
         crateItemSellBtn.onClick.AddListener( () => OnSellCrateItem?.Invoke() );
+
+        storeRerollBtn.onClick.AddListener(() => OnRerollStore?.Invoke());
     }
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount, int storeOptionCount)
@@ -107,6 +113,8 @@ public class StageUI : MonoBehaviour
             storePanel.InitStorePanel(i);
             storePanel.InitInfoPanel(storeClassInfoPanel);
             storePanel.OnShowClassInfoPanel += idx => OnStorePanelShowClassInfo?.Invoke(idx);
+            var storePanelIdx = i;
+            storePanel.BuyBtn.onClick.AddListener(() => OnBuyStore?.Invoke(storePanelIdx));
             _storePanels[i] = storePanel;
         }
         
@@ -170,18 +178,23 @@ public class StageUI : MonoBehaviour
         }
     }
 
-    public void UpdateUpgradeRerollPrice(int rerollPrice, bool canReroll)
+    private void GetRerollPriceTxt(int rerollPrice, bool canReroll)
     {
         _sb.Clear();
-
         if (canReroll)
         {
-            _sb.AppendColor("-" + rerollPrice, 1);
+            _sb.Append('-').Append(rerollPrice);
         }
         else
         {
-            _sb.AppendColor("-" + rerollPrice, -1);
-        }
+            _sb.AppendColor("-", -1);
+            _sb.AppendColor(rerollPrice, -1);
+        } 
+    }
+    
+    public void UpdateUpgradeRerollPrice(int rerollPrice, bool canReroll)
+    {
+        GetRerollPriceTxt(rerollPrice, canReroll);
         
         upgradeRerollPriceTxt.SetText(_sb);
     }
@@ -200,26 +213,39 @@ public class StageUI : MonoBehaviour
     public void OpenStoreUI(StoreData storeData)
     {
         ShowWaveEndPanel(WaveEndState.Store);
+
+        UpdateMoney(storeData.Money);
         
-        _sb.Clear();
-        _sb.Append(storeData.RerollPrice);
+        var canReroll = storeData.RerollPrice <= storeData.Money;
+        GetRerollPriceTxt(storeData.RerollPrice, canReroll);
         storeRerollPriceTxt.SetText(_sb);
+
+        foreach (var storePanel in _storePanels)
+        {
+            storePanel.ActiveStorePanel(true);
+        }
 
         foreach (var (itemData, price, idx) in storeData.Items)
         {
-            _storePanels[idx].SetStorePanel(itemData, price);
+            var canBuy = price <= storeData.Money;
+            _storePanels[idx].SetStorePanel(itemData, price,  canBuy);
         }
 
         foreach (var (weaponStat, price, idx) in storeData.Weapons)
         {
-            //wip
-            _storePanels[idx].SetStorePanel(weaponStat, price);
+            var canBuy = price <= storeData.Money;
+            _storePanels[idx].SetStorePanel(weaponStat, price, canBuy);
         }
         
         // 무기 리스트, 아이템 리스트. 각 wave+itemPrice 반영된 구매가격
 
 
         //상점...
+    }
+
+    public void DisableStorePanelOnBuy(int idx)
+    {
+        _storePanels[idx].ActiveStorePanel(false);
     }
 
     public void ShowStorePanelClassInfo(List<ItemClass> classes, int idx)

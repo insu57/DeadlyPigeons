@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum EnemyStateType { Chase, Kite, Dash }
 public enum ShootStateType { None, Single }
-public enum TransitionCondition { HealthBelow, TimerElapsed }
+public enum TransitionCondition { HealthBelow, TimeElapsed }
 
 [Serializable]
 public struct StateTransition

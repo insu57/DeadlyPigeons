@@ -144,7 +144,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
                 float healthPct = (float)_health / enemyData.EnemyStat.baseHealth * 100f;
                 return healthPct < transition.threshold;
 
-            case TransitionCondition.TimerElapsed: //시간
+            case TransitionCondition.TimeElapsed: //시간
                 return _stateTimer >= transition.threshold;
 
             default:
@@ -221,7 +221,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
     public void DotDamage(int duration, int damage, float tick)
     {
         if (!gameObject.activeInHierarchy) return;//코루틴은 이것을 기준으로 체크함.
-
+        
         if (_activeDotCoroutine != null)
         {
             StopCoroutine(_activeDotCoroutine);

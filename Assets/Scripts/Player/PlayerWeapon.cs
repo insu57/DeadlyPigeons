@@ -96,15 +96,13 @@ public class PlayerWeapon : MonoBehaviour
         Attack();
         MeleeAnimation();
     }
-
-
+    
     public void InitPlayerWeapon(IReadOnlyDictionary<MainStats, int> mainStats,
         IReadOnlyDictionary<SubStats, int> subStats)
     {
         _mainStats = mainStats;
         _subStats = subStats;
     }
-    
     
     public void SetWeaponData(WeaponData weaponData, int tier)
     {

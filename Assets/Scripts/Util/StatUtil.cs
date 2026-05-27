@@ -218,6 +218,23 @@ public static class StatUtil
         }
         else sb.Append(str);
     }
+    
+    public static void AppendColor(this StringBuilder sb, float str, int sign)
+    {
+        if (sign > 0)
+        {
+            sb.Append("<color=").Append(GreenColor).Append(">");
+            sb.Append(str);
+            sb.Append("</color>");
+        }
+        else if (sign < 0)
+        {
+            sb.Append("<color=").Append(RedColor).Append(">");
+            sb.Append(str);
+            sb.Append("</color>");
+        }
+        else sb.Append(str);
+    }
 
     public static void AppendColorCompare(this StringBuilder sb, float value, float @default)
     {

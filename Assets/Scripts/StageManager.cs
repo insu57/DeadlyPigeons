@@ -111,6 +111,8 @@ public class StageManager : MonoBehaviour
         _stageUI.OnUseCrateItem += HandleOnUseCrateItem;
         _stageUI.OnSellCrateItem += HandleOnSellCrateItem;
         _stageUI.OnStorePanelShowClassInfo += HandleOnStorePanelShowClassInfo;
+        _stageUI.OnRerollStore += HandleOnRerollStore;
+        _stageUI.OnBuyStore += HandleOnBuyStore;
 
         //웨이브 시작
         StartWave();
@@ -182,23 +184,22 @@ public class StageManager : MonoBehaviour
         int maxSpawn = waveData.EnemySpawnCount;
         var spawnTick = new WaitForSeconds(waveData.SpawnTick);
 
-        while (elapsed < waveData.WaveLength && totalSpawned < maxSpawn)
+        while (elapsed < waveData.WaveLength)
         {
             yield return spawnTick;
-
+            if(totalSpawned > maxSpawn) continue;
+         
             elapsed += waveData.SpawnTick;
-
             var leftTime = waveData.WaveLength - elapsed;
             _stageUI.UpdateWaveTimer(leftTime);
 
-            int toSpawn = Mathf.Min(waveData.SpawnPerTick, maxSpawn - totalSpawned);
+            int toSpawn = waveData.SpawnPerTick;
             for (int i = 0; i < toSpawn; i++)
             {
                 SpawnEnemy(waveData);
                 totalSpawned++;
             }
         }
-
         //Wave 종료
         WaveEnd();
     }
@@ -332,7 +333,8 @@ public class StageManager : MonoBehaviour
             var config = tierWeightConfigs[i];
             raw[i] = progression < config.minProgression
                 ? 0f
-                : Mathf.Clamp(config.baseWeight + config.perProgression * (progression - config.minProgression), 0f, config.maxChance);
+                : Mathf.Clamp(config.baseWeight + config.perProgression * (progression - config.minProgression), 
+                    0f, config.maxChance);
         }
         
         // 실제 확률 = raw[i] - raw[i+1]
@@ -437,6 +439,7 @@ public class StageManager : MonoBehaviour
 
         var storeData = new StoreData
         {
+            Money = _playerManager.GetMoney,
             Items =  items, Weapons = weapons,
             RerollPrice = _storeRerollPrice
         };
@@ -507,6 +510,45 @@ public class StageManager : MonoBehaviour
                 
                 _stageUI.ShowStorePanelClassInfo(classes, idx);
                 return;
+            }
+        }
+    }
+
+    private void HandleOnRerollStore()
+    {
+        if(_storeRerollPrice > _playerManager.GetMoney) return;
+        
+        _playerManager.ChangeMoney(-_storeRerollPrice);
+        
+        _storeRerollPrice += _storeRerollIncrease;
+        
+        ShowStorePanel();
+    }
+
+    private void HandleOnBuyStore(int idx)
+    {
+        foreach (var (itemData, price, itemIdx) in _storeData.Items)
+        {
+            if (itemIdx == idx)
+            {
+                if(price > _playerManager.GetMoney) return;
+                _playerManager.ChangeMoney(-price);
+                _playerManager.AddItem(itemData);
+                
+                _stageUI.DisableStorePanelOnBuy(idx);
+            }
+        }
+
+        foreach (var (currentWeaponStat, price, weaponIdx) in _storeData.Weapons)
+        {
+            if (weaponIdx == idx)
+            {
+                if(price > _playerManager.GetMoney) return;
+                if(_playerManager.WeaponIsFull) return;
+                _playerManager.ChangeMoney(-price);
+                _playerManager.AddWeapon(currentWeaponStat.WeaponData, currentWeaponStat.Tier);
+                
+                _stageUI.DisableStorePanelOnBuy(idx);
             }
         }
     }

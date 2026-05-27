@@ -65,7 +65,8 @@ public class InfoPanel : MonoBehaviour
         sb.AppendLine("% 확률)");
         
         sb.AppendHeadString("쿨다운: ");
-        sb.AppendColorCompareReverse(weapon.AttackSpeed, weaponStat.attackSpeed[tierIdx]);
+        var attackSpeedF2 = Mathf.Floor(weapon.AttackSpeed * 100f) / 100f;//소수점 두자리까지만
+        sb.AppendColorCompareReverse(attackSpeedF2, weaponStat.attackSpeed[tierIdx]);
         sb.AppendLine("s");
 
         var knockback = weapon.KnockBack;

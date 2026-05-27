@@ -989,6 +989,6 @@ public class DataSync : MonoBehaviour
     }
     
     [ContextMenu("Sync Wave Data")]
-    public void SyncWaveDatatFromCSV()
+    public void SyncWaveDataFromCSV()
     {}
 }
