@@ -113,7 +113,23 @@ public class StageManager : MonoBehaviour
         _stageUI.OnStorePanelShowClassInfo += HandleOnStorePanelShowClassInfo;
         _stageUI.OnRerollStore += HandleOnRerollStore;
         _stageUI.OnBuyStore += HandleOnBuyStore;
+        _stageUI.OnNextWave += HandleOnNextWave;
 
+        _storeData = new StoreData
+        {
+            Money = 0, RerollPrice = 0
+        };
+        var items = new List<(ItemData itemData, int price, int idx)>();
+        var weapons = new List<(CurrentWeaponStat weaponStat, int price, int idx)>();
+        var isSold = new List<bool>();
+        for (int i = 0; i < StoreOptionCount; i++)
+        {
+            isSold.Add(false);
+        }
+        _storeData.Items = items;
+        _storeData.Weapons = weapons;
+        _storeData.IsSold = isSold;
+        
         //웨이브 시작
         StartWave();
     }
@@ -213,6 +229,8 @@ public class StageManager : MonoBehaviour
         {
             ObjectPoolingManager.Instance.ReleaseEnemy(enemy);
         }
+        
+        activeEnemies.Clear();
 
         //_stageUI.OpenStoreUI(true);
         //개선방안?
@@ -407,9 +425,8 @@ public class StageManager : MonoBehaviour
 
     private void ShowStorePanel()
     {
-        var items = new List<(ItemData itemData, int price, int idx)>();
-        var weapons = new List<(CurrentWeaponStat weaponStat, int price, int idx)>();
-        
+        _storeData.Items.Clear();
+        _storeData.Weapons.Clear();
         for (int idx = 0; idx < StoreOptionCount; idx++)
         {
             var isItem = Random.Range(0, 2);
@@ -421,7 +438,7 @@ public class StageManager : MonoBehaviour
                 var itemDataIdx = Random.Range(0, itemDataList.Count);
                 var itemData = itemDataList[itemDataIdx];
                 var price = GetItemPrice(itemData);
-                items.Add((itemData, price, idx));
+                _storeData.Items.Add((itemData, price, idx));
             }
             else
             {
@@ -433,21 +450,19 @@ public class StageManager : MonoBehaviour
 
                 var weaponStat = _playerManager.GetWeaponStat(weaponData, tier);
                 
-                weapons.Add((weaponStat,price, idx));
+                _storeData.Weapons.Add((weaponStat,price, idx));
             }
+            
+            _storeData.IsSold[idx]= false;
         }
 
-        var storeData = new StoreData
-        {
-            Money = _playerManager.GetMoney,
-            Items =  items, Weapons = weapons,
-            RerollPrice = _storeRerollPrice
-        };
+        _storeData.Money = _playerManager.GetMoney;
+        _storeData.RerollPrice = _storeRerollPrice;
         
-        _storeData = storeData;
-        
-        _stageUI.OpenStoreUI(storeData);
+        _stageUI.OpenStoreUI(_storeData);
     }
+
+    
     
     private void HandleOnUseCrateItem()
     {
@@ -495,7 +510,7 @@ public class StageManager : MonoBehaviour
         {
             if (itemIdx == idx)
             {
-                var classes = new List<ItemClass> { itemData.ItemClass }; //수정?
+                var classes = new List<ItemClass> { itemData.ItemClass }; //수정 필요.
 
                 _stageUI.ShowStorePanelClassInfo(classes, idx);
                 return;
@@ -536,6 +551,11 @@ public class StageManager : MonoBehaviour
                 _playerManager.AddItem(itemData);
                 
                 _stageUI.DisableStorePanelOnBuy(idx);
+
+                _storeData.IsSold[idx] = true;
+                
+                UpdateStorePanelCanBuy();
+                return;
             }
         }
 
@@ -549,10 +569,38 @@ public class StageManager : MonoBehaviour
                 _playerManager.AddWeapon(currentWeaponStat.WeaponData, currentWeaponStat.Tier);
                 
                 _stageUI.DisableStorePanelOnBuy(idx);
+                
+                _storeData.IsSold[idx] = true;
+
+                UpdateStorePanelCanBuy();
+                return;
             }
         }
     }
     
+    private void UpdateStorePanelCanBuy()
+    {
+        foreach (var (_, price, idx) in _storeData.Items)
+        {
+            if(_storeData.IsSold[idx]) continue;
+            var canBuy = price <= _playerManager.GetMoney;
+            _stageUI.UpdateStorePanelCanBuy(idx, price, canBuy);
+        }
+
+        foreach (var (_, price, idx) in _storeData.Weapons)
+        {
+            if(_storeData.IsSold[idx]) continue;
+            var canBuy = price <= _playerManager.GetMoney;
+            _stageUI.UpdateStorePanelCanBuy(idx, price, canBuy);
+        }
+    }
+
+    private void HandleOnNextWave()
+    {
+        _currentWave++;
+        StartWave();
+    }
+
     private void SpawnEnemy(WaveData waveData)
     {
         if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;

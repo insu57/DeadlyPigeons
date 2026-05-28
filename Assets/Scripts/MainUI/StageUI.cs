@@ -19,6 +19,7 @@ public struct StoreData
     public List<(ItemData itemData, int price, int idx)> Items;
     public List<(CurrentWeaponStat weaponStat, int price, int idx)> Weapons;
     public int RerollPrice;
+    public List<bool> IsSold;
 }
 
 public class StageUI : MonoBehaviour
@@ -71,6 +72,7 @@ public class StageUI : MonoBehaviour
     public event Action<int> OnStorePanelShowClassInfo;
     public event Action OnRerollStore;
     public event Action<int> OnBuyStore;
+    public event Action OnNextWave;
 
     private StringBuilder _sb;
     
@@ -88,6 +90,8 @@ public class StageUI : MonoBehaviour
         crateItemSellBtn.onClick.AddListener( () => OnSellCrateItem?.Invoke() );
 
         storeRerollBtn.onClick.AddListener(() => OnRerollStore?.Invoke());
+        
+        nextWaveBtn.onClick.AddListener(NextWave);
     }
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount, int storeOptionCount)
@@ -248,14 +252,24 @@ public class StageUI : MonoBehaviour
         _storePanels[idx].ActiveStorePanel(false);
     }
 
+    public void UpdateStorePanelCanBuy(int idx, int price, bool canBuy)
+    {
+        _storePanels[idx].UpdateStorePanelCanBuy(price, canBuy);
+    }
+
     public void ShowStorePanelClassInfo(List<ItemClass> classes, int idx)
     {
-        //StorePanel.
         _storePanels[idx].ShowClassInfoPanel(classes);
     }
     
     public void ShowStorePanelClassInfo(List<WeaponClasses> classes, int idx)
     {
         _storePanels[idx].ShowClassInfoPanel(classes);
+    }
+
+    private void NextWave()
+    {
+        waveEndUI.SetActive(false);
+        OnNextWave?.Invoke();
     }
 }

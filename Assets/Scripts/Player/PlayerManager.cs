@@ -171,18 +171,6 @@ public class PlayerManager : MonoBehaviour
 
     public void AddWeapon(WeaponData weaponData, int tier) //에러...
     {
-        /*
-         * InvalidOperationException: Collection was modified; enumeration operation may not execute.
-System.Collections.Generic.Dictionary`2+Enumerator[TKey,TValue].MoveNext () (at <932fbe8ac5a946808aa5d7b95844e18c>:0)
-PlayerStat.ResetStatClassBonus () (at Assets/Scripts/Player/PlayerStat.cs:144)
-PlayerManager.SetWeaponClassBonus () (at Assets/Scripts/Player/PlayerManager.cs:303)
-PlayerManager.AddWeapon (WeaponData weaponData, System.Int32 tier) (at Assets/Scripts/Player/PlayerManager.cs:190)
-StageManager.HandleOnBuyStore (System.Int32 idx) (at Assets/Scripts/StageManager.cs:549)
-StageUI+<>c__DisplayClass53_1.<Init>b__2 () (at Assets/Scripts/MainUI/StageUI.cs:117)
-UnityEngine.Events.InvokableCall.Invoke () (at <254a04541d1c4a7b9e9c9e594cf72b4c>:0)
-UnityEngine.Events.UnityEvent.Invoke () (at <254a04541d1c4a7b9e9c9e594cf72b4c>:0)
-UnityEngine.UI.Button.Press () (at ./Library/PackageCache/com.unity.ugui@cec3688a7c38/Runtime/UGUI/UI/Core/Button.cs:70)
-         */
         if(WeaponIsFull) return; //무기 최대.
         
         _currentWeaponCount++;//현재 무기 수 추가

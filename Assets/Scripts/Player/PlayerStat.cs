@@ -35,7 +35,7 @@ public class PlayerStat : MonoBehaviour
     private readonly Dictionary<MainStats, int> _mainStatMultiDict = new();//패시브 스탯 배수
     private readonly Dictionary<MainStats, int> _finalMainStatDict = new(); //최종 스탯
     private readonly Dictionary<SubStats, int> _subStatDict = new();
-    private readonly Dictionary<SubStats, int> _subStatBonusDict = new();
+    private readonly Dictionary<SubStats, int> _subStatClassBonus = new();
     private readonly Dictionary<SubStats, int> _finalSubStatDict = new();
 
     public IReadOnlyDictionary<MainStats, int> FinalMainStat => _finalMainStatDict;
@@ -70,7 +70,7 @@ public class PlayerStat : MonoBehaviour
         {
             SubStats subStat = (SubStats)i;
             _subStatDict.Add(subStat, 0);
-            _subStatBonusDict.Add(subStat, 0);
+            _subStatClassBonus.Add(subStat, 0);
             _finalSubStatDict.Add(subStat, 0);
         }
         
@@ -141,14 +141,16 @@ public class PlayerStat : MonoBehaviour
 
     public void ResetStatClassBonus()
     {
-        foreach (var (mainStat, _) in _mainStatClassBonus)
+        for (int i = 0; i < (int)MainStats.None; i++)
         {
-            _mainStatClassBonus[mainStat] = 0;
+            var key = (MainStats)i;
+            _mainStatClassBonus[key] = 0;
         }
 
-        foreach (var (subStat, _) in _subStatDict)
+        for (int i = 0; i < (int)SubStats.None; i++)
         {
-            _subStatBonusDict[subStat] = 0;
+            var key =  (SubStats)i;
+            _subStatClassBonus[key] = 0;
         }
     }
     
@@ -161,7 +163,7 @@ public class PlayerStat : MonoBehaviour
 
     public void UpdateStatClassBonus(SubStats subStat, int amount)
     {
-        _subStatBonusDict[subStat] += amount;
+        _subStatClassBonus[subStat] += amount;
         
         UpdateStat(subStat, amount);
     }
@@ -179,7 +181,7 @@ public class PlayerStat : MonoBehaviour
     private void UpdateStat(SubStats subStat, int amount)
     {
         _subStatDict[subStat] += amount;
-        int currentAmount =  _subStatDict[subStat] + _subStatBonusDict[subStat];
+        int currentAmount =  _subStatDict[subStat] + _subStatClassBonus[subStat];
         _finalSubStatDict[subStat] = currentAmount;
         
         OnChangeSubStats?.Invoke(subStat, _finalSubStatDict[subStat]);

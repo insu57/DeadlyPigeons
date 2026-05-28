@@ -40,10 +40,7 @@ public class StorePanel : MonoBehaviour
         
         infoPanel.ShowItemInfo(itemData);
         
-        sb.Clear();
-        if (canBuy) sb.Append(price);
-        else sb.AppendColor(price, -1);
-        priceText.SetText(sb);
+        UpdateStorePanelCanBuy(price, canBuy);
     }
 
     public void SetStorePanel(CurrentWeaponStat currentWeaponStat, int price, bool canBuy)
@@ -52,14 +49,21 @@ public class StorePanel : MonoBehaviour
         
         infoPanel.ShowWeaponInfo(currentWeaponStat);
         
-        sb.Clear();
-        if (canBuy) sb.Append(price);
-        else sb.AppendColor(price, -1);
-        priceText.SetText(sb);
+        UpdateStorePanelCanBuy(price, canBuy);
     }
 
     public void ActiveStorePanel(bool isActive)
     {
         parent.SetActive(isActive);
+    }
+
+    public void UpdateStorePanelCanBuy(int price, bool canBuy)
+    {
+        var sb = StatUtil.StringBuilder;
+        
+        sb.Clear();
+        if (canBuy) sb.Append(price);
+        else sb.AppendColor(price, -1);
+        priceText.SetText(sb);
     }
 }
