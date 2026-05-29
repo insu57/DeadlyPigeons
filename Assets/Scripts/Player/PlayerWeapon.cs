@@ -367,87 +367,7 @@ public class PlayerWeapon : MonoBehaviour
         }
     }
 
-    /*
-    private int GetDamage()
-    {
-        //(기본 데미지 + (스탯 * 계수 + ...)) * 데미지 배율 + 고유효과 적용
-        
-        int baseDamage = WeaponData.WeaponStat.baseDamage[TierIdx]; //기본데미지(티어별)
-        int statDamageSum = 0;//총 스탯 추가 데미지
-        
-        foreach (var statMultiplier in WeaponData.WeaponStat.damageMultipliers)
-        {
-            var stat = statMultiplier.stat; //스탯 종류
-            var value = statMultiplier.value[TierIdx]; //계수(티어별)
-            var statAmount = _mainStats[stat]; //현재 스탯
-            int statDamage =  Mathf.FloorToInt(statAmount * (value / 100f)); //소수점 이하 버리기
-            statDamageSum += statDamage;
-        }
-        
-        float finalDamage = (baseDamage + statDamageSum) * (1f + _mainStats[MainStats.Damage] / 100f);
-        //최종 데미지 배율 적용
-        
-        if(finalDamage < 1) finalDamage = 1; //최소치 1 데미지.
-        
-        return Mathf.FloorToInt(finalDamage + 0.5f);//반올림.
-    }
-
-    private float GetRange()
-    {
-        //최소 범위 처리?
-        if (WeaponData.WeaponStat.isMelee)
-        {
-            //(기본 범위 + 범위 스탯 / 근거리무기 범위 배율) / 범위 조절(유닛)
-            var finalRange = (WeaponData.WeaponStat.range[TierIdx] 
-                              + _mainStats[MainStats.Range] * MeleeRangeMultiplier) / RangeScaler;
-            return finalRange;
-        }
-        else
-        {
-            //(기본 범위 + 범위 스탯) / 범위 조절(유닛)
-            float finalRange = (float)(WeaponData.WeaponStat.range[TierIdx] + _mainStats[MainStats.Range] )
-                               /  RangeScaler;
-            return finalRange;
-        }
-    }
-
-    private float GetAttackSpeed()
-    {
-        var baseAttackSpeed = WeaponData.WeaponStat.attackSpeed[TierIdx];
-        var attackSpeedStat = _mainStats[MainStats.AttackSpeed];
-        var finalAttackSpeed = baseAttackSpeed / (1 + (AttackSpeedScaler * attackSpeedStat)); 
-        //공격 속도 스탯이 늘어나면 0에 가까워짐.(0은 되지않음) 스탯 100이면 공격 간 시간(대기시간)이 절반으로 감소
-        return finalAttackSpeed;
-    }
-
-    //개선방안?
-    public CurrentWeaponStat GetCurrentWeaponStat()
-    {
-        var weaponStat = WeaponData.WeaponStat;
-        var statMultipliers = new List<(MainStats MainStats, int multipleir)>();
-        foreach (var statMultiplier in weaponStat.damageMultipliers)
-        {
-            var mainStat = statMultiplier.stat;
-            var multiplier = statMultiplier.value[TierIdx];
-            statMultipliers.Add((mainStat, multiplier));
-        }
-        var currentWeaponStat = new CurrentWeaponStat
-        {
-            WeaponData = WeaponData,
-            Tier = Tier,
-            Damage = FinalDamage,
-            StatMultipliers = statMultipliers,
-            CritDamage = weaponStat.critDamage[TierIdx],
-            CritChance = weaponStat.critChance[TierIdx] + _mainStats[MainStats.CritChance],
-            AttackSpeed = FinalAttackSpeed,
-            KnockBack = weaponStat.knockBack[TierIdx] + _subStats[SubStats.Knockback],
-            Range =  weaponStat.range[TierIdx] + _mainStats[MainStats.Range],
-            IsMelee = weaponStat.isMelee,
-            HealthAbsorb = weaponStat.healthAbsorb[TierIdx] + _mainStats[MainStats.HealthAbsorb],
-        };
-
-        return currentWeaponStat;
-    }*/
+   
 }
 
 public static class WeaponStatCalculator
@@ -456,27 +376,29 @@ public static class WeaponStatCalculator
     private const float AttackSpeedScaler = 0.01f; //공격 속도 상수(스탯이 늘어나면 속도가 0에 가까워짐)
     private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
     private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
+
+    private static List<(MainStats mainStat, int multiplier)> _statMultipliers = new();
+    
     
     public static CurrentWeaponStat GetCurrentWeaponStat(WeaponData weaponData, int tier, 
         IReadOnlyDictionary<MainStats, int> finalMainStatDict, IReadOnlyDictionary<SubStats, int> finalSubStatDict)
     {
         var weaponStat = weaponData.WeaponStat;
-        var statMultipliers = new List<(MainStats MainStats, int multipleir)>();
-
         var tierIdx = tier - weaponStat.initTier;
         
+        _statMultipliers.Clear();
         foreach (var statMultiplier in weaponStat.damageMultipliers)
         {
             var mainStat = statMultiplier.stat;
             var multiplier = statMultiplier.value[tierIdx];
-            statMultipliers.Add((mainStat, multiplier));
+            _statMultipliers.Add((mainStat, multiplier));
         }
         var currentWeaponStat = new CurrentWeaponStat
         {
             WeaponData = weaponData,
             Tier = tier,
             Damage = GetWeaponDamage(weaponData, tier, finalMainStatDict),
-            StatMultipliers = statMultipliers,
+            StatMultipliers = _statMultipliers,
             CritDamage = weaponStat.critDamage[tierIdx],
             CritChance = weaponStat.critChance[tierIdx] + finalMainStatDict[MainStats.CritChance],
             AttackSpeed = GetAttackSpeed(weaponData, tier, finalMainStatDict),

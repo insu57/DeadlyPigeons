@@ -62,7 +62,8 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private TMP_Text weaponName;
     [SerializeField] private TMP_Text weaponClasses;
     [SerializeField] private TMP_Text weaponDescription;
-
+    private List<(MainStats mainStat, int multiplier)> statsMultipliers = new();
+    
     [Header("Stage Description")] 
     [SerializeField] private TMP_Text stageTxt;
     [SerializeField] private TMP_Text stageDescription;
@@ -261,7 +262,7 @@ public class SelectWindow : MonoBehaviour
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
-        List<(MainStats mainStat, int multiplier)> statsMultipliers = new();
+        statsMultipliers.Clear();
         foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers)
         {
             var mainStat = statMultiplier.stat;

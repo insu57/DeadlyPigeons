@@ -11,9 +11,10 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [SerializeField] private Image btnImage;
     [SerializeField] private TMP_Text btnText;
     [SerializeField] private Button selectBtn;
-    [field: SerializeField] public Transform InfoPanelParentLeft { get; private set; }
-    [field: SerializeField] public Transform InfoPanelParentRight { get; private set; }
-    [field: SerializeField] public Transform InfoPanelParentTop { get; private set; }
+    [field: SerializeField] public RectTransform InfoPanelParentBottomLeft { get; private set; }
+    [field: SerializeField] public RectTransform InfoPanelParentBottomRight { get; private set; }
+    [field: SerializeField] public RectTransform InfoPanelParentTopLeft { get; private set; }
+    [field: SerializeField] public RectTransform InfoPanelParentTopRight { get; private set; }
     public Button SelectBtn => selectBtn;
     public event Action OnBtnPointerEnter;
     public event Action OnBtnPointerExit;
@@ -53,5 +54,15 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerExit(PointerEventData eventData)
     {
         OnBtnPointerExit?.Invoke();
+    }
+
+    public void SetGrid(Transform gridTransform, Vector2 cellSize)
+    {
+        transform.SetParent(gridTransform);
+        
+        InfoPanelParentBottomLeft.anchoredPosition = new Vector2(0, -cellSize.y);
+        InfoPanelParentBottomRight.anchoredPosition = new Vector2(0, -cellSize.y);
+        InfoPanelParentTopLeft.anchoredPosition = new Vector2(0, cellSize.y);
+        InfoPanelParentTopRight.anchoredPosition = new Vector2(0, cellSize.y);
     }
 }

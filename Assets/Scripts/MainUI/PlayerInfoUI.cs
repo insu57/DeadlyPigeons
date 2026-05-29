@@ -57,7 +57,7 @@ public class PlayerInfoUI : MonoBehaviour
 
     public void Init(PlayerManager playerManager)
     {
-        itemGridUI.Init(playerManager);
+        itemGridUI.Init(playerManager, InfoPanelPivot.Top);
     }
 
     public void UpdateHealthBar(int currentHealth, int maxHealth)

@@ -96,7 +96,7 @@ public class StageUI : MonoBehaviour
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount, int storeOptionCount)
     {
-        itemGridUI.Init(playerManager);
+        itemGridUI.Init(playerManager, InfoPanelPivot.Bottom);
         
         _upgradeOptionCount = upgradeOptionCount;
         _upgradePanels = new UpgradePanel[_upgradeOptionCount];

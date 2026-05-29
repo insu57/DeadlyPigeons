@@ -13,10 +13,11 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private Image panelBorder;
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
-
+    [SerializeField] private StoreButtons storeButtons;
+    
     public event Action OnShowClassInfoPanel;
     
-    public void Init(ClassInfoPanel classInfoPanel)
+    public void InitClassInfoPanel(ClassInfoPanel classInfoPanel)
     {
         classInfo.Init(classInfoPanel);
         

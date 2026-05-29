@@ -16,7 +16,7 @@ public class StorePanel : MonoBehaviour
     
     public void InitInfoPanel(ClassInfoPanel classInfoPanel)
     {
-        infoPanel.Init(classInfoPanel);
+        infoPanel.InitClassInfoPanel(classInfoPanel);
     }
 
     public void InitStorePanel(int idx)
@@ -36,8 +36,6 @@ public class StorePanel : MonoBehaviour
     
     public void SetStorePanel(ItemData itemData, int price, bool canBuy)
     {
-        var sb = StatUtil.StringBuilder;
-        
         infoPanel.ShowItemInfo(itemData);
         
         UpdateStorePanelCanBuy(price, canBuy);
@@ -45,8 +43,6 @@ public class StorePanel : MonoBehaviour
 
     public void SetStorePanel(CurrentWeaponStat currentWeaponStat, int price, bool canBuy)
     {
-        var sb = StatUtil.StringBuilder;
-        
         infoPanel.ShowWeaponInfo(currentWeaponStat);
         
         UpdateStorePanelCanBuy(price, canBuy);

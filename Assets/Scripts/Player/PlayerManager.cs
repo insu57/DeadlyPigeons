@@ -283,18 +283,12 @@ public class PlayerManager : MonoBehaviour
     public void HandleOnShowWeaponInfo(int index, SelectButton selectBtn, ItemGridUI itemGridUI) //무기 정보 표시
     {
         var playerWeapon =  playerWeapons[index];
-        //var currentWeaponStat = playerWeapon.GetCurrentWeaponStat();
-        var finalMain = _playerStat.FinalMainStat;
-        var finalSub = _playerStat.FinalSubStat;
-        var currentWeaponStat = WeaponStatCalculator.GetCurrentWeaponStat
-            (playerWeapon.WeaponData, playerWeapon.Tier, finalMain, finalSub);
+        var currentWeaponStat = GetWeaponStat(playerWeapon.WeaponData, playerWeapon.Tier);
         itemGridUI.ShowWeaponInfo(currentWeaponStat, selectBtn, index);
     }
     
     private void SetWeaponClassBonus() //클래스 보너스 업데이트
     { 
-        //OnSetWeaponClassBonus?.Invoke(WeaponClassDict); //개선?
-        
         foreach (var (weaponClass,bonus) in WeaponClassDict)
         {
             if(bonus <= 1) continue; //1이하는 보너스 x
