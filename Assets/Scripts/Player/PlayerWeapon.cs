@@ -406,6 +406,7 @@ public static class WeaponStatCalculator
             Range =  weaponStat.range[tierIdx] + finalMainStatDict[MainStats.Range],
             IsMelee = weaponStat.isMelee,
             HealthAbsorb = weaponStat.healthAbsorb[tierIdx] + finalMainStatDict[MainStats.HealthAbsorb],
+            RecyclePrice = Mathf.FloorToInt(weaponStat.prices[tierIdx] / 2f) //판매가 = 구매가의 절반.
         };
         
         return currentWeaponStat;

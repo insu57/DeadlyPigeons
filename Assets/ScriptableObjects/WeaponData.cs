@@ -63,6 +63,7 @@ public struct CurrentWeaponStat
     public int Range;
     public bool IsMelee;
     public int HealthAbsorb;
+    public int RecyclePrice;
 }
 
 [Serializable]
@@ -85,7 +86,6 @@ public struct WeaponEffectValues //티어 수치 리스트 : 초기 티어 ~ 4 �
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Scriptable Objects/WeaponData")]
 public class WeaponData : ScriptableObject
 {
-    //need weapon id
     [field: SerializeField] public int ID { get; private set; }
     [field: SerializeField] public string Name { get; private set; }
     [field: SerializeField] public Sprite Sprite { get; private set; }

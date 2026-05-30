@@ -14,9 +14,9 @@ public class StorePanel : MonoBehaviour
     
     public event Action<int> OnShowClassInfoPanel;
     
-    public void InitInfoPanel(ClassInfoPanel classInfoPanel)
+    public void InitClassInfo(ClassInfoPanel classInfoPanel)
     {
-        infoPanel.InitClassInfoPanel(classInfoPanel);
+        infoPanel.SetStorePanelClassInfo(classInfoPanel);
     }
 
     public void InitStorePanel(int idx)
@@ -37,14 +37,12 @@ public class StorePanel : MonoBehaviour
     public void SetStorePanel(ItemData itemData, int price, bool canBuy)
     {
         infoPanel.ShowItemInfo(itemData);
-        
         UpdateStorePanelCanBuy(price, canBuy);
     }
 
     public void SetStorePanel(CurrentWeaponStat currentWeaponStat, int price, bool canBuy)
     {
         infoPanel.ShowWeaponInfo(currentWeaponStat);
-        
         UpdateStorePanelCanBuy(price, canBuy);
     }
 

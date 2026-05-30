@@ -4,10 +4,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum InfoPanelPivot
+public enum InfoPanelType
 {
-    Top,
-    Bottom
+    Main,
+    Store
 }
 
 public class ItemGridUI : MonoBehaviour
@@ -16,19 +16,31 @@ public class ItemGridUI : MonoBehaviour
     [SerializeField] private GridLayoutGroup weaponGrid;
     [SerializeField] private GridLayoutGroup itemGrid;
     [SerializeField] private InfoPanel infoPanel;
-    private InfoPanelPivot _infoPanelPivot;
+    private InfoPanelType _infoPanelType;
     [SerializeField] private ClassInfo classInfo;
     [SerializeField] private GameObject background;
+    private bool _isLocked;
     private const int MinCols = 3;
-    
     public event Action<int, SelectButton, ItemGridUI> OnShowWeaponInfo; //ID
+    private int _weaponIdx = -1;
+    public event Action<int> OnCombineWeapon;
+    public event Action<int> OnRecycleWeapon;
     
-    public void Init(PlayerManager playerManager, InfoPanelPivot infoPanelPivot)
+
+    public void Init(PlayerManager playerManager, InfoPanelType infoPanelType)
     {
         playerManager.OnAddWeapon += AddWeapon;
         playerManager.OnAddItem +=  AddItem;
         
-        _infoPanelPivot = infoPanelPivot;
+        _infoPanelType = infoPanelType;
+        if (infoPanelType == InfoPanelType.Store)
+        {
+            //Combine
+            //Recycle //Remove Weapon 처리!
+            infoPanel.StoreButtons.CombineButton.onClick.AddListener(() => OnCombineWeapon?.Invoke(_weaponIdx));
+            infoPanel.StoreButtons.RecycleButton.onClick.AddListener(() => OnRecycleWeapon?.Invoke(_weaponIdx));
+            infoPanel.StoreButtons.CancelButton.onClick.AddListener(UnlockPanel);
+        }
         
         classInfo.SetWeaponClassBonusDict(playerManager.WeaponClassDict);
         
@@ -43,6 +55,26 @@ public class ItemGridUI : MonoBehaviour
         
         selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index, selectBtn, this);
         selectBtn.OnBtnPointerExit += CloseInfoPanel;
+        
+        if (_infoPanelType == InfoPanelType.Store)
+        {
+            selectBtn.SelectBtn.onClick.AddListener(() => OnSelectWeapon(index, selectBtn));
+        }
+    }
+
+    private void OnSelectWeapon(int index, SelectButton selectBtn)
+    {
+        _isLocked = true;
+        background.SetActive(true);
+        _weaponIdx =  index;
+        OnShowWeaponInfo?.Invoke(index, selectBtn, this);
+    }
+
+    private void UnlockPanel()
+    {
+        _isLocked = false;
+        background.SetActive(false);
+        infoPanel.gameObject.SetActive(false);
     }
     
     private void AddItem(ItemData item, int idx)
@@ -55,13 +87,12 @@ public class ItemGridUI : MonoBehaviour
         selectBtn.OnBtnPointerExit += CloseInfoPanel;
     }
     
-    //피봇조절???
     private void SetInfoPanel(int cols, int idx, SelectButton selectButton)
     {
         Transform panelParent;
         var panelRT = (RectTransform)infoPanel.transform;
 
-        if (_infoPanelPivot == InfoPanelPivot.Top)//pivot이 top으로
+        if (_infoPanelType == InfoPanelType.Main)//메인 - pivot이 top으로
         {
             if (idx < cols / 2)
             {
@@ -74,7 +105,7 @@ public class ItemGridUI : MonoBehaviour
                 panelRT.pivot = new Vector2(1, 1); //top-right
             }
         }
-        else //pivot이 bottom
+        else //상점 - pivot이 bottom
         {
             if (idx < cols / 2)
             {
@@ -104,16 +135,27 @@ public class ItemGridUI : MonoBehaviour
         infoPanel.ShowWeaponInfo(currentWeaponStat);
         var classes = currentWeaponStat.WeaponData.WeaponStat.classes;
         infoPanel.ShowWeaponClassInfo(classes);
+
+        if (_infoPanelType == InfoPanelType.Store)
+        {
+            infoPanel.ShowWeaponStoreButtons(true, currentWeaponStat.RecyclePrice);
+        }
+        else
+        {
+            infoPanel.ShowWeaponStoreButtons(false,0);
+        }
     }
 
     private void ShowItemInfo(ItemData item, SelectButton selectButton,int idx)
     {
         SetInfoPanel(itemGrid.constraintCount, idx, selectButton);
         infoPanel.ShowItemInfo(item);
+        infoPanel.ShowWeaponStoreButtons(false,0);
     }
     
     private void CloseInfoPanel()
     {
+        if (_isLocked) return;
         infoPanel.gameObject.SetActive(false);
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class InfoPanel : MonoBehaviour
@@ -13,15 +14,17 @@ public class InfoPanel : MonoBehaviour
     [SerializeField] private Image panelBorder;
     [SerializeField] private TMP_Text descriptionTxt;
     [SerializeField] private ClassInfo classInfo;
-    [SerializeField] private StoreButtons storeButtons;
+    [field: SerializeField] public StoreButtons StoreButtons { get;private set; }
     
     public event Action OnShowClassInfoPanel;
     
-    public void InitClassInfoPanel(ClassInfoPanel classInfoPanel)
+    public void SetStorePanelClassInfo(ClassInfoPanel classInfoPanel)
     {
         classInfo.Init(classInfoPanel);
         
         classInfo.OnShowClassInfoPanel += () => OnShowClassInfoPanel?.Invoke();
+        
+        classInfo.SetHovering(true);
     }
     
     public void ShowWeaponInfo(CurrentWeaponStat weapon)
@@ -139,6 +142,16 @@ public class InfoPanel : MonoBehaviour
         classInfo.ShowWeaponClassInfo(weaponClasses);
     }
 
+    public void ShowWeaponStoreButtons(bool isActive, int recyclePrice)
+    {
+        StoreButtons.gameObject.SetActive(isActive);
+
+        var sb = StatUtil.StringBuilder;
+        sb.Clear();
+        sb.Append("+(").Append(recyclePrice).Append(")");
+        StoreButtons.RecyclePriceTxt.SetText(sb);
+    }
+    
     public void ShowItemInfo(ItemData item)
     {
         //PlayerStat 정보가 필요하면 수정.

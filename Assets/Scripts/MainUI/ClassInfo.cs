@@ -9,7 +9,8 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 {
     [SerializeField] private GameObject infoPanelParent;
     [SerializeField] private ClassInfoPanel classInfoPanel;
-
+    private bool _isHovering = false;
+    
     public event Action OnShowClassInfoPanel;
     
     private void Awake()
@@ -22,18 +23,19 @@ public class ClassInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         classInfoPanel = infoPanel;
         classInfoPanel.gameObject.SetActive(false);
     }
+    
+    public void SetHovering(bool isHovering) => _isHovering = isHovering;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        //infoPanelParent.SetActive(true);
+        if(!_isHovering) return;
         OnShowClassInfoPanel?.Invoke();
         classInfoPanel.transform.position = infoPanelParent.transform.position;
-        //classInfoPanel.gameObject.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        //infoPanelParent.SetActive(false);
+        if(!_isHovering) return;
         classInfoPanel.gameObject.SetActive(false);
     }
 

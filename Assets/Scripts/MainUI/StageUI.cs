@@ -90,13 +90,15 @@ public class StageUI : MonoBehaviour
         crateItemSellBtn.onClick.AddListener( () => OnSellCrateItem?.Invoke() );
 
         storeRerollBtn.onClick.AddListener(() => OnRerollStore?.Invoke());
+        itemGridUI.OnCombineWeapon += HandleOnCombineWeapon;
+        itemGridUI.OnRecycleWeapon += HandleOnRecycleWeapon;
         
         nextWaveBtn.onClick.AddListener(NextWave);
     }
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount, int storeOptionCount)
     {
-        itemGridUI.Init(playerManager, InfoPanelPivot.Bottom);
+        itemGridUI.Init(playerManager, InfoPanelType.Store);
         
         _upgradeOptionCount = upgradeOptionCount;
         _upgradePanels = new UpgradePanel[_upgradeOptionCount];
@@ -115,7 +117,7 @@ public class StageUI : MonoBehaviour
         {
             var storePanel = Instantiate(storePanelPrefab, storePanelGrid.transform);
             storePanel.InitStorePanel(i);
-            storePanel.InitInfoPanel(storeClassInfoPanel);
+            storePanel.InitClassInfo(storeClassInfoPanel);
             storePanel.OnShowClassInfoPanel += idx => OnStorePanelShowClassInfo?.Invoke(idx);
             var storePanelIdx = i;
             storePanel.BuyBtn.onClick.AddListener(() => OnBuyStore?.Invoke(storePanelIdx));
@@ -267,6 +269,16 @@ public class StageUI : MonoBehaviour
         _storePanels[idx].ShowClassInfoPanel(classes);
     }
 
+    private void HandleOnCombineWeapon(int idx)
+    {
+        
+    }
+
+    private void HandleOnRecycleWeapon(int idx)
+    {
+        
+    }
+    
     private void NextWave()
     {
         waveEndUI.SetActive(false);
