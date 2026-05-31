@@ -73,6 +73,8 @@ public class StageUI : MonoBehaviour
     public event Action OnRerollStore;
     public event Action<int> OnBuyStore;
     public event Action OnNextWave;
+    public event Action<int> OnCombineWeapon; //이벤트 버스로 수정?
+    public event Action<int> OnRecycleWeapon;
 
     private StringBuilder _sb;
     
@@ -271,12 +273,12 @@ public class StageUI : MonoBehaviour
 
     private void HandleOnCombineWeapon(int idx)
     {
-        
+        OnCombineWeapon?.Invoke(idx);
     }
 
     private void HandleOnRecycleWeapon(int idx)
     {
-        
+        OnRecycleWeapon?.Invoke(idx);   
     }
     
     private void NextWave()

@@ -377,28 +377,17 @@ public static class WeaponStatCalculator
     private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
     private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
 
-    private static List<(MainStats mainStat, int multiplier)> _statMultipliers = new();
-    
-    
-    public static CurrentWeaponStat GetCurrentWeaponStat(WeaponData weaponData, int tier, 
+    public static CurrentWeaponStat GetCurrentWeaponStat(WeaponData weaponData, int tier,
         IReadOnlyDictionary<MainStats, int> finalMainStatDict, IReadOnlyDictionary<SubStats, int> finalSubStatDict)
     {
         var weaponStat = weaponData.WeaponStat;
         var tierIdx = tier - weaponStat.initTier;
-        
-        _statMultipliers.Clear();
-        foreach (var statMultiplier in weaponStat.damageMultipliers)
-        {
-            var mainStat = statMultiplier.stat;
-            var multiplier = statMultiplier.value[tierIdx];
-            _statMultipliers.Add((mainStat, multiplier));
-        }
+
         var currentWeaponStat = new CurrentWeaponStat
         {
             WeaponData = weaponData,
             Tier = tier,
             Damage = GetWeaponDamage(weaponData, tier, finalMainStatDict),
-            StatMultipliers = _statMultipliers,
             CritDamage = weaponStat.critDamage[tierIdx],
             CritChance = weaponStat.critChance[tierIdx] + finalMainStatDict[MainStats.CritChance],
             AttackSpeed = GetAttackSpeed(weaponData, tier, finalMainStatDict),
@@ -470,5 +459,12 @@ public static class WeaponStatCalculator
                                /  RangeScaler;
             return finalRange;
         }
+    }
+
+    public static int GetRecyclePrice(WeaponData weaponData, int tier)
+    {
+        //추후 스탯 반영 할 수 있음.(RecyclePrice %)
+        var tierIdx = tier - weaponData.WeaponStat.initTier;
+        return Mathf.FloorToInt(weaponData.WeaponStat.prices[tierIdx] / 2f);
     }
 }

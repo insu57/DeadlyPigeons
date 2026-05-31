@@ -6,74 +6,75 @@ public class PlayerManager : MonoBehaviour
 {
     //Items
     [field: SerializeField] private List<ItemData> itemDataList;
-    
+
     //Weapons
     [field: SerializeField] private List<GameObject> weaponParents;
     [field: SerializeField] private List<PlayerWeapon> playerWeapons;
     [SerializeField] private PlayerWeapon playerWeaponPrefab;
-    public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new();//클래스 수치 Dict
+    public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new(); //클래스 수치 Dict
     private int _weaponSlotCount = 6; //추후 패시브 등으로 바뀔 수 있음.
     private int _currentWeaponCount = 0;
     public bool WeaponIsFull => _currentWeaponCount == _weaponSlotCount;
-    
+
     private PlayerControl _playerControl;
     private PlayerStat _playerStat;
     public int CurrentLevel => _playerStat?.CurrentLevel ?? 0;
-    private PlayerHurtbox  _playerHurtbox;
+    private PlayerHurtbox _playerHurtbox;
     private PickupRange _pickupRange;
-    
+
     private PlayerInfoUI _playerInfoUI;
-    
+
     public event Action OnPlayerLevelUp;
     public event Action OnCratePickup;
-    public event Action<int> OnUpdateMoney; 
+    public event Action<int> OnUpdateMoney;
 
     public event Action<Sprite, int> OnAddWeapon;
     public event Action<ItemData, int> OnAddItem;
-    //public event Action<Dictionary<WeaponClasses, int>> OnSetWeaponClassBonus; 
-    
+    public event Action<int> OnRemoveWeapon;
+
     private readonly Collider2D[] _hitBuffer = new Collider2D[100];
-    
+
     private void Awake()
     {
         TryGetComponent(out _playerControl);
         TryGetComponent(out _playerStat);
         _playerHurtbox = GetComponentInChildren<PlayerHurtbox>();
         _pickupRange = GetComponentInChildren<PickupRange>();
-        
+
         _playerInfoUI = FindFirstObjectByType<PlayerInfoUI>();
-        
+
         for (int i = 0; i < (int)WeaponClasses.None; i++)
         {
             var weaponClass = (WeaponClasses)i;
             WeaponClassDict[weaponClass] = 0;
         }
-        
+
         _playerStat.OnChangeMainStats += UpdateStat;
         _playerStat.OnChangeSubStats += UpdateStat;
         _playerStat.OnChangeHealth += UpdateHealth;
         _playerStat.OnChangeExp += UpdateExp;
         _playerStat.OnChangeMoney += UpdateMoney;
-        
+
         _playerHurtbox.OnDamage += HandleOnDamage;
         _playerHurtbox.OnHeal += HandleOnHeal;
         _playerHurtbox.OnGetCollectable += HandleOnGetCollectable;
 
         _pickupRange.OnGetMaterial += HandleOnGetMaterial;
-        
+
         _playerInfoUI.Init(this);
     }
-    
+
     public void InitCharacter(CharacterData charData, List<ItemData> items, List<WeaponData> weapons)
     {
         Debug.Log("InitStat");
         //CharData.. 추후 플레이어 스트라이트 및 애니메이션 관련 초기화
-        
+
         _playerStat.InitStat();
         foreach (var itemData in items) //초기 아이템 장착
         {
             AddItem(itemData);
         }
+
         InitWeapons(weapons); //초기 무기 장착
     }
 
@@ -81,7 +82,7 @@ public class PlayerManager : MonoBehaviour
     {
         _playerStat.WaveStatInit();
     }
-    
+
     private void UpdateHealth(int currentHealth, int maxHealth)
     {
         _playerInfoUI.UpdateHealthBar(currentHealth, maxHealth);
@@ -92,7 +93,7 @@ public class PlayerManager : MonoBehaviour
         var lv = playerLevelInfo.currentLevel;
         var currentExp = playerLevelInfo.currentExp;
         var targetExp = playerLevelInfo.targetExp;
-        
+
         _playerInfoUI.UpdateExpBar(lv, currentExp, targetExp);
 
         if (playerLevelInfo.hasLevelUp)
@@ -109,12 +110,12 @@ public class PlayerManager : MonoBehaviour
     }
 
     public int GetMoney => _playerStat.Money;
-    
+
     public void ChangeMoney(int money)
     {
         _playerStat.ChangeMoney(money);
     }
-    
+
     public void AddItem(ItemData itemData)
     {
         itemDataList.Add(itemData);
@@ -127,35 +128,35 @@ public class PlayerManager : MonoBehaviour
 
     public CurrentWeaponStat GetWeaponStat(WeaponData weaponData, int tier) =>
         _playerStat.GetWeaponStat(weaponData, tier);
-    
+
     private void InitWeapons(List<WeaponData> initWeaponList) //무기 초기화
     {
         for (int i = 0; i < _weaponSlotCount; i++) //무기 슬롯 초기화.
         {
-            var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform); 
+            var playerWeapon = Instantiate(playerWeaponPrefab, weaponParents[i].transform);
             playerWeapons.Add(playerWeapon);
             playerWeapon.SetCenter(transform);
             playerWeapon.gameObject.SetActive(false);
             playerWeapon.InitPlayerWeapon(_playerStat.FinalMainStat, _playerStat.FinalSubStat);
             //PlayerWeapon 초기화
         }
-        
+
         for (int i = 0; i < initWeaponList.Count; i++)
         {
-            if(i >= _weaponSlotCount) break;
-            
+            if (i >= _weaponSlotCount) break;
+
             playerWeapons[i].SetWeaponData(initWeaponList[i], initWeaponList[i].WeaponStat.initTier); // 초기 무기 장착
             playerWeapons[i].gameObject.SetActive(true);
 
-            _currentWeaponCount++;//현재 무기 수
-            
+            _currentWeaponCount++; //현재 무기 수
+
             var classes = initWeaponList[i].WeaponStat.classes;
             foreach (var weaponClass in classes)
             {
                 WeaponClassDict[weaponClass]++; //무기 클래스 보너스 추가
             }
         }
-        
+
         SetWeaponClassBonus(); //무기 보너스 설정.
 
         for (int i = 0; i < initWeaponList.Count; i++)
@@ -164,61 +165,113 @@ public class PlayerManager : MonoBehaviour
             //_playerInfoUI.AddWeapon(sprite, i);
             OnAddWeapon?.Invoke(sprite, i);
         }
-        
+
         //sync?
         _playerStat.SyncStat();
     }
 
-    public void AddWeapon(WeaponData weaponData, int tier) //에러...
+    public void AddWeapon(WeaponData weaponData, int tier)
     {
-        if(WeaponIsFull) return; //무기 최대.
-        
-        _currentWeaponCount++;//현재 무기 수 추가
-        
+        if (WeaponIsFull) return; //무기 최대.
+
+        _currentWeaponCount++; //현재 무기 수 추가
+
         int idx = _currentWeaponCount - 1; //PlayerWeaponIdx
-        
+
         playerWeapons[idx].SetWeaponData(weaponData, tier);
         playerWeapons[idx].gameObject.SetActive(true);
 
         OnAddWeapon?.Invoke(weaponData.Sprite, idx);
-            
+
         var classes = weaponData.WeaponStat.classes;
         foreach (var weaponClass in classes)
         {
             WeaponClassDict[weaponClass]++; //무기 클래스 보너스 추가
         }
+
         SetWeaponClassBonus(); //무기 보너스 설정.
     }
 
-    public void RemoveWeapon(int targetIdx)
+    private void RemoveWeapon(int targetIdx)
     {
         //재정렬... UI추가 필요.
+        OnRemoveWeapon?.Invoke(targetIdx);
+
         var classes = playerWeapons[targetIdx].WeaponData.WeaponStat.classes;
         foreach (var weaponClass in classes) //보너스 제거.
         {
             WeaponClassDict[weaponClass]--;
         }
+
         SetWeaponClassBonus(); //클래스 보너스 업데이트
-        
+
         for (int i = targetIdx; i < _currentWeaponCount - 1; i++) //무기 재정렬.(빈 부분 당기기)
         {
-            var weaponData = playerWeapons[i].WeaponData;
-            var tier = playerWeapons[i].Tier;
-            playerWeapons[i + 1].SetWeaponData(weaponData, tier);
+            var weaponData = playerWeapons[i + 1].WeaponData;
+            var tier = playerWeapons[i + 1].Tier;
+            playerWeapons[i].SetWeaponData(weaponData, tier);
         }
-        
+
         playerWeapons[_currentWeaponCount - 1].SetWeaponData(null, 0); //마지막 무기를 비우고 비활성.
         playerWeapons[_currentWeaponCount - 1].gameObject.SetActive(false);
-        
+
         _currentWeaponCount--;
     }
 
-    //Remove Item 구현?
+    public void RecycleWeapon(int idx)
+    {
+        var targetWeapon = playerWeapons[idx].WeaponData;
+        var recyclePrice = WeaponStatCalculator.GetRecyclePrice(targetWeapon, playerWeapons[idx].Tier);
+        ChangeMoney(recyclePrice);
+        RemoveWeapon(idx);
+    }
+
+    public void CombineWeapon(int idx)
+    {
+        var targetWeapon = playerWeapons[idx];
+        var targetWeaponData = targetWeapon.WeaponData;
+        var tier = targetWeapon.Tier;
+        
+        if(tier == DataManager.Instance.GetMaxTier) return; //최고 티어면 중단. 
+        
+        
+        bool hasDuplicateWeapon = false;
+        for (int i = 0; i < playerWeapons.Count; i++) //ID,티어가 동일한 무기의 유무 확인
+        {
+            if(i == idx) continue; //자기 자신 제외
+            if(!playerWeapons[i].WeaponData) continue;   
+            if(playerWeapons[i].WeaponData.ID != targetWeaponData.ID) continue;
+            if(playerWeapons[i].Tier != tier) continue;
+            hasDuplicateWeapon = true;
+            break;
+        }
+        
+        if(!hasDuplicateWeapon) return;
+        
+        var nextTier = targetWeapon.Tier + 1;
+        
+        RemoveWeapon(idx);
+        
+        //무기를 제거하면 인덱스가 변하기 때문에 다시 찾기. 개선 방안?
+        for (int i = 0; i < playerWeapons.Count; i++) 
+        {
+            if(!playerWeapons[i].WeaponData) continue;   
+            if(playerWeapons[i].WeaponData.ID != targetWeaponData.ID) continue;
+            if(playerWeapons[i].Tier != tier) continue;
+            
+            RemoveWeapon(i);
+            break;
+        }
+        
+        AddWeapon(targetWeaponData, nextTier);
+    }
+
+//Remove Item 구현?
 
     public void GetStatUpgrade(MainStats stat, int tier)
     {
         var amount = DataManager.Instance.LvUpStatUpgradeDict[stat][tier - 1];//idx 0~3
-        _playerStat.UpdateStat(stat, amount);
+        _playerStat.ChangeStat(stat, amount);
     }
     
     private void UpdateStat(MainStats stat, int value)

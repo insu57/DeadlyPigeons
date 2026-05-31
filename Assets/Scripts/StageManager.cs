@@ -114,6 +114,8 @@ public class StageManager : MonoBehaviour
         _stageUI.OnRerollStore += HandleOnRerollStore;
         _stageUI.OnBuyStore += HandleOnBuyStore;
         _stageUI.OnNextWave += HandleOnNextWave;
+        _stageUI.OnCombineWeapon += HandleOnCombineWeapon;
+        _stageUI.OnRecycleWeapon += HandleOnRecycleWeapon;
 
         _storeData = new StoreData
         {
@@ -601,6 +603,16 @@ public class StageManager : MonoBehaviour
         StartWave();
     }
 
+    private void HandleOnCombineWeapon(int idx)
+    {
+        _playerManager.CombineWeapon(idx);
+    }
+
+    private void HandleOnRecycleWeapon(int idx)
+    {
+        _playerManager.RecycleWeapon(idx);
+    }
+    
     private void SpawnEnemy(WaveData waveData)
     {
         if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;

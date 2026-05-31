@@ -7,7 +7,8 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, CharacterData> CharDict { get; } = new();
     public List<CharacterData> CharList { get; } = new();
    
-    public const int MaxTier = 4;
+    private const int MaxTier = 4;
+    public int GetMaxTier => MaxTier;
     public Dictionary<int, ItemData> ItemDict { get; } = new();
     public Dictionary<int, List<ItemData>> ItemTierDict { get; } = new();
     public List<ItemData> ItemList { get; } = new();

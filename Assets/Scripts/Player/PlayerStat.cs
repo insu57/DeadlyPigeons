@@ -74,7 +74,7 @@ public class PlayerStat : MonoBehaviour
             _finalSubStatDict.Add(subStat, 0);
         }
         
-        UpdateStat(MainStats.MaxHP, DefaultMaxHP); //기본 최대 체력
+        ChangeStat(MainStats.MaxHP, DefaultMaxHP); //기본 최대 체력
         currentHP = DefaultMaxHP;
         
         foreach (var (mainStat, value) in _finalMainStatDict)
@@ -119,7 +119,7 @@ public class PlayerStat : MonoBehaviour
                 if(statAmount.mainStat == MainStats.None) continue;
                 _mainStatMultiDict[statAmount.mainStat] += statAmount.amount;
                 
-                UpdateStat(statAmount.mainStat, 0);
+                ChangeStat(statAmount.mainStat, 0);
             }
         }
 
@@ -129,11 +129,11 @@ public class PlayerStat : MonoBehaviour
             {
                 if (statAmount.mainStat != MainStats.None)
                 {
-                    UpdateStat(statAmount.mainStat, statAmount.amount);
+                    ChangeStat(statAmount.mainStat, statAmount.amount);
                 }
                 else if (statAmount.subStat != SubStats.None)
                 {
-                    UpdateStat(statAmount.subStat, statAmount.amount);
+                    ChangeStat(statAmount.subStat, statAmount.amount);
                 }
             }
         }
@@ -158,17 +158,17 @@ public class PlayerStat : MonoBehaviour
     {
         _mainStatClassBonus[mainStat] += amount;
         
-        UpdateStat(mainStat, amount);
+        OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
     }
 
     public void UpdateStatClassBonus(SubStats subStat, int amount)
     {
         _subStatClassBonus[subStat] += amount;
         
-        UpdateStat(subStat, amount);
+        OnChangeSubStats?.Invoke(subStat, _finalSubStatDict[subStat]);
     }
 
-    public void UpdateStat(MainStats mainStat, int amount) //최종 스탯으로 업데이트
+    public void ChangeStat(MainStats mainStat, int amount)
     {
         _baseMainStatDict[mainStat] += amount;
         int currentAmount =  _baseMainStatDict[mainStat] + _mainStatClassBonus[mainStat];
@@ -178,7 +178,7 @@ public class PlayerStat : MonoBehaviour
         OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
     }
 
-    private void UpdateStat(SubStats subStat, int amount)
+    private void ChangeStat(SubStats subStat, int amount)
     {
         _subStatDict[subStat] += amount;
         int currentAmount =  _subStatDict[subStat] + _subStatClassBonus[subStat];
@@ -262,7 +262,7 @@ public class PlayerStat : MonoBehaviour
             CurrentLevel++;
             hasLvUp = true;
             
-            UpdateStat(MainStats.MaxHP, 1);
+            ChangeStat(MainStats.MaxHP, 1);
         }
 
         var lvInfo = new PlayerLevelInfo()

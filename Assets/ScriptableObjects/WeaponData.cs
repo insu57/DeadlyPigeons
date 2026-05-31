@@ -54,8 +54,8 @@ public struct CurrentWeaponStat
 {
     public WeaponData WeaponData;
     public int Tier;
+    public int TierIdx => Tier - WeaponData.WeaponStat.initTier;
     public int Damage;
-    public List<(MainStats mainStat, int multiplier)> StatMultipliers;
     public float CritDamage;
     public int CritChance;
     public float AttackSpeed;

@@ -57,9 +57,9 @@ public class InfoPanel : MonoBehaviour
         sb.AppendHeadString("데미지: ");
         sb.AppendColorCompare(weapon.Damage, weaponStat.baseDamage[tierIdx]);
         sb.Append(" ("); //기본 데미지
-        foreach (var (stat, value) in weapon.StatMultipliers) //스탯 별 데미지 계수
+        foreach (var sm in weapon.WeaponData.WeaponStat.damageMultipliers) //스탯 별 데미지 계수
         {
-            sb.Append("+").Append(value).Append("%").Append(stat.GetIcons());
+            sb.Append("+").Append(sm.value[weapon.TierIdx]).Append("%").Append(sm.stat.GetIcons());
         }
         sb.AppendLine(")");
         
@@ -142,14 +142,22 @@ public class InfoPanel : MonoBehaviour
         classInfo.ShowWeaponClassInfo(weaponClasses);
     }
 
-    public void ShowWeaponStoreButtons(bool isActive, int recyclePrice)
+    public void ShowWeaponStoreButtons(int tier, int recyclePrice)
     {
-        StoreButtons.gameObject.SetActive(isActive);
+        StoreButtons.gameObject.SetActive(true);
+
+        StoreButtons.CombineButton.gameObject.SetActive(tier != DataManager.Instance.GetMaxTier); 
+        //최고티어가 아니면 활성화
 
         var sb = StatUtil.StringBuilder;
         sb.Clear();
         sb.Append("+(").Append(recyclePrice).Append(")");
         StoreButtons.RecyclePriceTxt.SetText(sb);
+    }
+
+    public void HideWeaponStoreButtons()
+    {
+        StoreButtons.gameObject.SetActive(false);
     }
     
     public void ShowItemInfo(ItemData item)

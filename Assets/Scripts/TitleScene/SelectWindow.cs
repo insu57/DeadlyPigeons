@@ -62,7 +62,6 @@ public class SelectWindow : MonoBehaviour
     [SerializeField] private TMP_Text weaponName;
     [SerializeField] private TMP_Text weaponClasses;
     [SerializeField] private TMP_Text weaponDescription;
-    private List<(MainStats mainStat, int multiplier)> statsMultipliers = new();
     
     [Header("Stage Description")] 
     [SerializeField] private TMP_Text stageTxt;
@@ -262,21 +261,12 @@ public class SelectWindow : MonoBehaviour
     {
         var weaponData = DataManager.Instance.WeaponDict[weaponID];
 
-        statsMultipliers.Clear();
-        foreach (var statMultiplier in weaponData.WeaponStat.damageMultipliers)
-        {
-            var mainStat = statMultiplier.stat;
-            var multiplier = statMultiplier.value[0];
-            statsMultipliers.Add((mainStat, multiplier));
-        }
-        
         //tierIdx = 0(초기 인덱스)
-        var currentWeaponStat = new CurrentWeaponStat  //개선 방안?
+        var currentWeaponStat = new CurrentWeaponStat
         {
             WeaponData = weaponData,
             Tier = weaponData.WeaponStat.initTier,
             Damage = weaponData.WeaponStat.baseDamage[0],
-            StatMultipliers = statsMultipliers,
             CritDamage = weaponData.WeaponStat.critDamage[0],
             CritChance = weaponData.WeaponStat.critChance[0],
             AttackSpeed = weaponData.WeaponStat.attackSpeed[0],

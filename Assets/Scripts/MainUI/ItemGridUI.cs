@@ -14,6 +14,7 @@ public class ItemGridUI : MonoBehaviour
 {
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private GridLayoutGroup weaponGrid;
+    private List<SelectButton> _weaponSelectButtons = new();
     [SerializeField] private GridLayoutGroup itemGrid;
     [SerializeField] private InfoPanel infoPanel;
     private InfoPanelType _infoPanelType;
@@ -31,14 +32,13 @@ public class ItemGridUI : MonoBehaviour
     {
         playerManager.OnAddWeapon += AddWeapon;
         playerManager.OnAddItem +=  AddItem;
+        playerManager.OnRemoveWeapon += RemoveWeapon;
         
         _infoPanelType = infoPanelType;
         if (infoPanelType == InfoPanelType.Store)
         {
-            //Combine
-            //Recycle //Remove Weapon 처리!
-            infoPanel.StoreButtons.CombineButton.onClick.AddListener(() => OnCombineWeapon?.Invoke(_weaponIdx));
-            infoPanel.StoreButtons.RecycleButton.onClick.AddListener(() => OnRecycleWeapon?.Invoke(_weaponIdx));
+            infoPanel.StoreButtons.CombineButton.onClick.AddListener(CombineWeapon);
+            infoPanel.StoreButtons.RecycleButton.onClick.AddListener(RecycleWeapon);
             infoPanel.StoreButtons.CancelButton.onClick.AddListener(UnlockPanel);
         }
         
@@ -52,14 +52,39 @@ public class ItemGridUI : MonoBehaviour
         var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         selectBtn.SetButtonImg(sprite);
         selectBtn.SetGrid(weaponGrid.transform, weaponGrid.cellSize);
+        _weaponSelectButtons.Add(selectBtn);
         
-        selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(index, selectBtn, this);
+        InitWeaponEvent(index, selectBtn);
+    }
+
+    private void InitWeaponEvent(int idx, SelectButton selectBtn)
+    {
+        selectBtn.OnBtnPointerEnter += () => OnShowWeaponInfo?.Invoke(idx, selectBtn, this);
         selectBtn.OnBtnPointerExit += CloseInfoPanel;
-        
         if (_infoPanelType == InfoPanelType.Store)
         {
-            selectBtn.SelectBtn.onClick.AddListener(() => OnSelectWeapon(index, selectBtn));
+            selectBtn.SelectBtn.onClick.AddListener(() => OnSelectWeapon(idx, selectBtn));
         }
+    }
+
+    private void RemoveWeapon(int idx)
+    {
+        var targetSelectBtn = _weaponSelectButtons[idx];
+        targetSelectBtn.ClearEvent();
+        ObjectPoolingManager.Instance.ReleaseSelectBtn(targetSelectBtn);
+
+        if (_weaponSelectButtons.Count > 1)
+        {
+            for (int i = idx; i < _weaponSelectButtons.Count - 1; i++) //idx 당기기.
+            {
+                _weaponSelectButtons[i] = _weaponSelectButtons[i + 1]; 
+                _weaponSelectButtons[i].ClearEvent();
+            
+                InitWeaponEvent(i, _weaponSelectButtons[i]);
+            }
+        } 
+        
+        _weaponSelectButtons.RemoveAt(_weaponSelectButtons.Count - 1);
     }
 
     private void OnSelectWeapon(int index, SelectButton selectBtn)
@@ -70,6 +95,18 @@ public class ItemGridUI : MonoBehaviour
         OnShowWeaponInfo?.Invoke(index, selectBtn, this);
     }
 
+    private void CombineWeapon()
+    {
+        OnCombineWeapon?.Invoke(_weaponIdx);
+        UnlockPanel();
+    }
+
+    private void RecycleWeapon()
+    {
+        OnRecycleWeapon?.Invoke(_weaponIdx);
+        UnlockPanel();
+    }
+    
     private void UnlockPanel()
     {
         _isLocked = false;
@@ -138,11 +175,11 @@ public class ItemGridUI : MonoBehaviour
 
         if (_infoPanelType == InfoPanelType.Store)
         {
-            infoPanel.ShowWeaponStoreButtons(true, currentWeaponStat.RecyclePrice);
+            infoPanel.ShowWeaponStoreButtons(currentWeaponStat.Tier, currentWeaponStat.RecyclePrice);
         }
         else
         {
-            infoPanel.ShowWeaponStoreButtons(false,0);
+            infoPanel.HideWeaponStoreButtons();
         }
     }
 
@@ -150,7 +187,7 @@ public class ItemGridUI : MonoBehaviour
     {
         SetInfoPanel(itemGrid.constraintCount, idx, selectButton);
         infoPanel.ShowItemInfo(item);
-        infoPanel.ShowWeaponStoreButtons(false,0);
+        infoPanel.HideWeaponStoreButtons();
     }
     
     private void CloseInfoPanel()

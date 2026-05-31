@@ -17,6 +17,7 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 {
     private Dictionary<Pooling, PoolingSetting> _settings = new();
     private Dictionary<Pooling, IObjectPool> _pools = new();
+    private Dictionary<Pooling, Transform> _containers = new();
     public StringBuilder Sb { get; private set; }
     protected override void Awake()
     {
@@ -52,8 +53,11 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
             return;
         }
 
+        var container = new GameObject($"{type} Pool").transform;
+        _containers[type] = container;
+
         var pool = new ObjectPool<T>(
-            createFunc: () => Instantiate(prefab),
+            createFunc: () => Instantiate(prefab, container),
             actionOnGet: c => c.gameObject.SetActive(true),
             actionOnRelease: c => c.gameObject.SetActive(false),
             actionOnDestroy: c => Destroy(c.gameObject),
@@ -92,7 +96,11 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
         return btn;
     }
 
-    public void ReleaseSelectBtn(SelectButton btn) => ReleaseToPool(Pooling.SelectBtn, btn);
+    public void ReleaseSelectBtn(SelectButton btn)
+    {
+        ReleaseToPool(Pooling.SelectBtn, btn);
+        btn.transform.SetParent(_containers[Pooling.SelectBtn]);
+    } 
 
     // ── Projectile ─────────────────────────────────────────────
     public void InitProjectilePool() => InitPool<Projectile>(Pooling.Projectile);
