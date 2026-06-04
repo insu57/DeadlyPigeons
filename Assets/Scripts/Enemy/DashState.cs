@@ -46,6 +46,7 @@ public class DashState : IEnemyState
         _distanceTraveled += step; //이동 거리(돌진)
 
         enemyManager.Rigidbody2D.MovePosition(enemyManager.Rigidbody2D.position + _dashDir * step);
+        enemyManager.UpdateFacing(_dashDir.x);
         //돌진 이동
 
         if (_distanceTraveled >= _dashDistance) //돌진 거리를 넘으면 돌진 종료.

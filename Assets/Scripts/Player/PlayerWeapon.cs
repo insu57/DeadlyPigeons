@@ -49,6 +49,8 @@ public class PlayerWeapon : MonoBehaviour
     }
     private List<IWeaponEffect> _weaponEffects = new();
     
+    [SerializeField] private float rotateSpeed = 720f;
+
     //Melee
     private bool _isAttacking;
     private float _animTimer;
@@ -195,29 +197,23 @@ public class PlayerWeapon : MonoBehaviour
     private void RotateWeapon()
     {
         if(!WeaponData) return;
-        
-        if(_isAttacking) return; //공격 중(근거리) 회전x
-         
-        if (!_targetInfo.Target) //타겟이 없으면 기본 각도
+        if(_isAttacking) return;
+
+        Quaternion targetRot = Quaternion.identity;
+        if (_targetInfo.Target)
         {
-            transform.rotation = Quaternion.identity;
-            return;
+            Vector3 dir = _targetInfo.Target.position - transform.position;
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            targetRot = Quaternion.Euler(0, 0, angle);
         }
-        
-        //타겟을 바라보도록 회전
-        Vector3 dir =  _targetInfo.Target.position - transform.position;
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-        
-        //Y-flip
-        if (Mathf.Abs(angle) > 90)
-        {
-            transform.localScale = new Vector3(1, -1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
+
+        float currentAngle = transform.eulerAngles.z;
+        if (currentAngle > 180f) currentAngle -= 360f;
+        transform.localScale = Mathf.Abs(currentAngle) > 90f
+            ? new Vector3(1, -1, 1)
+            : new Vector3(1, 1, 1);
     }
 
     private void Attack()

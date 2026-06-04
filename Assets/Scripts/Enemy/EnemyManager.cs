@@ -33,6 +33,9 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     private float _stateTimer;
 
+    [SerializeField] private float separationRadius = 1.2f;      // 플레이어 반발이 시작되는 거리
+    [SerializeField] private float playerSeparationStrength = 5f; // 반발 강도 (chase 벡터 크기 1 기준으로 조정)
+
     public void SetTarget(Transform target)
     {
         Target = target;
@@ -249,5 +252,25 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _activeDotCoroutine = null;
     }
     
+    // 플레이어와 가까울 때 밀어내는 벡터 반환. 이동 방향에 합산하여 적이 플레이어 안으로 파고들지 않도록 함.
+    public Vector2 GetSeparation()
+    {
+        if (!Target) return Vector2.zero;
+
+        Vector2 away = (Vector2)transform.position - (Vector2)Target.position;
+        float dist = away.magnitude;
+        if (dist >= separationRadius || dist < 0.001f) return Vector2.zero;
+
+        // 가까울수록 강해지는 선형 반발. chase 벡터(크기 1)와 균형을 맞추기 위해 최대 크기 1로 제한
+        return Vector2.ClampMagnitude((away / dist) * 
+                                      ((1f - dist / separationRadius) * playerSeparationStrength), 1f);
+    }
+
+    public void UpdateFacing(float xDir)
+    {
+        if (xDir != 0f)
+            spriteRenderer.flipX = xDir < 0f;
+    }
+
     public Transform GetTransform() => transform;
 }

@@ -41,10 +41,13 @@ public class KiteState : IEnemyState
         else if (!_isFleeing && sqrDist < _fleeDistance * _fleeDistance)
             _isFleeing = true;
 
-        Vector3 dir = _isFleeing ? -toPlayer.normalized : toPlayer.normalized; //도망 중에 따라 방향벡터 전환
+        Vector2 chaseDir = _isFleeing ? -(Vector2)toPlayer.normalized : (Vector2)toPlayer.normalized; // 도망/추격 방향
+        Vector2 finalDir = (chaseDir + enemyManager.GetSeparation()).normalized; // 플레이어 반발 합산
 
-        Vector2 targetPos = enemyManager.transform.position + dir * (enemyManager.Speed * Time.fixedDeltaTime);
-        enemyManager.Rigidbody2D.MovePosition(targetPos);
+        enemyManager.Rigidbody2D.MovePosition((Vector2)enemyManager.transform.position +
+                                              finalDir * (enemyManager.Speed * Time.fixedDeltaTime));
+        enemyManager.UpdateFacing(enemyManager.Target.position.x - enemyManager.transform.position.x); 
+        // 이동 방향이 아닌 플레이어 방향 기준으로 flip
     }
 
     public void ExitState(EnemyManager enemyManager) { }
