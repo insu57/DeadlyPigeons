@@ -48,6 +48,7 @@ public struct WeaponStat
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
     public List<int> prices;
+    public Sprite projectileSprite;
 }
 
 public struct CurrentWeaponStat

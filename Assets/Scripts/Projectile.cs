@@ -12,6 +12,8 @@ public struct ProjectileInitData
     public int HitLayer;
     public bool IsCrit;
     public List<IWeaponEffect> WeaponEffects;
+    public Sprite ProjectileSprite;
+    public Vector2 ProjectileScale;
 }
 
 public class Projectile : MonoBehaviour
@@ -23,7 +25,7 @@ public class Projectile : MonoBehaviour
     private bool _isCrit;
     //public void SetDamage(int damage) => _damage = damage; //수정필
     private float _lifeTimer;
-    private float _speed = 10f; //temp
+    private float _speed = 10f; //temp?
     private Rigidbody2D _rigidbody2D;
     private List<IWeaponEffect> _weaponEffects;
     
