@@ -27,6 +27,7 @@ public class DataSync : MonoBehaviour
     private const string ItemSpritePath = "Sprites/Items/";
     private const string WeaponSpritePath = "Sprites/Weapons/";
     private const string EnemySpritePath = "Sprites/Enemies/";
+    private const string ProjectileSpritePath = "Sprites/Projectiles/";
     
     [SerializeField] private WeaponClassBonusData classBonusData;
     [SerializeField] private LevelUpStat levelUpStat;
@@ -807,7 +808,17 @@ public class DataSync : MonoBehaviour
         var enemies = Resources.LoadAll<EnemyData>("Data/Enemies");
         string[] lines = enemyStatCSV.text.Split(new []{ '\n', '\r'}, System.StringSplitOptions.RemoveEmptyEntries);
         Dictionary<int, string[]> csvDict = new();
+        Sprite[] sprites = Resources.LoadAll<Sprite>(EnemySpritePath);
+        Dictionary<int, Sprite> spriteDict = new();
 
+        foreach (var sprite in sprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                spriteDict[id] = sprite;
+            }
+        }
+        
         for (int i = 1; i < lines.Length; i++)
         {
             string[] rowData = lines[i].Split(',');
@@ -835,9 +846,11 @@ public class DataSync : MonoBehaviour
                     lootCrateDropChance =  int.Parse(rowData[11]),
                     initWave = int.Parse(rowData[12]),
                 };
+
+                var sprite = spriteDict.GetValueOrDefault(enemyData.ID, placeHolder);
                 
 #if UNITY_EDITOR
-                enemyData.SyncEnemyStat(enemyStat);
+                enemyData.SyncEnemyStat(sprite, enemyStat);
 
                 enemyUpdateCount++;
 

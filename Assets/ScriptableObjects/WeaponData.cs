@@ -49,6 +49,8 @@ public struct WeaponStat
     public List<int>  healthAbsorb;
     public List<int> prices;
     public Sprite projectileSprite;
+    public Vector2 projectileSpriteScale;
+    public Vector2 projectileColliderSize;
 }
 
 public struct CurrentWeaponStat

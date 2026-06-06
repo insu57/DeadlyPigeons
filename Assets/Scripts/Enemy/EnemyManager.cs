@@ -17,6 +17,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     public int AttackDamage { get; private set; }
     public float Speed { get; private set; }
+    public EnemyData EnemyData => enemyData;
 
     public Transform Target { get; private set; }
     private Coroutine _activeDotCoroutine;
@@ -82,6 +83,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     private void InitEnemy()
     {
+        spriteRenderer.sprite = enemyData.Sprite;
+        
         _health = Mathf.FloorToInt(enemyData.EnemyStat.baseHealth 
                                    + enemyData.EnemyStat.healthPerWave * (_currentWave - 1));
         AttackDamage = Mathf.CeilToInt(enemyData.EnemyStat.baseDamage 

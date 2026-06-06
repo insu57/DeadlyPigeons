@@ -52,8 +52,15 @@ public class ProjectileShootState : IShootState
             Bounces = 0,
             HitLayer = DataManager.Instance.EnemyHitboxLayer,
             IsCrit = false,
-            WeaponEffects = new List<IWeaponEffect>()
+            WeaponEffects = new List<IWeaponEffect>(),
         };
+        
+        if (enemyManager.EnemyData.EnemyStat.projectileSprite)
+        {
+            data.ProjectileSprite = enemyManager.EnemyData.EnemyStat.projectileSprite;
+            data.SpriteScale = enemyManager.EnemyData.EnemyStat.projectileSpriteScale;
+            data.ColliderSize = enemyManager.EnemyData.EnemyStat.projectileColliderSize;
+        }
 
         projectile.Initialize(data);
 

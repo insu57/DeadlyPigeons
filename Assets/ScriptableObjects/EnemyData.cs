@@ -37,6 +37,10 @@ public struct EnemyStat
     public float meatDropChance;
     public float lootCrateDropChance;
     public int initWave;
+    
+    public Sprite projectileSprite;
+    public Vector2 projectileSpriteScale;
+    public Vector2 projectileColliderSize;
 }
 
 [CreateAssetMenu(fileName = "EnemyData", menuName = "Scriptable Objects/EnemyData")]
@@ -75,8 +79,9 @@ public class EnemyData : ScriptableObject
 
 #if UNITY_EDITOR
 
-    public void SyncEnemyStat(EnemyStat enemyStat)
+    public void SyncEnemyStat(Sprite sprite, EnemyStat enemyStat)
     {
+        Sprite = sprite;
         EnemyStat = enemyStat;
     }
 
