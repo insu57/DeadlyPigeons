@@ -282,7 +282,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8714847056460786006}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -316,3 +316,5 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 1dceaad86c463a04baa15598d889512f, type: 2}
   spriteRenderer: {fileID: 2759658247507210973}
   hitbox: {fileID: 310274771072626085}
+  separationRadius: 1.2
+  playerSeparationStrength: 5

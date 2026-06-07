@@ -334,7 +334,10 @@ public class PlayerWeapon : MonoBehaviour
             Bounces = _bounces + _subStats[SubStats.Bounces], //무기 도탄 + 스탯
             HitLayer = DataManager.Instance.PlayerHitboxLayer, //Layer : 플레이어 히트 박스
             IsCrit = isCrit,
-            WeaponEffects = _weaponEffects //  효과 리스트
+            WeaponEffects = _weaponEffects, //  효과 리스트
+            ProjectileSprite = WeaponData.WeaponStat.projectileSprite,
+            SpriteScale = WeaponData.WeaponStat.projectileSpriteScale,
+            ColliderSize = WeaponData.WeaponStat.projectileColliderSize,
         };
         projectile.Initialize(projectileInitData);
         projectile.Fire(dir, _finalRange);

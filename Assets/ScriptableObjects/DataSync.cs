@@ -358,17 +358,28 @@ public class DataSync : MonoBehaviour
     public void SyncWeaponDataFromCSV()
     {
         WeaponData[] weapons = Resources.LoadAll<WeaponData>("Data/Weapons");
-        Sprite[] sprites = Resources.LoadAll<Sprite>(WeaponSpritePath);
-        Dictionary<int, Sprite>  spriteDict = new();
-        foreach (var sprite in sprites)
+        Sprite[] weaponSprites = Resources.LoadAll<Sprite>(WeaponSpritePath);
+        Dictionary<int, Sprite>  weaponSpriteDict = new();
+        Sprite[] projectileSprites = Resources.LoadAll<Sprite>(ProjectileSpritePath);
+        Dictionary<int, Sprite> projectileSpriteDict = new();
+        
+        foreach (var sprite in weaponSprites)
         {
             if (int.TryParse(sprite.name, out int id))
             {
-                spriteDict[id] = sprite;
+                weaponSpriteDict[id] = sprite;
             }
             else
             {
                 Debug.LogWarning("Weapon Sprite is Not INT type. : " + sprite.name);
+            }
+        }
+
+        foreach (var sprite in projectileSprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                projectileSpriteDict[id] = sprite;
             }
         }
         
@@ -391,7 +402,7 @@ public class DataSync : MonoBehaviour
             if (csvDict.TryGetValue(so.ID, out string[] rowData))
             {
                 var weaponName =  rowData[1];
-                var weaponSprite = spriteDict.GetValueOrDefault(so.ID, placeHolder);
+                var weaponSprite = weaponSpriteDict.GetValueOrDefault(so.ID, placeHolder);
                 
                 var attackType = AttackType.None;
                 if (rowData[5] == nameof(AttackType.Sweep)) attackType = AttackType.Sweep;
@@ -513,6 +524,24 @@ public class DataSync : MonoBehaviour
                         prices.Add(price);
                     }
                 }
+
+
+                int.TryParse(rowData[18], out var projectileID);
+                projectileSpriteDict.TryGetValue(projectileID, out var projectileSprite);
+                var projectileSpriteScale = new Vector2();
+                var projectileColliderSize = new Vector2();
+                strArr = rowData[19].Split('|');
+                if (strArr.Length > 1)
+                {
+                    projectileSpriteScale.x = float.Parse(strArr[0]);
+                    projectileSpriteScale.y = float.Parse(strArr[1]);
+                }
+                strArr = rowData[20].Split('|');
+                if (strArr.Length > 1)
+                {
+                    projectileColliderSize.x = float.Parse(strArr[0]);
+                    projectileColliderSize.y = float.Parse(strArr[1]);
+                }
                 
                 WeaponStat parsed = new WeaponStat
                 {
@@ -529,6 +558,9 @@ public class DataSync : MonoBehaviour
                     knockBack = knockback,
                     healthAbsorb = healthAbsorb,
                     prices = prices,
+                    projectileSprite = projectileSprite,
+                    projectileSpriteScale = projectileSpriteScale,
+                    projectileColliderSize = projectileColliderSize,
                 };
                 
 #if UNITY_EDITOR

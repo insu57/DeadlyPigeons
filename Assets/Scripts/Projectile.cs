@@ -63,6 +63,8 @@ public class Projectile : MonoBehaviour
     {
         _rigidbody2D.linearVelocity = direction.normalized * _speed;
         _lifeTimer = range / _speed; //거리/속도 = 시간
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        transform.localRotation = Quaternion.Euler(0, 0, angle);
     }
 
     private void ProjectileRange()
