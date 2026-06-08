@@ -5882,7 +5882,7 @@ GameObject:
   - component: {fileID: 1131234025}
   - component: {fileID: 1131234026}
   m_Layer: 0
-  m_Name: Capsule
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5926,7 +5926,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: d4e6154eb9c8430282830854708fa6fb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6104,6 +6104,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93f302ac0a079a343b74336fbe4a045c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 1131234026}
+  hitFlashColor: {r: 1, g: 0.4433962, b: 0.4433962, a: 1}
+  hitFlashDuration: 0.1
 --- !u!70 &1210036918
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

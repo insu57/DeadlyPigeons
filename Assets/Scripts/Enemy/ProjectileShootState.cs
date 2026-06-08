@@ -13,7 +13,6 @@ public class ProjectileShootState : IShootState
         if (stateParameter.shootParameters.Count >= 2)
         {
             _fireRate = stateParameter.shootParameters[0];
-            _projectileRange = stateParameter.shootParameters[1];
         }
     }
 

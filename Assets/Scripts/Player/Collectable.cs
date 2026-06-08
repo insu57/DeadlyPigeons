@@ -19,7 +19,8 @@ public class Collectable : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private CollectableSprite[]  collectableSprites;
-
+    public event Action<Collectable, CollectableType> OnPickup;
+    
     public CollectableType CollectableType { get; private set; }
     public int Amount { get; private set; }
 
@@ -41,6 +42,7 @@ public class Collectable : MonoBehaviour
     {
         if (other.TryGetComponent(out IPickup pickup))
         {
+            OnPickup?.Invoke(this, CollectableType);
             pickup.Pickup(this);
         }
     }

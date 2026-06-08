@@ -36,8 +36,6 @@ public class PlayerInfoUI : MonoBehaviour
     private int _weaponSlot;
     public event Action<int, SelectButton> OnShowWeaponInfo; //ID
     
-    
-    
     private void Awake()
     {
         sb = new StringBuilder();
@@ -93,12 +91,14 @@ public class PlayerInfoUI : MonoBehaviour
             InputManager.Instance.Input.Player.Enable();
             InputManager.Instance.Input.UI.Disable();
             infoUI.SetActive(false);
+            Time.timeScale = 1f;
         }
         else//열기
         {
             InputManager.Instance.Input.Player.Disable();
             InputManager.Instance.Input.UI.Enable();
             infoUI.SetActive(true);
+            Time.timeScale = 0f;
         }
     }
 

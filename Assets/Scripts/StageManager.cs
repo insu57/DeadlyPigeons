@@ -41,8 +41,10 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int cratePickup = 0;
     private StageUI _stageUI;
 
+    private Dictionary<CollectableType, HashSet<Collectable>> _collectables = new();
+    
     private (MainStats stat, int tier)[] _currentUpgradeOptions;
-
+    
     //수정?
     private const int UpgradeOptionCount = 4;
     private int _upgradeRerollPrice;
@@ -131,6 +133,10 @@ public class StageManager : MonoBehaviour
         _storeData.Items = items;
         _storeData.Weapons = weapons;
         _storeData.IsSold = isSold;
+
+        _collectables[CollectableType.Material] = new HashSet<Collectable>();
+        _collectables[CollectableType.Crate] = new HashSet<Collectable>();
+        _collectables[CollectableType.Meat] =  new HashSet<Collectable>();
         
         //웨이브 시작
         StartWave();
@@ -234,6 +240,16 @@ public class StageManager : MonoBehaviour
         
         activeEnemies.Clear();
 
+        foreach (var (_, hashSet) in _collectables)
+        {
+            foreach (var collectable in hashSet)
+            {
+                //각각 웨이브 종료시 처리 추가 필요.
+                ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
+            }
+            hashSet.Clear();
+        }
+        
         //_stageUI.OpenStoreUI(true);
         //개선방안?
         HandleOnWaveEnd();
@@ -626,6 +642,7 @@ public class StageManager : MonoBehaviour
         enemy.transform.position = spawnPos;
         enemy.transform.rotation = Quaternion.identity;
         enemy.Init(spawnInfo.enemyData, _currentWave, _playerManager.transform);
+        enemy.OnDropCollectable += OnDropCollectable;
         enemy.OnDeath += OnEnemyDeath;
         activeEnemies.Add(enemy);
     }
@@ -673,9 +690,22 @@ public class StageManager : MonoBehaviour
 
     private void OnEnemyDeath(EnemyManager enemy) //적 사망 처리
     {
+        enemy.OnDeath -= OnEnemyDeath;
+        enemy.OnDropCollectable -= OnDropCollectable;
         activeEnemies.Remove(enemy);//활성화 된 적 리스트에서 제거.
     }
-    
+
+    private void OnDropCollectable(Collectable collectable, CollectableType collectableType)
+    {
+        _collectables[collectableType].Add(collectable);
+        collectable.OnPickup += OnCollectablePickup;
+    }
+
+    private void OnCollectablePickup(Collectable collectable, CollectableType collectableType)
+    {
+        _collectables[collectableType].Remove(collectable);
+    }
+
     private void FindClosestEnemy() //가장 가까운 적 찾기 => 개선 점?
     {
         Transform closest = null;

@@ -8,13 +8,20 @@ public class EnemyManager : MonoBehaviour, IDamageable
 {
     [SerializeField] private EnemyData enemyData;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Color hitFlashColor = Color.white;
+    [SerializeField] private float hitFlashDuration = 0.1f;
+    private static readonly int FlashColorID = Shader.PropertyToID("_FlashColor");
+    private static readonly int FlashAmountID = Shader.PropertyToID("_FlashAmount");
+    private MaterialPropertyBlock _propBlock;
+    private Coroutine _flashCoroutine;
     private int _currentWave = 1;
     private int _health;
     private bool _initialized = false;
     [SerializeField] private Hitbox hitbox;
 
     public event Action<EnemyManager> OnDeath;
-
+    public event Action<Collectable, CollectableType> OnDropCollectable;
+    
     public int AttackDamage { get; private set; }
     public float Speed { get; private set; }
     public EnemyData EnemyData => enemyData;
@@ -55,6 +62,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
     private void Awake()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>();
+        _propBlock = new MaterialPropertyBlock();
     }
 
     private void Start()
@@ -79,6 +87,9 @@ public class EnemyManager : MonoBehaviour, IDamageable
     private void OnDisable()
     {
         StopAllCoroutines();
+        _activeDotCoroutine = null;
+        _flashCoroutine = null;
+        SetFlashAmount(0f);
     }
 
     private void InitEnemy()
@@ -115,13 +126,12 @@ public class EnemyManager : MonoBehaviour, IDamageable
             Debug.LogError("Enemy States None!!: " + enemyData.EnemyStat.enemyName);
             return;
         }
-        
         var initStateParameter = enemyData.States[0]; //초기 상태 파라미터
         var initState = initStateParameter.moveState;
         var initShootState = initStateParameter.shootState;
         
         ChangeState(initState);
-        ChangeShootState(initShootState, initStateParameter);
+        ChangeShootState(initShootState);
         
         hitbox.ContactInit(AttackDamage);
     }
@@ -169,11 +179,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
         {
             _currentState.EnterState(this);
             var shootType = stateParameter.shootState;
-            ChangeShootState(shootType, stateParameter);
+            ChangeShootState(shootType);
         }
     }
 
-    private void ChangeShootState(ShootStateType shootStateType, EnemyStateParameter stateParameter)
+    private void ChangeShootState(ShootStateType shootStateType)
     {
         _currentShootState?.ExitState(this);
         _currentShootState = _shootStates[shootStateType];
@@ -186,6 +196,8 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         _health -= damage;
 
+        PlayHitFlash();
+
         var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
         dmgTxt.transform.position = transform.position;
         dmgTxt.Init(ObjectPoolingManager.Instance.Sb);
@@ -193,14 +205,10 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         if (_health <= 0)
         {
-            OnDeath?.Invoke(this);
-            //Destroy(gameObject);
-            
-            ObjectPoolingManager.Instance.ReleaseEnemy(this);
-
             var material = ObjectPoolingManager.Instance.GetCollectable();
             material.SetType(CollectableType.Material, enemyData.EnemyStat.materialsDrop);
             material.transform.position = transform.position;
+            OnDropCollectable?.Invoke(material, CollectableType.Material);
             
             var crateChance = Random.Range(0f, 1f);
             if (crateChance < enemyData.EnemyStat.lootCrateDropChance / 100f)
@@ -208,6 +216,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
                 var crate = ObjectPoolingManager.Instance.GetCollectable();
                 crate.SetType(CollectableType.Crate, 1);
                 crate.transform.position = transform.position;
+                OnDropCollectable?.Invoke(crate, CollectableType.Crate);
             }
             
             var meatChance = Random.Range(0f, 1f);
@@ -216,7 +225,12 @@ public class EnemyManager : MonoBehaviour, IDamageable
                 var meat  =  ObjectPoolingManager.Instance.GetCollectable();
                 meat.SetType(CollectableType.Meat, 1);
                 meat.transform.position = transform.position;
+                OnDropCollectable?.Invoke(meat, CollectableType.Meat);
             }
+            
+            OnDeath?.Invoke(this);
+
+            ObjectPoolingManager.Instance.ReleaseEnemy(this);
         }
     }
 
@@ -267,6 +281,28 @@ public class EnemyManager : MonoBehaviour, IDamageable
         // 가까울수록 강해지는 선형 반발. chase 벡터(크기 1)와 균형을 맞추기 위해 최대 크기 1로 제한
         return Vector2.ClampMagnitude((away / dist) * 
                                       ((1f - dist / separationRadius) * playerSeparationStrength), 1f);
+    }
+
+    private void PlayHitFlash()
+    {
+        if (_flashCoroutine != null) StopCoroutine(_flashCoroutine);
+        _flashCoroutine = StartCoroutine(FlashCoroutine());
+    }
+
+    private IEnumerator FlashCoroutine()
+    {
+        SetFlashAmount(1f, hitFlashColor);
+        yield return new WaitForSeconds(hitFlashDuration);
+        SetFlashAmount(0f);
+        _flashCoroutine = null;
+    }
+
+    private void SetFlashAmount(float amount, Color? color = null)
+    {
+        spriteRenderer.GetPropertyBlock(_propBlock);
+        if (color.HasValue) _propBlock.SetColor(FlashColorID, color.Value);
+        _propBlock.SetFloat(FlashAmountID, amount);
+        spriteRenderer.SetPropertyBlock(_propBlock);
     }
 
     public void UpdateFacing(float xDir)
