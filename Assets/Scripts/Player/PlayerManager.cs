@@ -162,7 +162,6 @@ public class PlayerManager : MonoBehaviour
         for (int i = 0; i < initWeaponList.Count; i++)
         {
             var sprite = initWeaponList[i].Sprite;
-            //_playerInfoUI.AddWeapon(sprite, i);
             OnAddWeapon?.Invoke(sprite, i);
         }
 
@@ -266,7 +265,7 @@ public class PlayerManager : MonoBehaviour
         AddWeapon(targetWeaponData, nextTier);
     }
 
-//Remove Item 구현?
+    //Remove Item 구현?
 
     public void GetStatUpgrade(MainStats stat, int tier)
     {
@@ -325,6 +324,11 @@ public class PlayerManager : MonoBehaviour
         _playerStat.GetMaterial(amount);
     }
 
+    public void GetStock()
+    {
+        _playerStat.GetStock();
+    }
+    
     public void GetClosestEnemy(TargetInfo enemy) //가장 가까운 적 => PlayerWeapon에 주입
     {
         foreach (var playerWeapon in playerWeapons)

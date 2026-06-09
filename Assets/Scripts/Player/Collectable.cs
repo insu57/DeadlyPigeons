@@ -37,6 +37,7 @@ public class Collectable : MonoBehaviour
             spriteRenderer.sprite = DataManager.Instance.PlaceHolderSprite;
         }
     }
+    
 
     private void OnTriggerEnter2D(Collider2D other)
     {

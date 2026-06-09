@@ -30,6 +30,8 @@ public class PlayerStat : MonoBehaviour
     private const int DefaultMaxHP = 10;
     private const int DefaultFoodHeal = 3;
     public int Money { get; private set; }
+    public int Stock { get; private set; }
+    public void GetStock() => Stock++;
     private readonly Dictionary<MainStats, int> _baseMainStatDict = new();
     private readonly Dictionary<MainStats, int> _mainStatClassBonus = new();//무기 클래스 보너스
     private readonly Dictionary<MainStats, int> _mainStatMultiDict = new();//패시브 스탯 배수

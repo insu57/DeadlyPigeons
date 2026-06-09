@@ -268,6 +268,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
         _activeDotCoroutine = null;
     }
+
+    public void Knockback(float knockbackAmount)
+    {
+        
+    }
     
     // 플레이어와 가까울 때 밀어내는 벡터 반환. 이동 방향에 합산하여 적이 플레이어 안으로 파고들지 않도록 함.
     public Vector2 GetSeparation()

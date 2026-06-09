@@ -27,11 +27,9 @@ public class PlayerWeapon : MonoBehaviour
     private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
     private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
     private float _finalRange; //실제 최종 범위(유닛 배율 적용). 범위 스탯과는 다름.
+    private float _finalKnockback;
     private Hitbox _hitbox;
     private float _targetDist;
-
-   // private Dictionary<MainStats, int> _mainStats = new();
-    //private Dictionary<SubStats, int> _subStats = new();
 
     private IReadOnlyDictionary<MainStats, int> _mainStats;
     private IReadOnlyDictionary<SubStats, int> _subStats;
@@ -69,7 +67,6 @@ public class PlayerWeapon : MonoBehaviour
     
     //Both
     public float BurningTick { get; private set; } = 1f; //아이템 반영 생각
-
     public int ExplosiveDmgPer => _subStats[SubStats.ExplosiveDamage];
     
     public int GetStat(MainStats stat) => _mainStats[stat];
@@ -148,6 +145,8 @@ public class PlayerWeapon : MonoBehaviour
         }
         
         FinalDamage = WeaponStatCalculator.GetWeaponDamage(weaponData,  tier, _mainStats);
+        _finalRange = WeaponStatCalculator.GetRealRange(weaponData, tier, _mainStats);
+        _finalKnockback = WeaponStatCalculator.GetRealKnockback(weaponData, tier, _subStats);
         
         if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
     }
@@ -187,6 +186,8 @@ public class PlayerWeapon : MonoBehaviour
     public void UpdateStat(SubStats stat)
     {
         FinalDamage = WeaponStatCalculator.GetWeaponDamage(WeaponData, Tier, _mainStats);
+        if (stat == SubStats.Knockback)
+            _finalKnockback = WeaponStatCalculator.GetRealKnockback(WeaponData, Tier, _subStats);
     }
 
     public void SetCenter(Transform center)
@@ -252,6 +253,7 @@ public class PlayerWeapon : MonoBehaviour
             
         WeaponEffectsSetExecute(); //무기 효과 실행효과 데이터 주입
         _hitbox.AttackInit(damage, isCrit, _weaponEffects);
+        //넉백추가.
             
         var attackType = WeaponData.WeaponStat.attackType;
         if (attackType == AttackType.Sweep)
@@ -341,6 +343,7 @@ public class PlayerWeapon : MonoBehaviour
         };
         projectile.Initialize(projectileInitData);
         projectile.Fire(dir, _finalRange);
+        //넉백추가.
 
         _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
     }
@@ -375,6 +378,7 @@ public static class WeaponStatCalculator
     private const float AttackSpeedScaler = 0.01f; //공격 속도 상수(스탯이 늘어나면 속도가 0에 가까워짐)
     private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
     private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
+    private const float KnockbackScaler = 0.1f;
 
     public static CurrentWeaponStat GetCurrentWeaponStat(WeaponData weaponData, int tier,
         IReadOnlyDictionary<MainStats, int> finalMainStatDict, IReadOnlyDictionary<SubStats, int> finalSubStatDict)
@@ -465,5 +469,14 @@ public static class WeaponStatCalculator
         //추후 스탯 반영 할 수 있음.(RecyclePrice %)
         var tierIdx = tier - weaponData.WeaponStat.initTier;
         return Mathf.FloorToInt(weaponData.WeaponStat.prices[tierIdx] / 2f);
+    }
+
+    public static float GetRealKnockback(WeaponData weaponData, int tier, 
+        IReadOnlyDictionary<SubStats, int> finalSubStatDict)
+    {
+        var weaponKnockback = weaponData.WeaponStat.knockBack[tier];
+        var knockbackStat = finalSubStatDict[SubStats.Knockback];
+
+        return (weaponKnockback + knockbackStat) / KnockbackScaler;
     }
 }

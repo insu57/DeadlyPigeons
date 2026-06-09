@@ -232,7 +232,6 @@ public class StageManager : MonoBehaviour
     {
         //레벨 업.
         //아이템 획득.
-
         foreach (var enemy in activeEnemies)
         {
             ObjectPoolingManager.Instance.ReleaseEnemy(enemy);
@@ -240,18 +239,28 @@ public class StageManager : MonoBehaviour
         
         activeEnemies.Clear();
 
-        foreach (var (_, hashSet) in _collectables)
+        foreach (var (collectableType, hashSet) in _collectables)
         {
-            foreach (var collectable in hashSet)
+            if (collectableType == CollectableType.Crate)
             {
-                //각각 웨이브 종료시 처리 추가 필요.
-                ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
+                foreach (var collectable in hashSet)
+                {
+                    cratePickup++;
+                    ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
+                }   
+            }
+            else
+            { 
+                //material, meat -> stock(재료 획득할 때 마다 2배로 획득하고 감소)
+                foreach (var collectable in hashSet) 
+                {
+                    _playerManager.GetStock();
+                    ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
+                }
             }
             hashSet.Clear();
         }
         
-        //_stageUI.OpenStoreUI(true);
-        //개선방안?
         HandleOnWaveEnd();
     }
 

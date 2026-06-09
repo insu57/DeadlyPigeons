@@ -75,7 +75,8 @@ public class StageUI : MonoBehaviour
     public event Action OnNextWave;
     public event Action<int> OnCombineWeapon; //이벤트 버스로 수정?
     public event Action<int> OnRecycleWeapon;
-
+    [SerializeField] private StageEndPanel stageEndPanel;
+    
     private StringBuilder _sb;
     
     private void Awake()

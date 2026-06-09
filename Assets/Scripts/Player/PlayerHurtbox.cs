@@ -72,6 +72,8 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
 
     public void DotDamage(int duration, int damage, float tick) { }
 
+    public void Knockback(float knockbackAmount) { }
+
     public Transform GetTransform() => transform;
     
     public void Pickup(Collectable collectable)
