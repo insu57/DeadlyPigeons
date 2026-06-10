@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class EnemyManager : MonoBehaviour, IDamageable
+public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
 {
     [SerializeField] private EnemyData enemyData;
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -44,6 +44,11 @@ public class EnemyManager : MonoBehaviour, IDamageable
     [SerializeField] private float separationRadius = 1.2f;      // 플레이어 반발이 시작되는 거리
     [SerializeField] private float playerSeparationStrength = 5f; // 반발 강도 (chase 벡터 크기 1 기준으로 조정)
 
+    [Header("Knockback")]
+    [SerializeField] private float knockbackDuration = 0.2f; // 임펄스 후 이동(추격) 복귀까지의 시간
+    [SerializeField] private float knockbackDrag = 8f;       // 넉백 중 감속용 linearDamping
+    private float _knockbackTimer;
+
     public void SetTarget(Transform target)
     {
         Target = target;
@@ -81,6 +86,21 @@ public class EnemyManager : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        if (_knockbackTimer > 0f)
+        {
+            //넉백 -> AddForce
+            _knockbackTimer -= Time.fixedDeltaTime;
+            if (_knockbackTimer <= 0f)
+            {
+                // 넉백 종료: drag/잔여 속도 원복 → 추격 MovePosition 정상화
+                Rigidbody2D.linearDamping = 0f;
+                Rigidbody2D.linearVelocity = Vector2.zero;
+                
+                //Speed 자체를 조절해야?
+            }
+            return; // 넉백 중에는 상태 이동(MovePosition) 중단. 임펄스 + drag로 밀려남
+        }
+
         _currentState?.FixedExecute(this);
     }
 
@@ -90,6 +110,10 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _activeDotCoroutine = null;
         _flashCoroutine = null;
         SetFlashAmount(0f);
+        // 풀 재사용 대비 넉백 상태 초기화
+        _knockbackTimer = 0f;
+        Rigidbody2D.linearDamping = 0f;
+        Rigidbody2D.linearVelocity = Vector2.zero;
     }
 
     private void InitEnemy()
@@ -234,9 +258,7 @@ public class EnemyManager : MonoBehaviour, IDamageable
         }
     }
 
-    public void Heal(int healAmount)
-    {
-    }
+    public void Heal(int healAmount) { }
 
     public void DotDamage(int duration, int damage, float tick)
     {
@@ -269,9 +291,19 @@ public class EnemyManager : MonoBehaviour, IDamageable
         _activeDotCoroutine = null;
     }
 
-    public void Knockback(float knockbackAmount)
+    public void Knockback(Vector2 direction, float force)
     {
-        
+        if (!gameObject.activeInHierarchy || force <= 0f) return;
+
+        // 저항: 0 = 저항 없음(완전 넉백) ~ 1 = 완전 면역(넉백 없음). 범위 밖 값 방어.
+        float resistance = Mathf.Clamp01(enemyData.EnemyStat.knockbackResistance);
+        float applied = force * (1f - resistance);
+        if (applied <= 0f) return; // 저항 1 → 밀리지 않음
+
+        Rigidbody2D.linearVelocity = Vector2.zero;          // 기존 이동 속도 제거
+        Rigidbody2D.linearDamping = knockbackDrag;          // 감속용 drag(임펄스가 자연스럽게 잦아들도록)
+        Rigidbody2D.AddForce(direction.normalized * applied, ForceMode2D.Impulse);
+        _knockbackTimer = knockbackDuration;
     }
     
     // 플레이어와 가까울 때 밀어내는 벡터 반환. 이동 방향에 합산하여 적이 플레이어 안으로 파고들지 않도록 함.

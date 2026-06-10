@@ -9,6 +9,7 @@ public class Hitbox : MonoBehaviour
     public CapsuleCollider2D Collider {get; private set;}
     private int _damage;
     private bool _isCrit;
+    private float _knockback;
     private List<IWeaponEffect> _weaponEffects;
     private HashSet<IDamageable> _hitTargets = new(); //공격했던 타겟 해시셋(중복 타격 방지)
     
@@ -21,10 +22,12 @@ public class Hitbox : MonoBehaviour
         Collider = GetComponent<CapsuleCollider2D>();
     }
     
-    public void AttackInit(int damage, bool isCrit,List<IWeaponEffect> weaponEffects)
+    // knockback 기본값 0 → 폭발(Explosive) 등 넉백이 없는 호출은 인자 생략
+    public void AttackInit(int damage, bool isCrit, List<IWeaponEffect> weaponEffects = null, float knockback = 0f)
     {
         _damage = damage;
         _isCrit = isCrit;
+        _knockback = knockback;
         _weaponEffects = weaponEffects;
         _hitTargets.Clear();//공격했던 타겟 해시셋 비우기
         _isStayCheck = false;
@@ -34,6 +37,7 @@ public class Hitbox : MonoBehaviour
     {
         _damage = damage;
         _isCrit = false;
+        _knockback = 0f; //적 접촉 데미지는 넉백 없음(플레이어는 IKnockbackable 미구현)
         _isStayCheck = true;
     }
     
@@ -61,6 +65,10 @@ public class Hitbox : MonoBehaviour
             if(!_hitTargets.Add(target)) return; //타겟이 이미 있다면 스킵 아니라면 해시셋에 추가
 
             target.Damage(_damage, _isCrit);
+            if (_knockback > 0f && target is IKnockbackable knockBackable) //넉백 대상만(적). 방향: 히트박스→타겟(바깥쪽)
+            {
+                knockBackable.Knockback(other.transform.position - transform.position, _knockback);
+            }
             if(_weaponEffects == null) return;
             foreach (var weaponEffect in _weaponEffects)
             {

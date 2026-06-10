@@ -868,7 +868,6 @@ GameObject:
   - component: {fileID: 8608618603216351368}
   - component: {fileID: 6025118513037508516}
   - component: {fileID: 3723854724312088361}
-  - component: {fileID: 7656382840328419987}
   m_Layer: 5
   m_Name: Grid
   m_TagString: Untagged
@@ -961,24 +960,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7656382840328419987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8067721048665562979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9dc0ae9f5d95ef4eaef96765a1c68ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectBtnPrefab: {fileID: 0}
-  weaponGrid: {fileID: 0}
-  itemGrid: {fileID: 0}
-  infoPanel: {fileID: 0}
-  classInfo: {fileID: 0}
-  background: {fileID: 0}
 --- !u!1 &8476337911362607416
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,7 +4,6 @@ using UnityEngine;
 public class PickupRange : MonoBehaviour, IPickup
 {
     public event Action<int> OnGetMaterial;
-    public event Action<int> OnGetStock;
     
     public void Pickup(Collectable collectable)
     {

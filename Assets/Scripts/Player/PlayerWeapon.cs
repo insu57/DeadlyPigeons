@@ -252,8 +252,7 @@ public class PlayerWeapon : MonoBehaviour
         var (isCrit, damage) = CritDamage();
             
         WeaponEffectsSetExecute(); //무기 효과 실행효과 데이터 주입
-        _hitbox.AttackInit(damage, isCrit, _weaponEffects);
-        //넉백추가.
+        _hitbox.AttackInit(damage, isCrit, _weaponEffects, _finalKnockback);
             
         var attackType = WeaponData.WeaponStat.attackType;
         if (attackType == AttackType.Sweep)
@@ -336,6 +335,7 @@ public class PlayerWeapon : MonoBehaviour
             Bounces = _bounces + _subStats[SubStats.Bounces], //무기 도탄 + 스탯
             HitLayer = DataManager.Instance.PlayerHitboxLayer, //Layer : 플레이어 히트 박스
             IsCrit = isCrit,
+            Knockback = _finalKnockback,
             WeaponEffects = _weaponEffects, //  효과 리스트
             ProjectileSprite = WeaponData.WeaponStat.projectileSprite,
             SpriteScale = WeaponData.WeaponStat.projectileSpriteScale,
@@ -343,7 +343,6 @@ public class PlayerWeapon : MonoBehaviour
         };
         projectile.Initialize(projectileInitData);
         projectile.Fire(dir, _finalRange);
-        //넉백추가.
 
         _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
     }
@@ -477,6 +476,6 @@ public static class WeaponStatCalculator
         var weaponKnockback = weaponData.WeaponStat.knockBack[tier];
         var knockbackStat = finalSubStatDict[SubStats.Knockback];
 
-        return (weaponKnockback + knockbackStat) / KnockbackScaler;
+        return (weaponKnockback + knockbackStat) * KnockbackScaler;//0.1배
     }
 }

@@ -11,6 +11,7 @@ public struct ProjectileInitData
     public int Bounces;
     public int HitLayer;
     public bool IsCrit;
+    public float Knockback;
     public List<IWeaponEffect> WeaponEffects;
     
     public Sprite ProjectileSprite;
@@ -25,6 +26,7 @@ public class Projectile : MonoBehaviour
     private int _piercingDmgPer;
     private int _bounces;
     private bool _isCrit;
+    private float _knockback;
     
     private float _lifeTimer;
     private float _speed = 10f; //temp?
@@ -53,6 +55,7 @@ public class Projectile : MonoBehaviour
         _bounces = data.Bounces;
         gameObject.layer = data.HitLayer;
         _isCrit = data.IsCrit;
+        _knockback = data.Knockback;
         _weaponEffects = data.WeaponEffects;
         _renderer.sprite = data.ProjectileSprite;
         _renderer.gameObject.transform.localScale = data.SpriteScale;
@@ -86,6 +89,10 @@ public class Projectile : MonoBehaviour
         if (collision.TryGetComponent(out IDamageable target))
         {
             target.Damage(_damage, _isCrit);
+            if (_knockback > 0f && target is IKnockbackable knockable) //넉백 대상만(적). 방향: 투사체 진행 방향
+            {
+                knockable.Knockback(_rigidbody2D.linearVelocity, _knockback);
+            }
             foreach (var weaponEffect in _weaponEffects)
             {
                 weaponEffect.Execute(target);
@@ -98,6 +105,7 @@ public class Projectile : MonoBehaviour
             _piercing--;
             _damage = Mathf.FloorToInt(_damage * (100 +  _piercingDmgPer) / 100f);
             _damage = Mathf.Max(1, _damage);
+            _knockback = 0f;
         }
     }
     
