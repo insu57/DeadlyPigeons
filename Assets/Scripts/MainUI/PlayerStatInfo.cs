@@ -30,7 +30,7 @@ public class PlayerStatInfo : MonoBehaviour
         subStatBtn.onClick.AddListener(ShowSubStat);
     }
     
-    public void InitStatGrid(PlayerInfoUI playerInfoUI) //스탯 텍스트 초기화
+    public void InitStatGrid(PlayerManager playerManager) //스탯 텍스트 초기화, 개선?
     {
         for(int i = 0; i < (int)MainStats.None; i++)
         {
@@ -55,9 +55,9 @@ public class PlayerStatInfo : MonoBehaviour
             _subStatDict[subStat] = statTxt;
         }
         
-        playerInfoUI.OnUpdateLevel += UpdateLevel;
-        playerInfoUI.OnUpdateMainStat += UpdateMainStat;
-        playerInfoUI.OnUpdateSubStat += UpdateSubStat;
+        playerManager.OnUpdateLevel += UpdateLevel;
+        playerManager.OnUpdateMainStat += UpdateMainStat;
+        playerManager.OnUpdateSubStat += UpdateSubStat;
     }
     
     private void ShowMainStat()

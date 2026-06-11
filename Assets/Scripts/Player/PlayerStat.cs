@@ -56,6 +56,7 @@ public class PlayerStat : MonoBehaviour
     public event Action<PlayerLevelInfo> OnChangeExp;
     public event Action<int> OnChangeMoney;
     
+    public event Action OnPlayerDeath;
 
     public void InitStat() //스탯 초기화.
     {
@@ -178,6 +179,11 @@ public class PlayerStat : MonoBehaviour
         _finalMainStatDict[mainStat] = Mathf.FloorToInt(currentAmount * (1f + multiplier / 100f));
     
         OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
+        if (mainStat == MainStats.MaxHP)
+        {
+            currentHP += amount;
+            OnChangeHealth?.Invoke(currentHP, MaxHp);
+        }
     }
 
     private void ChangeStat(SubStats subStat, int amount)
@@ -209,9 +215,13 @@ public class PlayerStat : MonoBehaviour
         var finalDamage = Mathf.FloorToInt(damage * ratio + 0.5f);
         currentHP -= finalDamage;
         OnChangeHealth?.Invoke(currentHP, MaxHp);
+        if (currentHP <= 0)
+        {
+            OnPlayerDeath?.Invoke();
+        }
     }
-    
-    public static float CalculateArmorRatio(float rawDamage, float armor)
+
+    private static float CalculateArmorRatio(float rawDamage, float armor)
     {
         float damageRatio;
 

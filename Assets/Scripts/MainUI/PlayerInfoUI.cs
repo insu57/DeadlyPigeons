@@ -19,6 +19,7 @@ public class PlayerInfoUI : MonoBehaviour
     
     //StatInfo
     [SerializeField] private PlayerStatInfo[] playerStatInfos;
+    [SerializeField] private PlayerStatInfo playerStatInfo;
     public event Action<int> OnUpdateLevel;
     public event Action<MainStats, int> OnUpdateMainStat;
     public event Action<SubStats, int> OnUpdateSubStat;
@@ -29,8 +30,7 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private GridLayoutGroup weaponGrid;
     [SerializeField] private GridLayoutGroup itemGrid;
-    //[SerializeField] private Transform selectBtnParent;
-    //private Transform _weaponInfoPanelParent;
+
     [SerializeField] private InfoPanel infoPanel;
     [SerializeField] private ClassInfo classInfo;
     private int _weaponSlot;
@@ -40,10 +40,11 @@ public class PlayerInfoUI : MonoBehaviour
     {
         sb = new StringBuilder();
  
+        /*
         foreach (var playerStatInfo in playerStatInfos)
         {
             playerStatInfo.InitStatGrid(this);
-        }
+        }*/
         
         ObjectPoolingManager.Instance.InitSelectBtnPool();
     }
@@ -56,6 +57,7 @@ public class PlayerInfoUI : MonoBehaviour
     public void Init(PlayerManager playerManager)
     {
         itemGridUI.Init(playerManager, InfoPanelType.Main);
+        playerStatInfo.InitStatGrid(playerManager);
     }
 
     public void UpdateHealthBar(int currentHealth, int maxHealth)
@@ -102,6 +104,7 @@ public class PlayerInfoUI : MonoBehaviour
         }
     }
 
+    /*
     public void UpdateMainStat(MainStats stat, int value)
     {
         OnUpdateMainStat?.Invoke(stat, value);
@@ -111,5 +114,5 @@ public class PlayerInfoUI : MonoBehaviour
     {
         OnUpdateSubStat?.Invoke(stat, value);
     }
-    
+    */
 }

@@ -1030,9 +1030,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageEndText: {fileID: 1478413099}
-  playerStatInfo: {fileID: 1654998369}
+  <PlayerStatInfo>k__BackingField: {fileID: 1654998369}
   stageEndButton: {fileID: 1009285457}
-  itemGridUI: {fileID: 2124523298}
+  <ItemGridUI>k__BackingField: {fileID: 2124523298}
 --- !u!114 &282714827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5262,7 +5262,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 20}
-  m_SizeDelta: {x: 200, y: 80}
+  m_SizeDelta: {x: 300, y: 80}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1009285457
 MonoBehaviour:
@@ -6232,7 +6232,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: "\uD0C0\uC774\uD2C0\uB85C \uB3CC\uC544\uAC00\uAE30"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 31d29ee0a10c97e43b42ca3d8de289d5, type: 2}
   m_sharedMaterial: {fileID: 4554492593091051563, guid: 31d29ee0a10c97e43b42ca3d8de289d5, type: 2}
@@ -6259,13 +6259,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 35
+  m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -8021,6 +8021,7 @@ MonoBehaviour:
   playerStatInfos:
   - {fileID: 7239190149225446066}
   - {fileID: 1544483574}
+  playerStatInfo: {fileID: 7239190149225446066}
   itemGridUI: {fileID: 3107834152219882413}
   selectBtnPrefab: {fileID: 7143423077175295752, guid: 3906e198cf569d844b5998a6aeb6d7f2, type: 3}
   weaponGrid: {fileID: 5699607994467763827}
@@ -8046,6 +8047,7 @@ MonoBehaviour:
   lvUpIcon: {fileID: 2056673520}
   lvUpCountTxt: {fileID: 1087616635}
   waveEndUI: {fileID: 820179762}
+  playerStatInfo: {fileID: 1544483574}
   upgradeUI: {fileID: 1081741986}
   upgradePanelGrid: {fileID: 323210551}
   upgradePanelPrefab: {fileID: 8271219293800475798, guid: 3c8e753f2277cce4cb790f33b29d08d6, type: 3}
@@ -15015,7 +15017,7 @@ Transform:
   m_GameObject: {fileID: 1810053343}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.82, y: -0.04, z: 0}
+  m_LocalPosition: {x: 1.76, y: -8.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16108,6 +16110,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 282714825}
     m_Modifications:
+    - target: {fileID: 990635046572708520, guid: e593e407c4d9dac4d8ae9449b91e768b, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 480
+      objectReference: {fileID: 0}
     - target: {fileID: 1901151851660672781, guid: e593e407c4d9dac4d8ae9449b91e768b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -24,6 +24,10 @@ public class PlayerManager : MonoBehaviour
 
     private PlayerInfoUI _playerInfoUI;
 
+    public event Action<MainStats, int> OnUpdateMainStat;
+    public event Action<SubStats, int> OnUpdateSubStat;
+    public event Action<int> OnUpdateLevel; 
+    
     public event Action OnPlayerLevelUp;
     public event Action OnCratePickup;
     public event Action<int> OnUpdateMoney;
@@ -32,6 +36,8 @@ public class PlayerManager : MonoBehaviour
     public event Action<ItemData, int> OnAddItem;
     public event Action<int> OnRemoveWeapon;
 
+    public event Action OnPlayerDeath;
+    
     private readonly Collider2D[] _hitBuffer = new Collider2D[100];
 
     private void Awake()
@@ -54,7 +60,8 @@ public class PlayerManager : MonoBehaviour
         _playerStat.OnChangeHealth += UpdateHealth;
         _playerStat.OnChangeExp += UpdateExp;
         _playerStat.OnChangeMoney += UpdateMoney;
-
+        _playerStat.OnPlayerDeath += () => OnPlayerDeath?.Invoke();
+        
         _playerHurtbox.OnDamage += HandleOnDamage;
         _playerHurtbox.OnHeal += HandleOnHeal;
         _playerHurtbox.OnGetCollectable += HandleOnGetCollectable;
@@ -87,7 +94,9 @@ public class PlayerManager : MonoBehaviour
     {
         _playerInfoUI.UpdateHealthBar(currentHealth, maxHealth);
     }
-
+    //_playerInfo가 아닌 statUI에게
+    //아마 이벤트로?
+    
     private void UpdateExp(PlayerLevelInfo playerLevelInfo)
     {
         var lv = playerLevelInfo.currentLevel;
@@ -275,7 +284,8 @@ public class PlayerManager : MonoBehaviour
     
     private void UpdateStat(MainStats stat, int value)
     {
-        _playerInfoUI.UpdateMainStat(stat, value);
+        //_playerInfoUI.UpdateMainStat(stat, value);
+        OnUpdateMainStat?.Invoke(stat, value);
      
         foreach (var playerWeapon in playerWeapons)
         {
@@ -288,7 +298,8 @@ public class PlayerManager : MonoBehaviour
 
     private void UpdateStat(SubStats stat, int value)
     {
-        _playerInfoUI.UpdateSubStat(stat, value);
+        //_playerInfoUI.UpdateSubStat(stat, value);
+        OnUpdateSubStat?.Invoke(stat, value);
         
         foreach (var playerWeapon in playerWeapons)
         {

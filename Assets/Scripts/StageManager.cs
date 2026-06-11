@@ -108,16 +108,7 @@ public class StageManager : MonoBehaviour
         ObjectPoolingManager.Instance.InitCollectablePool();
 
         //StageUI
-        _stageUI.OnSelectStatUpgrade += HandleOnSelectStatUpgrade;
-        _stageUI.OnRerollUpgrade += HandleOnRerollUpgrade;
-        _stageUI.OnUseCrateItem += HandleOnUseCrateItem;
-        _stageUI.OnSellCrateItem += HandleOnSellCrateItem;
-        _stageUI.OnStorePanelShowClassInfo += HandleOnStorePanelShowClassInfo;
-        _stageUI.OnRerollStore += HandleOnRerollStore;
-        _stageUI.OnBuyStore += HandleOnBuyStore;
-        _stageUI.OnNextWave += HandleOnNextWave;
-        _stageUI.OnCombineWeapon += HandleOnCombineWeapon;
-        _stageUI.OnRecycleWeapon += HandleOnRecycleWeapon;
+        InitStageUi();
 
         _storeData = new StoreData
         {
@@ -178,10 +169,26 @@ public class StageManager : MonoBehaviour
         _playerManager.OnPlayerLevelUp += OnLevelUp;
         _playerManager.OnCratePickup += OnCratePickup;
         _playerManager.OnUpdateMoney += money => _stageUI.UpdateMoney(money);
+        _playerManager.OnPlayerDeath += OnStageEnd;
+    }
+
+    private void InitStageUi()
+    {
+        _stageUI.OnSelectStatUpgrade += HandleOnSelectStatUpgrade;
+        _stageUI.OnRerollUpgrade += HandleOnRerollUpgrade;
+        _stageUI.OnUseCrateItem += HandleOnUseCrateItem;
+        _stageUI.OnSellCrateItem += HandleOnSellCrateItem;
+        _stageUI.OnStorePanelShowClassInfo += HandleOnStorePanelShowClassInfo;
+        _stageUI.OnRerollStore += HandleOnRerollStore;
+        _stageUI.OnBuyStore += HandleOnBuyStore;
+        _stageUI.OnNextWave += HandleOnNextWave;
+        _stageUI.OnCombineWeapon += HandleOnCombineWeapon;
+        _stageUI.OnRecycleWeapon += HandleOnRecycleWeapon;
     }
 
     private void StartWave()
     {
+        _playerManager.transform.position = Vector3.zero;
         var waveData = DataManager.Instance.WaveDataList[_currentWave - 1];
         _stageUI.SetCurrentWaveText(_currentWave);
         StartCoroutine(WaveCoroutine(waveData));
@@ -488,8 +495,6 @@ public class StageManager : MonoBehaviour
         
         _stageUI.OpenStoreUI(_storeData);
     }
-
-    
     
     private void HandleOnUseCrateItem()
     {
@@ -737,5 +742,17 @@ public class StageManager : MonoBehaviour
         var newTarget = new TargetInfo(closest, minDistanceSqr);
         
         _playerManager.GetClosestEnemy(newTarget);
+    }
+
+    private void OnStageEnd()
+    {
+        Time.timeScale = 0f;
+        //정지
+        //1.메인화면(타이틀) 씬전환
+        //2.빠른 재시작(같은 캐릭터, 무기, 난이도)
+        
+        _stageUI.StageEnd();
+        //아이템 무기 목록
+        //스탯목록.
     }
 }

@@ -5,8 +5,9 @@ using UnityEngine.UI;
 public class StageEndPanel : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI stageEndText;
-    [SerializeField] private PlayerStatInfo playerStatInfo;
+    [field: SerializeField] public PlayerStatInfo PlayerStatInfo { get; private set; }
     [SerializeField] private Button stageEndButton;
-    [SerializeField] private ItemGridUI itemGridUI;
+    [field: SerializeField] public ItemGridUI ItemGridUI { get; private set; }
+
     
 }

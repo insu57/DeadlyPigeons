@@ -36,6 +36,7 @@ public class StageUI : MonoBehaviour
     [Header("WaveEnd")]
     [SerializeField] private GameObject waveEndUI;
     private Dictionary<WaveEndState, GameObject> waveEndDict = new();
+    [SerializeField] private PlayerStatInfo playerStatInfo;
     
     [Header("Upgrade")]
     [SerializeField] private GameObject upgradeUI;
@@ -101,7 +102,10 @@ public class StageUI : MonoBehaviour
 
     public void Init(PlayerManager playerManager, int upgradeOptionCount, int storeOptionCount)
     {
+        playerStatInfo.InitStatGrid(playerManager);
         itemGridUI.Init(playerManager, InfoPanelType.Store);
+        stageEndPanel.PlayerStatInfo.InitStatGrid(playerManager);
+        stageEndPanel.ItemGridUI.Init(playerManager, InfoPanelType.Main);
         
         _upgradeOptionCount = upgradeOptionCount;
         _upgradePanels = new UpgradePanel[_upgradeOptionCount];
@@ -286,5 +290,15 @@ public class StageUI : MonoBehaviour
     {
         waveEndUI.SetActive(false);
         OnNextWave?.Invoke();
+    }
+
+    public void StageEnd()
+    {
+        stageEndPanel.gameObject.SetActive(true);
+    }
+
+    public void SyncPlayerStat()
+    {
+        
     }
 }
