@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum EnemyStateType { Chase, Kite, Dash }
-public enum ShootStateType { None, Single }
+public enum ShootStateType { None, Single, Radial }
 public enum TransitionCondition { HealthBelow, TimeElapsed }
 
 [Serializable]
@@ -37,6 +37,10 @@ public struct EnemyStat
     public float meatDropChance;
     public float lootCrateDropChance;
     public int initWave;
+    public bool isBoss;
+    
+    public Vector2 colliderOffset;
+    public Vector2 colliderSize;
     
     public Sprite projectileSprite;
     public Vector2 projectileSpriteScale;

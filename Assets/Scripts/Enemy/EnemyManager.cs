@@ -133,7 +133,8 @@ public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
         _enemyStates[EnemyStateType.Dash] = new DashState();
 
         _shootStates[ShootStateType.None] = new NoneShootState();
-        _shootStates[ShootStateType.Single] = new ProjectileShootState();
+        _shootStates[ShootStateType.Single] = new SingleShootState();
+        _shootStates[ShootStateType.Radial] = new RadialShootState();
 
         foreach (var enemyStateParameter in enemyData.States)
         {

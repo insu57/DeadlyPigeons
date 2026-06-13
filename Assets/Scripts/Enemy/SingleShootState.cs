@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProjectileShootState : IShootState
+public class SingleShootState : IShootState
 {
     private  float _fireRate = 3f;
     private  float _projectileRange = 15f;

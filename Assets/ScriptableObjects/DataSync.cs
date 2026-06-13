@@ -842,12 +842,22 @@ public class DataSync : MonoBehaviour
         Dictionary<int, string[]> csvDict = new();
         Sprite[] sprites = Resources.LoadAll<Sprite>(EnemySpritePath);
         Dictionary<int, Sprite> spriteDict = new();
+        Sprite[] projectileSprites = Resources.LoadAll<Sprite>(ProjectileSpritePath);
+        Dictionary<int, Sprite> projectileSpriteDict = new();
 
         foreach (var sprite in sprites)
         {
             if (int.TryParse(sprite.name, out int id))
             {
                 spriteDict[id] = sprite;
+            }
+        }
+
+        foreach (var sprite in projectileSprites)
+        {
+            if (int.TryParse(sprite.name, out int id))
+            {
+                projectileSpriteDict[id] = sprite;
             }
         }
         
@@ -878,6 +888,44 @@ public class DataSync : MonoBehaviour
                     lootCrateDropChance =  int.Parse(rowData[11]),
                     initWave = int.Parse(rowData[12]),
                 };
+
+                if (int.TryParse(rowData[14], out var projectileID))
+                {
+                    if (projectileSpriteDict.TryGetValue(projectileID, out var projectileSprite))
+                    {
+                        enemyStat.projectileSprite = projectileSprite;
+                        
+                        var spriteScaleRaw = rowData[15].Split('|');
+                        if (spriteScaleRaw.Length >= 2)
+                        {
+                            var spriteScale = new Vector2(float.Parse(spriteScaleRaw[0]), float.Parse(spriteScaleRaw[1]));
+                            enemyStat.projectileSpriteScale = spriteScale;
+                        }
+                        var colliderSizeRaw =  rowData[16].Split('|');
+                        if (colliderSizeRaw.Length >= 2)
+                        {
+                            var colliderSize = new Vector2(float.Parse(colliderSizeRaw[0]), float.Parse(colliderSizeRaw[1]));
+                            enemyStat.projectileColliderSize = colliderSize;
+                        }
+                    }
+                }
+                
+                var isBoss = bool.Parse(rowData[17]);
+                enemyStat.isBoss = isBoss;
+                
+                var colliderOffsetRaw =  rowData[18].Split('|');
+                if (colliderOffsetRaw.Length >= 2)
+                {
+                    var colliderOffset =  new Vector2(float.Parse(colliderOffsetRaw[0]), float.Parse(colliderOffsetRaw[1]));
+                    enemyStat.colliderOffset = colliderOffset;
+                }
+                var enemyColliderSizeRaw =  rowData[19].Split('|');
+                if (enemyColliderSizeRaw.Length >= 2)
+                {
+                    var enemyColliderSize = new Vector2(float.Parse(enemyColliderSizeRaw[0]),
+                        float.Parse(enemyColliderSizeRaw[1]));
+                    enemyStat.colliderSize = enemyColliderSize;
+                }
 
                 var sprite = spriteDict.GetValueOrDefault(enemyData.ID, placeHolder);
                 

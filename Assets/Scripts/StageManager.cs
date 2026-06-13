@@ -45,7 +45,6 @@ public class StageManager : MonoBehaviour
     
     private (MainStats stat, int tier)[] _currentUpgradeOptions;
     
-    //수정?
     private const int UpgradeOptionCount = 4;
     private int _upgradeRerollPrice;
     private int _upgradeRerollIncrease;
@@ -67,6 +66,8 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int testWave;
 
     private int _currentWave = 1; //1~20...
+    private const int LastWave = 20;
+    //21~ -> InfiniteMode
 
     private void Awake()
     {
@@ -169,7 +170,7 @@ public class StageManager : MonoBehaviour
         _playerManager.OnPlayerLevelUp += OnLevelUp;
         _playerManager.OnCratePickup += OnCratePickup;
         _playerManager.OnUpdateMoney += money => _stageUI.UpdateMoney(money);
-        _playerManager.OnPlayerDeath += OnStageEnd;
+        _playerManager.OnPlayerDeath += () => OnStageEnd(false);
     }
 
     private void InitStageUi()
@@ -232,6 +233,7 @@ public class StageManager : MonoBehaviour
             }
         }
         //Wave 종료
+        
         WaveEnd();
     }
 
@@ -245,6 +247,13 @@ public class StageManager : MonoBehaviour
         }
         
         activeEnemies.Clear();
+
+        if (_currentWave == LastWave)
+        {
+            OnStageEnd(true);
+            return;
+        }
+        //무한모드 추후 추가.
 
         foreach (var (collectableType, hashSet) in _collectables)
         {
@@ -744,15 +753,14 @@ public class StageManager : MonoBehaviour
         _playerManager.GetClosestEnemy(newTarget);
     }
 
-    private void OnStageEnd()
+    private void OnStageEnd(bool isClear)
     {
         Time.timeScale = 0f;
         //정지
         //1.메인화면(타이틀) 씬전환
         //2.빠른 재시작(같은 캐릭터, 무기, 난이도)
         
-        _stageUI.StageEnd();
-        //아이템 무기 목록
-        //스탯목록.
+        _stageUI.StageEnd(isClear);
+        //필요한 데이터?
     }
 }

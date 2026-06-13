@@ -154,9 +154,9 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.0038638115, y: -0.011591911}
-  m_Size: {x: 0.9868612, y: 1.0231838}
-  m_Direction: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 1}
+  m_Direction: 1
 --- !u!114 &310274771072626085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,9 +271,9 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.0038638115, y: -0.011591911}
-  m_Size: {x: 0.9868612, y: 1.0231838}
-  m_Direction: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 1}
+  m_Direction: 1
 --- !u!50 &4979344871562076850
 Rigidbody2D:
   serializedVersion: 5
@@ -320,3 +320,5 @@ MonoBehaviour:
   hitbox: {fileID: 310274771072626085}
   separationRadius: 1.2
   playerSeparationStrength: 5
+  knockbackDuration: 0.2
+  knockbackDrag: 8

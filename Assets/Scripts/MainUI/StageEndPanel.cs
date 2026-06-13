@@ -9,5 +9,8 @@ public class StageEndPanel : MonoBehaviour
     [SerializeField] private Button stageEndButton;
     [field: SerializeField] public ItemGridUI ItemGridUI { get; private set; }
 
-    
+    private void Awake()
+    {
+        stageEndButton.onClick.AddListener(() => SceneChanger.Instance.LoadScene(SceneName.TitleScene));
+    }
 }

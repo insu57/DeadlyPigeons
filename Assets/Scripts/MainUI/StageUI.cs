@@ -292,13 +292,8 @@ public class StageUI : MonoBehaviour
         OnNextWave?.Invoke();
     }
 
-    public void StageEnd()
+    public void StageEnd(bool isClear)
     {
         stageEndPanel.gameObject.SetActive(true);
-    }
-
-    public void SyncPlayerStat()
-    {
-        
     }
 }
