@@ -21,6 +21,7 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset enemyStateCSV;
     [SerializeField] private TextAsset enemyTransitionCSV;
     [SerializeField] private TextAsset waveCSV;
+    [SerializeField] private TextAsset waveEnemyCSV;
     
     [SerializeField] private Sprite placeHolder;
     private const string CharSpritePath = "Sprites/Characters/";
@@ -861,11 +862,13 @@ public class DataSync : MonoBehaviour
             }
         }
         
-        for (int i = 1; i < lines.Length; i++)
+        for (int i = 2; i < lines.Length; i++)
         {
             string[] rowData = lines[i].Split(',');
-            int id =  int.Parse(rowData[0]);
-            csvDict[id] = rowData;
+            if (int.TryParse(rowData[0], out int id))
+            {
+                csvDict[id] = rowData;
+            }
         }
 
         int enemyUpdateCount = 0;
@@ -1080,8 +1083,156 @@ public class DataSync : MonoBehaviour
             Debug.Log("Enemy State Transition Updated: " + enemyTransitionUpdateCount);
         }
     }
-    
+
     [ContextMenu("Sync Wave Data")]
     public void SyncWaveDataFromCSV()
-    {}
+    {
+        if (!waveCSV)
+        {
+            Debug.LogError("Wave CSV Error : null");
+            return;
+        }
+
+        WaveData[] waves = Resources.LoadAll<WaveData>("Data/Waves");
+        string[] lines = waveCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, string[]> csvDict = new();
+
+        // 0번 줄: 헤더, 1번 줄: 열 인덱스 → 실제 데이터는 2번부터
+        for (int i = 2; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+            if (int.TryParse(rowData[0], out int waveNumber))
+            {
+                csvDict[waveNumber] = rowData;
+            }
+        }
+
+        int waveUpdateCount = 0;
+        foreach (var so in waves)
+        {
+            if (csvDict.TryGetValue(so.WaveNumber, out var rowData))
+            {
+                int waveLength = int.Parse(rowData[1]);
+                float spawnTick = float.Parse(rowData[2]);
+                int spawnPerTick = int.Parse(rowData[3]);
+
+                // 적 리스트는 WaveEnemy CSV(SyncWaveEnemyFromCSV)에서 채우므로 기존 값 유지
+                var enemies = so.Enemies ?? new List<EnemySpawnInfo>();
+                var bossEnemies = so.BossEnemies ?? new List<EnemyData>();
+
+#if UNITY_EDITOR
+                so.SyncWaveData(waveLength, enemies, bossEnemies, spawnTick, spawnPerTick);
+
+                waveUpdateCount++;
+
+                EditorUtility.SetDirty(so);
+#endif
+            }
+            else
+            {
+                Debug.LogError("Wave Data Not Found : " + so.WaveNumber);
+            }
+        }
+
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Wave Data Updated " + waveUpdateCount + "/" + waves.Length);
+    }
+
+    [ContextMenu("Sync Wave Enemy From CSV")]
+    public void SyncWaveEnemyFromCSV()
+    {
+        if (!waveEnemyCSV)
+        {
+            Debug.LogError("WaveEnemy CSV Error : null");
+            return;
+        }
+
+        WaveData[] waves = Resources.LoadAll<WaveData>("Data/Waves");
+        EnemyData[] enemies = Resources.LoadAll<EnemyData>("Data/Enemies");
+        Dictionary<int, EnemyData> enemyDict = new();
+        foreach (var enemy in enemies)
+        {
+            enemyDict[enemy.ID] = enemy;
+        }
+
+        string[] lines = waveEnemyCSV.text.Split(new []{ '\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+
+        // 웨이브 번호별 스폰 적/보스 리스트 구성
+        Dictionary<int, List<EnemySpawnInfo>> spawnInfoDict = new();
+        Dictionary<int, List<EnemyData>> bossEnemyDict = new();
+
+        // 0번 줄: 헤더, 1번 줄: 열 인덱스 → 실제 데이터는 2번부터
+        for (int i = 2; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+
+            if (!int.TryParse(rowData[0], out int waveNumber)) //빈 줄/잘못된 줄 스킵
+                continue;
+            if (!int.TryParse(rowData[2], out int enemyID))
+                continue;
+
+            if (!enemyDict.TryGetValue(enemyID, out var enemyData))
+            {
+                Debug.LogError("WaveEnemy : EnemyData Not Found : " + enemyID);
+                continue;
+            }
+
+            bool isBoss = bool.Parse(rowData[3]);
+            if (isBoss)
+            {
+                if (bossEnemyDict.ContainsKey(waveNumber))
+                {
+                    bossEnemyDict[waveNumber].Add(enemyData);
+                }
+                else
+                {
+                    bossEnemyDict[waveNumber] = new List<EnemyData> { enemyData };
+                }
+            }
+            else
+            {
+                float weight = float.Parse(rowData[4]);
+                bool isNearSpawn = bool.Parse(rowData[5]);
+                var spawnInfo = new EnemySpawnInfo
+                {
+                    enemyData = enemyData,
+                    weight = weight,
+                    spawnLocation = isNearSpawn ? SpawnLocationType.Near : SpawnLocationType.Far,
+                };
+
+                if (spawnInfoDict.ContainsKey(waveNumber))
+                {
+                    spawnInfoDict[waveNumber].Add(spawnInfo);
+                }
+                else
+                {
+                    spawnInfoDict[waveNumber] = new List<EnemySpawnInfo> { spawnInfo };
+                }
+            }
+        }
+
+        int waveEnemyUpdateCount = 0;
+        foreach (var so in waves)
+        {
+            var spawnInfos = spawnInfoDict.GetValueOrDefault(so.WaveNumber, new List<EnemySpawnInfo>());
+            var bossEnemies = bossEnemyDict.GetValueOrDefault(so.WaveNumber, new List<EnemyData>());
+
+            // 웨이브 단위 값(WaveLength/SpawnTick/SpawnPerTick)은 Wave CSV에서 채우므로 기존 값 유지
+#if UNITY_EDITOR
+            so.SyncWaveData((int)so.WaveLength, spawnInfos, bossEnemies, so.SpawnTick, so.SpawnPerTick);
+
+            waveEnemyUpdateCount++;
+
+            EditorUtility.SetDirty(so);
+#endif
+        }
+
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Wave Enemy Data Updated " + waveEnemyUpdateCount + "/" + waves.Length);
+    }
+    
 }

@@ -36,8 +36,10 @@ public class StageManager : MonoBehaviour
     [SerializeField] private float farSpawnMin = 10f;
     [SerializeField] private float farSpawnMax = 15f;
     private const int MaxSpawnRetries = 10;
+    private const int MaxSpawnCount = 100;
 
-    [Header("Wave")] [SerializeField] private int waveLevelUp = 0;
+    [Header("Wave")] 
+    [SerializeField] private int waveLevelUp = 0;
     [SerializeField] private int cratePickup = 0;
     private StageUI _stageUI;
 
@@ -213,13 +215,13 @@ public class StageManager : MonoBehaviour
 
         float elapsed = 0f;
         int totalSpawned = 0;
-        int maxSpawn = waveData.EnemySpawnCount;
+        //int maxSpawn = waveData.EnemySpawnCount;
         var spawnTick = new WaitForSeconds(waveData.SpawnTick);
 
         while (elapsed < waveData.WaveLength)
         {
             yield return spawnTick;
-            if(totalSpawned > maxSpawn) continue;
+            if(totalSpawned > MaxSpawnCount) continue;
          
             elapsed += waveData.SpawnTick;
             var leftTime = waveData.WaveLength - elapsed;
