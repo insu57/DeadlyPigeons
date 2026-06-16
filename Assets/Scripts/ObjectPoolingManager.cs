@@ -39,7 +39,15 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
 
     private void InitPool<T>(Pooling type) where T : Component
     {
-        if (_pools.ContainsKey(type)) return;
+        // 살아있는 풀이 이미 있으면 재사용.
+        // 씬 전환으로 컨테이너가 파괴됐으면(stale) 잔여 항목 정리 후 재생성.
+        if (_pools.ContainsKey(type))
+        {
+            if (_containers.TryGetValue(type, out var existing) && existing) return;
+
+            _pools.Remove(type);
+            _containers.Remove(type);
+        }
 
         if (!_settings.TryGetValue(type, out var setting))
         {

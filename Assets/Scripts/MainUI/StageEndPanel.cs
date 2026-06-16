@@ -11,6 +11,12 @@ public class StageEndPanel : MonoBehaviour
 
     private void Awake()
     {
-        stageEndButton.onClick.AddListener(() => SceneChanger.Instance.LoadScene(SceneName.TitleScene));
+        stageEndButton.onClick.AddListener(BackToTitle);
+    }
+    
+    private void BackToTitle()
+    {
+        Time.timeScale = 1f;
+        SceneChanger.Instance.LoadScene(SceneName.TitleScene);
     }
 }

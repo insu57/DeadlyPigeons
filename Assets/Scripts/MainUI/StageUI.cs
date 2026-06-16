@@ -49,7 +49,6 @@ public class StageUI : MonoBehaviour
     public event Action<int> OnSelectStatUpgrade;
     public event Action OnRerollUpgrade;
     
-    
     [Header("Crate")]
     [SerializeField] private GameObject crateUI;
     [SerializeField] private InfoPanel crateInfoPanel;
@@ -144,9 +143,8 @@ public class StageUI : MonoBehaviour
 
     public void UpdateWaveTimer(float time)
     {
-        _sb.Clear();
-        _sb.Append("Time\n").Append(time);
-        waveTimer.SetText(_sb);
+        //{0:1} -> 소수점 한 자리 (TMP 포맷, GC 없음)
+        waveTimer.SetText("Time\n{0:1}", time);
     }
 
     public void UpdateCrateCount(int count)
@@ -249,11 +247,7 @@ public class StageUI : MonoBehaviour
             var canBuy = price <= storeData.Money;
             _storePanels[idx].SetStorePanel(weaponStat, price, canBuy);
         }
-        
         // 무기 리스트, 아이템 리스트. 각 wave+itemPrice 반영된 구매가격
-
-
-        //상점...
     }
 
     public void DisableStorePanelOnBuy(int idx)

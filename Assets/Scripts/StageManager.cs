@@ -27,8 +27,8 @@ public class StageManager : MonoBehaviour
     private HashSet<EnemyManager> activeEnemies = new();
     private const float MaxFindRange = 100f;
 
-    [Header("Enemy Spawn")] [SerializeField]
-    private EnemyManager enemyBasePrefab;
+    [Header("Enemy Spawn")]
+    [SerializeField] private EnemyManager enemyBasePrefab;
 
     [SerializeField] private Collider2D mapCollider;
     [SerializeField] private float nearSpawnMin = 3f;
@@ -213,31 +213,43 @@ public class StageManager : MonoBehaviour
     {
         _playerManager.WavePlayerInit(); //웨이브 시작시 플레이어 초기화.
 
+        SpawnBosses(waveData);  //웨이브 시작시 보스 전부 스폰
         float elapsed = 0f;
+        float spawnTimer = 0f;
         int totalSpawned = 0;
-        //int maxSpawn = waveData.EnemySpawnCount;
-        var spawnTick = new WaitForSeconds(waveData.SpawnTick);
 
         while (elapsed < waveData.WaveLength)
         {
-            yield return spawnTick;
-            if(totalSpawned > MaxSpawnCount) continue;
-         
-            elapsed += waveData.SpawnTick;
-            var leftTime = waveData.WaveLength - elapsed;
+            yield return null;
+
+            elapsed += Time.deltaTime;
+            spawnTimer += Time.deltaTime;
+
+            //남은 시간 매 프레임 갱신
+            var leftTime = Mathf.Max(0f, waveData.WaveLength - elapsed);
             _stageUI.UpdateWaveTimer(leftTime);
+
+            //스폰 틱마다 적 스폰
+            if (spawnTimer < waveData.SpawnTick) continue;
+            spawnTimer -= waveData.SpawnTick;
+
+            if (totalSpawned > MaxSpawnCount) continue;
 
             int toSpawn = waveData.SpawnPerTick;
             for (int i = 0; i < toSpawn; i++)
             {
-                SpawnEnemy(waveData);
+                if (waveData.Enemies == null || waveData.Enemies.Count == 0) break;
+                var spawnInfo = PickWeightedEnemy(waveData.Enemies);
+                SpawnEnemy(spawnInfo.enemyData, spawnInfo.spawnLocation);
+
                 totalSpawned++;
             }
         }
         //Wave 종료
-        
+
         WaveEnd();
     }
+    
 
     private void WaveEnd()
     {
@@ -654,19 +666,36 @@ public class StageManager : MonoBehaviour
         _playerManager.RecycleWeapon(idx);
     }
     
+    private void SpawnBosses(WaveData waveData) //웨이브 시작시 보스 전부 스폰.
+    {
+        if (waveData.BossEnemies == null || waveData.BossEnemies.Count == 0) return;
+
+        foreach (var bossData in waveData.BossEnemies)
+        {
+            if (!bossData) continue;
+            SpawnEnemy(bossData, SpawnLocationType.Far);
+        }
+    }
+
     private void SpawnEnemy(WaveData waveData)
     {
         if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;
-        
-        if (!enemyBasePrefab) { Debug.LogWarning("enemyBasePrefab이 비어 있습니다."); return; }
 
         var spawnInfo = PickWeightedEnemy(waveData.Enemies);
-        var spawnPos = GetSpawnPosition(spawnInfo.spawnLocation);
-        
+        SpawnEnemy(spawnInfo.enemyData, spawnInfo.spawnLocation);
+    }
+
+    private void SpawnEnemy(EnemyData enemyData, SpawnLocationType spawnLocation)
+    {
+        if (!enemyData) return;
+        if (!enemyBasePrefab) { Debug.LogWarning("enemyBasePrefab이 비어 있습니다."); return; }
+
+        var spawnPos = GetSpawnPosition(spawnLocation);
+
         var enemy = ObjectPoolingManager.Instance.GetEnemyBase();
         enemy.transform.position = spawnPos;
         enemy.transform.rotation = Quaternion.identity;
-        enemy.Init(spawnInfo.enemyData, _currentWave, _playerManager.transform);
+        enemy.Init(enemyData, _currentWave, _playerManager.transform);
         enemy.OnDropCollectable += OnDropCollectable;
         enemy.OnDeath += OnEnemyDeath;
         activeEnemies.Add(enemy);
