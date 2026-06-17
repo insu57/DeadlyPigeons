@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public enum AttackType
@@ -13,9 +14,9 @@ public enum AttackType
 
 public class PlayerWeapon : MonoBehaviour
 {
-    [SerializeField] private SpriteRenderer weaponSprite;
-    [SerializeField] private CapsuleCollider2D meleeCollider;
-    [SerializeField] private Transform muzzle;
+    [field: SerializeField] public SpriteRenderer WeaponSprite { get; private set; }
+    [field: SerializeField] public BoxCollider2D MeleeCollider { get; private set; }
+    [field: SerializeField] public Transform Muzzle { get; private set; }
     private Transform _center;
     public WeaponData WeaponData{get; private set;}
     private TargetInfo _targetInfo;
@@ -28,6 +29,8 @@ public class PlayerWeapon : MonoBehaviour
     private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
     private float _finalRange; //실제 최종 범위(유닛 배율 적용). 범위 스탯과는 다름.
     private float _finalKnockback;
+    private int _finalHealthAbsorb; //흡혈 확률(%). 적 적중 시 확률로 1 회복.
+    public event Action<int> OnHealthAbsorb; //흡혈 성공 시(회복량). PlayerManager가 구독.
     private Hitbox _hitbox;
     private float _targetDist;
 
@@ -109,19 +112,17 @@ public class PlayerWeapon : MonoBehaviour
         
         if(!WeaponData) return;
 
-        weaponSprite.sprite = weaponData.Sprite;
-        weaponSprite.transform.localPosition = weaponData.SpriteOffset;
-        weaponSprite.transform.localRotation = Quaternion.Euler(weaponData.SpriteAngle);
-        weaponSprite.transform.localScale = weaponData.SpriteScale;
+        WeaponSprite.sprite = weaponData.Sprite;
+        WeaponSprite.transform.localPosition = weaponData.WeaponTransform.spriteOffset;
 
-        meleeCollider.size = weaponData.ColliderSize;
-        meleeCollider.offset = weaponData.ColliderOffset;
-        meleeCollider.enabled = false;
-        meleeCollider.gameObject.layer = DataManager.Instance.PlayerHitboxLayer;
+        MeleeCollider.size = weaponData.WeaponTransform.colliderSize;
+        MeleeCollider.offset = weaponData.WeaponTransform.colliderOffset;
+        MeleeCollider.enabled = false;
+        MeleeCollider.gameObject.layer = DataManager.Instance.PlayerHitboxLayer;
 
         if (!weaponData.WeaponStat.isMelee)
         {
-            muzzle.localPosition = weaponData.MuzzleOffset;
+            Muzzle.localPosition = weaponData.WeaponTransform.muzzleOffset;
         }
 
         Tier = tier;
@@ -147,8 +148,9 @@ public class PlayerWeapon : MonoBehaviour
         FinalDamage = WeaponStatCalculator.GetWeaponDamage(weaponData,  tier, _mainStats);
         _finalRange = WeaponStatCalculator.GetRealRange(weaponData, tier, _mainStats);
         _finalKnockback = WeaponStatCalculator.GetRealKnockback(weaponData, tier, _subStats);
+        _finalHealthAbsorb = WeaponStatCalculator.GetHealthAbsorb(weaponData, tier, _mainStats);
         
-        if(!weaponData.WeaponStat.isMelee) meleeCollider.enabled = false; //원거리면 비활성.
+        if(!weaponData.WeaponStat.isMelee) MeleeCollider.enabled = false; //원거리면 비활성.
     }
 
     private float GetEffectValueStatMultiplier(WeaponEffectValues weaponEffectValues)
@@ -177,10 +179,12 @@ public class PlayerWeapon : MonoBehaviour
     public void UpdateStat(MainStats stat)
     {
         FinalDamage = WeaponStatCalculator.GetWeaponDamage(WeaponData, Tier, _mainStats);
-        if(stat ==  MainStats.Range) 
+        if(stat ==  MainStats.Range)
             _finalRange = WeaponStatCalculator.GetRealRange(WeaponData, Tier, _mainStats);
-        else if(stat == MainStats.AttackSpeed) 
+        else if(stat == MainStats.AttackSpeed)
            FinalAttackSpeed = WeaponStatCalculator.GetAttackSpeed(WeaponData, Tier, _mainStats);
+        else if(stat == MainStats.HealthAbsorb)
+            _finalHealthAbsorb = WeaponStatCalculator.GetHealthAbsorb(WeaponData, Tier, _mainStats);
     }
 
     public void UpdateStat(SubStats stat)
@@ -236,7 +240,7 @@ public class PlayerWeapon : MonoBehaviour
 
         _isAttacking = true;
         _animTimer = 0f;
-        meleeCollider.enabled = true;
+        MeleeCollider.enabled = true;
 
         _targetDist = MathF.Sqrt(_targetInfo.SqrDistance);//루트 연산(실제 거리)
         transform.position = _center.position; //중앙으로
@@ -252,7 +256,7 @@ public class PlayerWeapon : MonoBehaviour
         var (isCrit, damage) = CritDamage();
             
         WeaponEffectsSetExecute(); //무기 효과 실행효과 데이터 주입
-        _hitbox.AttackInit(damage, isCrit, _weaponEffects, _finalKnockback);
+        _hitbox.AttackInit(damage, isCrit, _weaponEffects, _finalKnockback, HandleHitEnemy);
             
         var attackType = WeaponData.WeaponStat.attackType;
         if (attackType == AttackType.Sweep)
@@ -292,7 +296,7 @@ public class PlayerWeapon : MonoBehaviour
             transform.localRotation = Quaternion.identity;
             _hitbox.transform.localPosition = Vector3.zero;
             _hitbox.transform.localRotation = Quaternion.identity;
-            meleeCollider.enabled = false;
+            MeleeCollider.enabled = false;
             return;
         }
 
@@ -321,8 +325,8 @@ public class PlayerWeapon : MonoBehaviour
        
         //투사체 만큼 발사.//투사체 각도!
         var projectile = ObjectPoolingManager.Instance.GetProjectile();
-        projectile.transform.position = muzzle.position;//
-        var dir = _targetInfo.Target.position - muzzle.position;
+        projectile.transform.position = Muzzle.position;//
+        var dir = _targetInfo.Target.position - Muzzle.position;
             
         WeaponEffectsSetExecute(); //무기효과: 실행 효과 데이터 주입
             
@@ -336,6 +340,7 @@ public class PlayerWeapon : MonoBehaviour
             HitLayer = DataManager.Instance.PlayerHitboxLayer, //Layer : 플레이어 히트 박스
             IsCrit = isCrit,
             Knockback = _finalKnockback,
+            OnHitEnemy = HandleHitEnemy, //적 적중 시 흡혈 확률 굴림
             WeaponEffects = _weaponEffects, //  효과 리스트
             ProjectileSprite = WeaponData.WeaponStat.projectileSprite,
             SpriteScale = WeaponData.WeaponStat.projectileSpriteScale,
@@ -345,6 +350,15 @@ public class PlayerWeapon : MonoBehaviour
         projectile.Fire(dir, _finalRange);
 
         _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
+    }
+
+    private void HandleHitEnemy() //적 적중 시: 흡혈 확률 굴림 -> 성공 시 회복 이벤트
+    {
+        if (_finalHealthAbsorb <= 0) return;
+        if (Random.value < _finalHealthAbsorb / 100f)
+        {
+            OnHealthAbsorb?.Invoke(1);
+        }
     }
 
     private void WeaponEffectsSetExecute()
@@ -396,7 +410,7 @@ public static class WeaponStatCalculator
             KnockBack = weaponStat.knockBack[tierIdx] + finalSubStatDict[SubStats.Knockback],
             Range =  weaponStat.range[tierIdx] + finalMainStatDict[MainStats.Range],
             IsMelee = weaponStat.isMelee,
-            HealthAbsorb = weaponStat.healthAbsorb[tierIdx] + finalMainStatDict[MainStats.HealthAbsorb],
+            HealthAbsorb = GetHealthAbsorb(weaponData, tier, finalMainStatDict),
             RecyclePrice = Mathf.FloorToInt(weaponStat.prices[tierIdx] / 2f) //판매가 = 구매가의 절반.
         };
         
@@ -470,7 +484,15 @@ public static class WeaponStatCalculator
         return Mathf.FloorToInt(weaponData.WeaponStat.prices[tierIdx] / 2f);
     }
 
-    public static float GetRealKnockback(WeaponData weaponData, int tier, 
+    public static int GetHealthAbsorb(WeaponData weaponData, int tier,
+        IReadOnlyDictionary<MainStats, int> finalMainStatDict)
+    {
+        var tierIdx = tier - weaponData.WeaponStat.initTier;
+        //무기 흡혈(티어별) + 흡혈 스탯
+        return weaponData.WeaponStat.healthAbsorb[tierIdx] + finalMainStatDict[MainStats.HealthAbsorb];
+    }
+
+    public static float GetRealKnockback(WeaponData weaponData, int tier,
         IReadOnlyDictionary<SubStats, int> finalSubStatDict)
     {
         var weaponKnockback = weaponData.WeaponStat.knockBack[tier];

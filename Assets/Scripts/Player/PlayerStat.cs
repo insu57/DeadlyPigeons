@@ -29,6 +29,11 @@ public class PlayerStat : MonoBehaviour
     
     private const int DefaultMaxHP = 10;
     private const int DefaultFoodHeal = 3;
+
+    //체력 재생: 틱마다 1 회복. 틱 간격(초) = RegenTickNumerator / (RegenTickBase + healthRegen)
+    private const float RegenTickNumerator = 11.25f;
+    private const float RegenTickBase = 1.25f;
+    private float _regenTimer;
     public int Money { get; private set; }
     public int Stock { get; private set; }
     public void GetStock() => Stock++;
@@ -244,7 +249,31 @@ public class PlayerStat : MonoBehaviour
         currentHP += healAmount;
         if(currentHP>= MaxHp) currentHP = MaxHp;
         OnChangeHealth?.Invoke(currentHP, MaxHp);
-        //체력 재생과 분리?
+    }
+
+    private void Update()
+    {
+        HealthRegenTick();
+    }
+
+    private void HealthRegenTick() //HealthRegen 스탯에 따라 틱마다 1 회복
+    {
+        if (_finalMainStatDict.Count == 0) return; //InitStat 이전(스탯 미초기화)
+        if(_finalMainStatDict[MainStats.HealthRegen] <= 0f) return;
+        if (currentHP >= MaxHp) //풀피면 누적 리셋(피해 직후 즉시 회복 방지)
+        {
+            _regenTimer = 0f;
+            return;
+        }
+        
+        var tickInterval = RegenTickNumerator / (RegenTickBase + _finalMainStatDict[MainStats.HealthRegen]);
+
+        _regenTimer += Time.deltaTime;
+        if (_regenTimer >= tickInterval)
+        {
+            _regenTimer = 0f;
+            Heal(1);
+        }
     }
 
     public void ChangeMoney(int amount) //상점에서 구매/판매 시

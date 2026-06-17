@@ -94,8 +94,6 @@ public class PlayerManager : MonoBehaviour
     {
         _playerInfoUI.UpdateHealthBar(currentHealth, maxHealth);
     }
-    //_playerInfo가 아닌 statUI에게
-    //아마 이벤트로?
     
     private void UpdateExp(PlayerLevelInfo playerLevelInfo)
     {
@@ -147,6 +145,7 @@ public class PlayerManager : MonoBehaviour
             playerWeapon.SetCenter(transform);
             playerWeapon.gameObject.SetActive(false);
             playerWeapon.InitPlayerWeapon(_playerStat.FinalMainStat, _playerStat.FinalSubStat);
+            playerWeapon.OnHealthAbsorb += HandleOnHeal; //흡혈 성공 시 회복
             //PlayerWeapon 초기화
         }
 

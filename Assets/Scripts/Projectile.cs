@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Object = System.Object;
 
 public struct ProjectileInitData
 {
@@ -13,7 +12,8 @@ public struct ProjectileInitData
     public bool IsCrit;
     public float Knockback;
     public List<IWeaponEffect> WeaponEffects;
-    
+    public Action OnHitEnemy; //적 적중 시 콜백(흡혈 등). 무기가 확률 굴림 처리.
+
     public Sprite ProjectileSprite;
     public Vector2 SpriteScale;
     public Vector2 ColliderSize;
@@ -27,7 +27,8 @@ public class Projectile : MonoBehaviour
     private int _bounces;
     private bool _isCrit;
     private float _knockback;
-    
+    private Action _onHitEnemy;
+
     private float _lifeTimer;
     private float _speed = 10f; //temp?
     private CapsuleCollider2D _collider2D;
@@ -56,6 +57,7 @@ public class Projectile : MonoBehaviour
         gameObject.layer = data.HitLayer;
         _isCrit = data.IsCrit;
         _knockback = data.Knockback;
+        _onHitEnemy = data.OnHitEnemy;
         _weaponEffects = data.WeaponEffects;
         _renderer.sprite = data.ProjectileSprite;
         _renderer.gameObject.transform.localScale = data.SpriteScale;
@@ -89,9 +91,10 @@ public class Projectile : MonoBehaviour
         if (collision.TryGetComponent(out IDamageable target))
         {
             target.Damage(_damage, _isCrit);
-            if (_knockback > 0f && target is IKnockbackable knockable) //넉백 대상만(적). 방향: 투사체 진행 방향
+            _onHitEnemy?.Invoke(); //적 적중 통지(흡혈 확률 굴림은 무기 측에서)
+            if (_knockback > 0f && target is IKnockbackable knockBackable) //넉백 대상만(적). 방향: 투사체 진행 방향
             {
-                knockable.Knockback(_rigidbody2D.linearVelocity, _knockback);
+                knockBackable.Knockback(_rigidbody2D.linearVelocity, _knockback);
             }
             foreach (var weaponEffect in _weaponEffects)
             {
