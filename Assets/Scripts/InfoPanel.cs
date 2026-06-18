@@ -231,5 +231,49 @@ public class InfoPanel : MonoBehaviour
                 stringBuilder.AppendLine(statAmount.subStat.SubStatsToString());
             }
         }
+
+        //특수 효과 설명: [n] = value, {n} = stat 자리표시자
+        foreach (var effect in passiveData.Effects)
+        {
+            var description = effect.description;
+            if (description == null || description.Length == 0) continue;
+
+            stringBuilder.Append('•');
+            for (int i = 0; i < description.Length; i++)
+            {
+                if (i % 2 == 0) //짝수: 문자열
+                {
+                    stringBuilder.Append(description[i]);
+                    continue;
+                }
+
+                //홀수: 자리표시자 토큰([n] = value / {n} = stat)
+                var token = description[i];
+                if (token.Length < 3 || !int.TryParse(token.Substring(1, token.Length - 2), out int idx))
+                    continue;
+
+                if (token[0] == '[') //value
+                {
+                    if (effect.values == null || idx < 0 || idx >= effect.values.Count) continue;
+                    stringBuilder.AppendColorValue(effect.values[idx]);
+                }
+                else //stat({n})
+                {
+                    if (effect.stats == null || idx < 0 || idx >= effect.stats.Count) continue;
+                    var statRef = effect.stats[idx];
+                    if (statRef.mainStat != MainStats.None)
+                    {
+                        stringBuilder.Append(statRef.mainStat.GetIcons()).Append(' ');
+                        stringBuilder.Append(statRef.mainStat.MainStatsToString());
+                    }
+                    else if (statRef.subStat != SubStats.None)
+                    {
+                        stringBuilder.Append(statRef.subStat.SubStatsToString());
+                    }
+                }
+            }
+
+            stringBuilder.AppendLine();
+        }
     }
 }

@@ -13,6 +13,7 @@ public class DataSync : MonoBehaviour
     [SerializeField] private TextAsset characterCSV;
     [SerializeField] private TextAsset charPassiveCSV;
     [SerializeField] private TextAsset itemCSV;
+    [SerializeField] private TextAsset itemEffectCSV;
     [SerializeField] private TextAsset weaponCSV;
     [SerializeField] private TextAsset weaponClassCSV;
     [SerializeField] private TextAsset weaponEffectCSV;
@@ -353,6 +354,123 @@ public class DataSync : MonoBehaviour
         AssetDatabase.SaveAssets();
 #endif
         Debug.Log("Item Data Updated: " + itemUpdateCount + "/" + (items.Length + passives.Length));
+    }
+
+    [ContextMenu("Sync Item Effect Data")]
+    public void SyncItemEffectFromCSV()
+    {
+        if (!itemEffectCSV)
+        {
+            Debug.LogError("ItemEffect CSV Error : null");
+            return;
+        }
+
+        ItemData[] items = Resources.LoadAll<ItemData>("Data/Items");
+        ItemData[] passives = Resources.LoadAll<ItemData>("Data/Characters/Passive");
+        Dictionary<int, ItemData> itemDataDict = new();
+        
+        foreach (var item in items)
+        {
+            itemDataDict[item.ID] = item;
+        }
+        
+        foreach (var passive in passives)
+        {
+            
+            itemDataDict[passive.ID] = passive;
+        }
+
+        string[] lines = itemEffectCSV.text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<int, List<ItemEffect>> effectDataDict = new(); //id : effect list
+
+        const int effectTypeIdx = 2; //효과 타입 열
+        const int descriptionIdx = 4;//설명 포맷 열 (Effect)
+        const int valuesIdx = 5;     //values 열 ('|'로 구분)
+        const int statStartIdx = 6;  //스탯 시작 열(순서대로 나열, 6~9)
+        const int maxStats = 4;      //효과당 최대 참조 스탯 수
+
+        //0행: 헤더, 1행: 열 인덱스 → 실제 데이터는 2행부터
+        for (int i = 2; i < lines.Length; i++)
+        {
+            string[] rowData = lines[i].Split(',');
+
+            if (!int.TryParse(rowData[0], out int id)) //빈 줄/잘못된 줄 스킵
+                continue;
+
+            var effectType = ItemData.StringToEffectType(rowData[effectTypeIdx]);
+            if (effectType == ItemEffectType.None) continue;
+
+            //values('|'로 구분, float 리스트)
+            List<float> values = new();
+            var valueStrArr = rowData[valuesIdx].Split('|');
+            foreach (var str in valueStrArr)
+            {
+                if (float.TryParse(str, out var value))
+                {
+                    values.Add(value);
+                }
+            }
+
+            //설명 포맷: [n](value) / {n}(stat) 자리표시자로 분할(브래킷 보존)
+            var descriptionFormat = rowData[descriptionIdx];
+            var description = Regex.Split(descriptionFormat, @"(\[\d+\]|\{\d+\})");
+
+            //스탯 파싱(순서 보존). 메인/서브 중 매칭되는 쪽만 유효, 나머지는 None
+            List<StatRef> stats = new();
+            for (int s = 0; s < maxStats; s++)
+            {
+                int statIdx = statStartIdx + s;
+                if (statIdx >= rowData.Length || string.IsNullOrEmpty(rowData[statIdx]))
+                    break;
+
+                var statStr = rowData[statIdx];
+                var statRef = new StatRef
+                {
+                    mainStat = statStr.StringToMainStats(),
+                    subStat = statStr.StringToSubStats(),
+                };
+                stats.Add(statRef);
+            }
+
+            var itemEffect = new ItemEffect
+            {
+                effectType = effectType,
+                values = values,
+                stats = stats,
+                description = description,
+            };
+
+            if (effectDataDict.ContainsKey(id))
+            {
+                effectDataDict[id].Add(itemEffect);
+            }
+            else
+            {
+                effectDataDict[id] = new List<ItemEffect> { itemEffect };
+            }
+        }
+
+        int itemEffectUpdateCount = 0;
+        foreach (var (id, effectList) in effectDataDict)
+        {
+            if (itemDataDict.TryGetValue(id, out var itemData))
+            {
+#if UNITY_EDITOR
+                itemData.SetItemEffectData(effectList);
+                itemEffectUpdateCount++;
+                EditorUtility.SetDirty(itemData);
+#endif
+            }
+            else
+            {
+                Debug.LogError("ItemEffect : ItemData Not Found : " + id);
+            }
+        }
+
+#if UNITY_EDITOR
+        AssetDatabase.SaveAssets();
+#endif
+        Debug.Log("Item Effect Data Updated " + itemEffectUpdateCount);
     }
 
     [ContextMenu("Sync Weapon Data")]

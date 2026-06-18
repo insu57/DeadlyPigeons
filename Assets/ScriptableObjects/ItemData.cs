@@ -10,9 +10,31 @@ public struct StatAmount
     public int amount;
 }
 
+[Serializable]
+public struct StatRef
+{
+    public MainStats mainStat;
+    public SubStats subStat;
+}
+
+[Serializable]
+public struct ItemEffect
+{
+    public ItemEffectType effectType;
+    public List<float> values;
+    public List<StatRef> stats;
+    public string[] description;
+}
+
 public enum ItemClass
 {
     Item,Unique, Limited, Character
+}
+
+public enum ItemEffectType
+{
+    StatPerStat,
+    None
 }
 
 [Serializable]
@@ -46,6 +68,7 @@ public class ItemData : ScriptableObject
     [field: SerializeField] public ItemClass ItemClass { get; private set; }
     [field: SerializeField] public List<StatAmount> StatValues { get; private set; } //스탯 수치 증감량
     [field: SerializeField] public List<StatAmount> StatMultipliers { get; private set; }//스탯 변화량 추가 증감
+    [field: SerializeField] public List<ItemEffect> Effects { get; private set; }
 
     public static ItemClass ToItemClass(string type)
     {
@@ -60,6 +83,17 @@ public class ItemData : ScriptableObject
         
         //기본값: Item
         return ItemClass.Item; 
+    }
+
+    public static ItemEffectType StringToEffectType(string type)
+    {
+        if (Enum.TryParse(type, out ItemEffectType result))
+        {
+            return result;
+        }
+
+        Debug.LogWarning($"[ItemEffectType] 매칭되는 타입을 찾을 수 없습니다: {type}");
+        return ItemEffectType.None;
     }
 
     public static string ToString(ItemClass itemClass) => itemClass switch
@@ -85,6 +119,11 @@ public class ItemData : ScriptableObject
         Icon = itemStat.icon;
         StatValues = itemStat.statValues;
         StatMultipliers = itemStat.statMultipliers;
+    }
+
+    public void SetItemEffectData(List<ItemEffect> effects)
+    {
+        Effects = effects;
     }
 #endif
     // 아이템 데이터 싱크-> 캐릭터 패시브, 아이템 시트 => 둘 다 파싱해서 SO로

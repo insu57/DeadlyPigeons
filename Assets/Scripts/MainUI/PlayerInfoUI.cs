@@ -20,9 +20,7 @@ public class PlayerInfoUI : MonoBehaviour
     //StatInfo
     [SerializeField] private PlayerStatInfo[] playerStatInfos;
     [SerializeField] private PlayerStatInfo playerStatInfo;
-    public event Action<int> OnUpdateLevel;
-    public event Action<MainStats, int> OnUpdateMainStat;
-    public event Action<SubStats, int> OnUpdateSubStat;
+    
     
     //grid 분리...
     [SerializeField] private ItemGridUI itemGridUI;
@@ -39,12 +37,6 @@ public class PlayerInfoUI : MonoBehaviour
     private void Awake()
     {
         sb = new StringBuilder();
- 
-        /*
-        foreach (var playerStatInfo in playerStatInfos)
-        {
-            playerStatInfo.InitStatGrid(this);
-        }*/
         
         ObjectPoolingManager.Instance.InitSelectBtnPool();
     }
@@ -74,8 +66,6 @@ public class PlayerInfoUI : MonoBehaviour
         sb.Append("Lv " + lv);
         expText.SetText(sb);
         expBar.fillAmount = currentExp / targetExp;
-
-        OnUpdateLevel?.Invoke(lv);
     }
 
     public void UpdateMoney(int money)
@@ -103,16 +93,4 @@ public class PlayerInfoUI : MonoBehaviour
             Time.timeScale = 0f;
         }
     }
-
-    /*
-    public void UpdateMainStat(MainStats stat, int value)
-    {
-        OnUpdateMainStat?.Invoke(stat, value);
-    }
-
-    public void UpdateSubStat(SubStats stat, int value)
-    {
-        OnUpdateSubStat?.Invoke(stat, value);
-    }
-    */
 }

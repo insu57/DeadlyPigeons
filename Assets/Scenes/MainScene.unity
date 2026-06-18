@@ -6904,6 +6904,7 @@ MonoBehaviour:
   characterCSV: {fileID: 4900000, guid: b1e0e2c0ceccd5840859e98bd32e6b5d, type: 3}
   charPassiveCSV: {fileID: 4900000, guid: a3195a9d7e4aa88449f6ee3eaedbe493, type: 3}
   itemCSV: {fileID: 4900000, guid: e3af27ba973413247bc0e99d03d6d2ea, type: 3}
+  itemEffectCSV: {fileID: 4900000, guid: e1176bb1717e1fd4ab9e6949e8da814b, type: 3}
   weaponCSV: {fileID: 4900000, guid: 17627b323e821394f88b7e300edb2330, type: 3}
   weaponClassCSV: {fileID: 4900000, guid: ed665054a62c4334b9c6e3de070b6dcf, type: 3}
   weaponEffectCSV: {fileID: 4900000, guid: d456cfa96ce45a644b76f47b44f4f443, type: 3}
@@ -7517,6 +7518,10 @@ PrefabInstance:
     - target: {fileID: 9151009793121495448, guid: 5e0b10e4d9d1dcd4483c7444a86d3a11, type: 3}
       propertyPath: m_Name
       value: PlayerWeapon
+      objectReference: {fileID: 0}
+    - target: {fileID: 9151009793121495448, guid: 5e0b10e4d9d1dcd4483c7444a86d3a11, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -114,6 +114,7 @@ public static class StatUtil
             "Enemies"        => SubStats.Enemies,
             "EnemiesSpeed"   => SubStats.EnemiesSpeed,
             "RerollPrice"    => SubStats.RerollPrice, 
+            "Knockback"      => SubStats.Knockback,
             "BurningSpeed" => SubStats.BurningSpeed,
             _ => SubStats.None,
         };
@@ -136,6 +137,7 @@ public static class StatUtil
             SubStats.Enemies         => nameof(SubStats.Enemies),
             SubStats.EnemiesSpeed    => nameof(SubStats.EnemiesSpeed),
             SubStats.RerollPrice     => nameof(SubStats.RerollPrice),
+            SubStats.Knockback => nameof(SubStats.Knockback),
             SubStats.BurningSpeed => nameof(SubStats.BurningSpeed),
             _ => nameof(SubStats.None) //예외처리
         };
