@@ -284,7 +284,7 @@ public class StageManager : MonoBehaviour
                 //material, meat -> stock(재료 획득할 때 마다 2배로 획득하고 감소)
                 foreach (var collectable in hashSet) 
                 {
-                    _playerManager.GetStock();
+                    _playerManager.GetStock(); //stock표시 추가 필요
                     ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
                 }
             }
@@ -340,7 +340,7 @@ public class StageManager : MonoBehaviour
     private void ShowStatUpgradePanel()
     {
         int upgradeLv = _playerManager.CurrentLevel - waveLevelUp + 1;//기준이 될 레벨.
-
+      
         //스탯 섞기 (Fisher-Yates 셔플)
         var allStats = new List<MainStats>();
         for (int i = 0; i < (int)MainStats.None; i++)
@@ -403,12 +403,12 @@ public class StageManager : MonoBehaviour
         var raw = new float[n];
 
         // 높은 티어부터 "해당 티어 이상이 나올 확률" 계산
-        for (int i = n - 1; i > 0; i--)
+        for (int i = n - 1; i >= 0; i--)
         {
             var config = tierWeightConfigs[i];
             raw[i] = progression < config.minProgression
                 ? 0f
-                : Mathf.Clamp(config.baseWeight + config.perProgression * (progression - config.minProgression), 
+                : Mathf.Clamp(config.baseWeight + config.perProgression * (progression - config.minProgression + 1), 
                     0f, config.maxChance);
         }
         
@@ -417,7 +417,7 @@ public class StageManager : MonoBehaviour
         for (int i = 0; i < n - 1; i++)
             chances[i] = raw[i] - raw[i + 1];
         chances[n - 1] = raw[n - 1];
-
+        
         return chances;
     }
 

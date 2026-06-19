@@ -93,7 +93,7 @@ public class InfoPanel : MonoBehaviour
         sb.AppendColorCompare(weapon.Range, weaponStat.range[tierIdx]);
         sb.Append("(").AppendLine(weapon.IsMelee ? "근거리)" : "원거리)");
 
-        //개선 방안?
+        //개선 방안???
         var weaponEffectDataList = weapon.WeaponData.WeaponEffectDataList;
         foreach (var weaponEffectData in weaponEffectDataList)
         {
@@ -118,7 +118,7 @@ public class InfoPanel : MonoBehaviour
                 else //홀수: 파라미터
                 {
                     int paramIndex = int.Parse(descriptionFormat[i]); //인덱스
-                    if(paramIndex < 0 || paramIndex > paramList.Count) continue;
+                    if(paramIndex < 0 || paramIndex >= paramList.Count) continue;
                     var param = paramList[paramIndex].param;
                     if (paramList[paramIndex].isValue)//스탯에 영향받기 때문에 
                     {

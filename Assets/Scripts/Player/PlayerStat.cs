@@ -165,15 +165,13 @@ public class PlayerStat : MonoBehaviour
     public void UpdateStatClassBonus(MainStats mainStat, int amount)
     {
         _mainStatClassBonus[mainStat] += amount;
-        
-        OnChangeMainStats?.Invoke(mainStat, _finalMainStatDict[mainStat]);
+        ChangeStat(mainStat, 0);
     }
 
     public void UpdateStatClassBonus(SubStats subStat, int amount)
     {
         _subStatClassBonus[subStat] += amount;
-        
-        OnChangeSubStats?.Invoke(subStat, _finalSubStatDict[subStat]);
+        ChangeStat(subStat, 0);
     }
 
     public void ChangeStat(MainStats mainStat, int amount)
