@@ -67,6 +67,9 @@ public struct CurrentWeaponStat
     public bool IsMelee;
     public int HealthAbsorb;
     public int RecyclePrice;
+    public List<IWeaponEffect> WeaponEffects;
+    //효과별 표시 파라미터(스탯 반영된 value + 배율). WeaponEffectDataList와 같은 순서, InfoPanel이 그대로 소비.
+    public List<List<(float param, bool isValue)>> EffectParams;
 }
 
 [Serializable]

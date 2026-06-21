@@ -93,29 +93,21 @@ public class InfoPanel : MonoBehaviour
         sb.AppendColorCompare(weapon.Range, weaponStat.range[tierIdx]);
         sb.Append("(").AppendLine(weapon.IsMelee ? "근거리)" : "원거리)");
 
-        //개선 방안???
         var weaponEffectDataList = weapon.WeaponData.WeaponEffectDataList;
-        foreach (var weaponEffectData in weaponEffectDataList)
+        for (int e = 0; e < weaponEffectDataList.Count; e++)
         {
-            var descriptionFormat = weaponEffectData.effectDescription;
+            var descriptionFormat = weaponEffectDataList[e].effectDescription;
             sb.Append('•');
-            List<(float param, bool isValue)> paramList = new(); //파라미터 리스트
-            foreach (var effectValue in weaponEffectData.valuesList) //효과 수치 리스트
-            {
-                paramList.Add((effectValue.values[tierIdx], true));
-                if (effectValue.multipliers.Count > 0)
-                {
-                    paramList.Add((effectValue.multipliers[tierIdx], false));
-                }
-            }
-            
+            //스탯 반영된 파라미터(GetCurrentWeaponStat에서 미리 계산)
+            var paramList = weapon.EffectParams[e];
+
             for (int i = 0; i < descriptionFormat.Length; i++)
             {
-                if (i % 2 == 0) //짝수: 문자열
+                if (i % 2 == 0) //홀수: 문자열
                 {
                     sb.Append(descriptionFormat[i]);
                 }
-                else //홀수: 파라미터
+                else //짝수: 파라미터
                 {
                     int paramIndex = int.Parse(descriptionFormat[i]); //인덱스
                     if(paramIndex < 0 || paramIndex >= paramList.Count) continue;

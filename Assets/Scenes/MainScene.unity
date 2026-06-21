@@ -2123,7 +2123,8 @@ MonoBehaviour:
   cratePickup: 0
   testChar: {fileID: 11400000, guid: 67c162034c93ad449912219262ad8f2b, type: 2}
   testWeapon:
-  - {fileID: 11400000, guid: 0626ffa99f3035746821b6da8813749c, type: 2}
+  - {fileID: 11400000, guid: 02133ae5e1a50e3479b9012a2016009e, type: 2}
+  - {fileID: 11400000, guid: 98f2b559d39340c47a42afda49a06924, type: 2}
   testStage: 0
   testWave: 4
 --- !u!1 &519420028

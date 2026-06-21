@@ -128,6 +128,7 @@ public class PlayerWeapon : MonoBehaviour
         Tier = tier;
         TierIdx = tier - weaponData.WeaponStat.initTier;//인덱스은 0부터 초기 티어 만큼 차감
 
+        _weaponEffects.Clear();
         var weaponEffectList = weaponData.WeaponEffectDataList;
         foreach (var weaponEffectData in weaponEffectList)
         {
@@ -139,7 +140,9 @@ public class PlayerWeapon : MonoBehaviour
             List<float> initValues = new();
             foreach (var effectValues in weaponEffectData.valuesList) //무기 초기화 시 효과
             {
-                var value = GetEffectValueStatMultiplier(effectValues); //무기 효과 해당 티어 값
+                //var value = GetEffectValueStatMultiplier(effectValues); //무기 효과 해당 티어 값
+                var value = WeaponStatCalculator.GetEffectValueStatMultiplier(TierIdx, effectValues, 
+                    _mainStats, _subStats);
                 initValues.Add(value); //현재 티어 효과 수치 + 스탯 계수
             }
             effect.Init(this, initValues); //수치 주입
@@ -153,6 +156,7 @@ public class PlayerWeapon : MonoBehaviour
         if(!weaponData.WeaponStat.isMelee) MeleeCollider.enabled = false; //원거리면 비활성.
     }
 
+    /*
     private float GetEffectValueStatMultiplier(WeaponEffectValues weaponEffectValues)
     {
         var value = weaponEffectValues.values[TierIdx];
@@ -169,7 +173,7 @@ public class PlayerWeapon : MonoBehaviour
             value += (int)(_subStats[weaponEffectValues.subStat] * multiplier / 100f);
         }
         return value;
-    }
+    }*/
 
     public void SetTarget(TargetInfo target)
     {
@@ -374,7 +378,9 @@ public class PlayerWeapon : MonoBehaviour
                 
             foreach (var effectValue in effectValues)
             {
-                var value = GetEffectValueStatMultiplier(effectValue);
+                //var value = GetEffectValueStatMultiplier(effectValue);
+                var value = WeaponStatCalculator.GetEffectValueStatMultiplier(TierIdx, effectValue, 
+                    _mainStats, _subStats);
                 currentExecuteValues.Add(value);
             }
             
@@ -413,7 +419,23 @@ public static class WeaponStatCalculator
             HealthAbsorb = GetHealthAbsorb(weaponData, tier, finalMainStatDict),
             RecyclePrice = Mathf.FloorToInt(weaponStat.prices[tierIdx] / 2f) //판매가 = 구매가의 절반.
         };
-        
+
+        //효과 표시 파라미터: 스탯 반영된 value(색O) + 배율(색X)을 InfoPanel paramList 순서대로 미리 계산
+        var effectParams = new List<List<(float param, bool isValue)>>();
+        foreach (var weaponEffectData in weaponData.WeaponEffectDataList)
+        {
+            var paramList = new List<(float param, bool isValue)>();
+            foreach (var effectValue in weaponEffectData.valuesList)
+            {
+                var value = GetEffectValueStatMultiplier(tierIdx, effectValue, finalMainStatDict, finalSubStatDict);
+                paramList.Add((value, true)); //스탯 반영된 최종 수치
+                if (effectValue.multipliers.Count > 0)
+                    paramList.Add((effectValue.multipliers[tierIdx], false)); //스탯 배율(고정)
+            }
+            effectParams.Add(paramList);
+        }
+        currentWeaponStat.EffectParams = effectParams;
+
         return currentWeaponStat;
     }
     
@@ -499,5 +521,24 @@ public static class WeaponStatCalculator
         var knockbackStat = finalSubStatDict[SubStats.Knockback];
 
         return (weaponKnockback + knockbackStat) * KnockbackScaler;//0.1배
+    }
+    
+    public static float GetEffectValueStatMultiplier(int tierIdx, WeaponEffectValues weaponEffectValues,
+        IReadOnlyDictionary<MainStats, int> finalMainStatDict, IReadOnlyDictionary<SubStats, int> finalSubStatDict)
+    {
+        var value = weaponEffectValues.values[tierIdx];
+        if (weaponEffectValues.multipliers.Count == 0) return value;
+        
+        var multiplier = weaponEffectValues.multipliers[tierIdx];
+        //스탯 계수(티어 값)
+        if (weaponEffectValues.mainStat != MainStats.None)
+        {
+            value += (int)( finalMainStatDict[weaponEffectValues.mainStat] * multiplier / 100f);
+        }
+        else if (weaponEffectValues.subStat != SubStats.None)
+        {
+            value += (int)(finalSubStatDict[weaponEffectValues.subStat] * multiplier / 100f);
+        }
+        return value;
     }
 }
