@@ -4,17 +4,21 @@ public enum BgmType
 {
     Title,
     Stage,
+    Store,
+    None
 }
 
 public enum SfxType
 {
-    Attack,
-    Hit,
+    Sweep,
+    Thrust,
+    Gun01,
+    Fire,
+    EnemyHit,
     PlayerHit,
     LevelUp,
     Purchase,
-    WaveStart,
-    WaveEnd,
+    None
 }
 
 public class AudioManager : Singleton<AudioManager>
@@ -49,6 +53,14 @@ public class AudioManager : Singleton<AudioManager>
 
         bgmSource.volume = bgmVolume;
         sfxSource.volume = sfxVolume;
+
+        string t = "Title";
+        var r = StringToBgmType(t);
+        if (BgmType.Title == r)
+        {
+            Debug.Log("same!");
+        }
+
     }
 
     public void PlayBGM(BgmType type)
@@ -85,5 +97,32 @@ public class AudioManager : Singleton<AudioManager>
     {
         sfxVolume = Mathf.Clamp01(volume);
         sfxSource.volume = sfxVolume;
+    }
+
+    public static BgmType StringToBgmType(string value)
+    {
+        switch (value)
+        {
+            case nameof(BgmType.Title): return BgmType.Title;
+            case nameof(BgmType.Stage): return BgmType.Stage;
+            case nameof(BgmType.Store): return BgmType.Store;
+            default: return BgmType.None;
+        }
+    }
+
+    public static SfxType StringToSfxType(string value)
+    {
+        switch (value)
+        {
+            case nameof(SfxType.Sweep): return SfxType.Sweep;
+            case nameof(SfxType.Thrust): return SfxType.Thrust;
+            case nameof(SfxType.Gun01): return SfxType.Gun01;
+            case nameof(SfxType.Fire): return SfxType.Fire;
+            case nameof(SfxType.EnemyHit): return SfxType.EnemyHit;
+            case nameof(SfxType.PlayerHit): return SfxType.PlayerHit;
+            case nameof(SfxType.LevelUp): return SfxType.LevelUp;
+            case nameof(SfxType.Purchase): return SfxType.Purchase;
+            default: return SfxType.None;
+        }
     }
 }
