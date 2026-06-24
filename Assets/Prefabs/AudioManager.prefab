@@ -208,8 +208,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 6449490001385493043}
   sfxSource: {fileID: 7236771094545361540}
-  bgmClips: []
-  sfxClips: []
+  sfxData: {fileID: 11400000, guid: e855f0b0f587a4c42a3cf85c52a0b695, type: 2}
+  bgmData: {fileID: 11400000, guid: edb65afaa0e9b3747a6d1c20ee3ce827, type: 2}
   bgmVolume: 0.5
   sfxVolume: 1
 --- !u!1 &7445700808997581617

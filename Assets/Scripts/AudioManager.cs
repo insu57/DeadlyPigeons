@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum BgmType
@@ -26,10 +27,12 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
 
-    [SerializeField] private AudioClip[] bgmClips;
-    [SerializeField] private AudioClip[] sfxClips;
-    
-    //DataManager에서 읽어오도록 수정.
+    [SerializeField] private SfxData sfxData;
+    [SerializeField] private BgmData bgmData;
+
+    // 타입 → 클립 매핑 (sfxData/bgmData에서 구성)
+    private readonly Dictionary<BgmType, AudioClip> _bgmClips = new();
+    private readonly Dictionary<SfxType, AudioClip> _sfxClips = new();
 
     [Range(0f, 1f)] [SerializeField] private float bgmVolume = 0.5f;
     [Range(0f, 1f)] [SerializeField] private float sfxVolume = 1f;
@@ -54,23 +57,43 @@ public class AudioManager : Singleton<AudioManager>
         bgmSource.volume = bgmVolume;
         sfxSource.volume = sfxVolume;
 
-        string t = "Title";
-        var r = StringToBgmType(t);
-        if (BgmType.Title == r)
+        BuildClipDict();
+    }
+
+    private void BuildClipDict()
+    {
+        if (bgmData)
         {
-            Debug.Log("same!");
+            foreach (var kv in bgmData.Values)
+            {
+                if (kv.clip) _bgmClips[kv.bgmType] = kv.clip;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[AudioManager] bgmData 미할당.");
         }
 
+        if (sfxData)
+        {
+            foreach (var kv in sfxData.Values)
+            {
+                if (kv.clip) _sfxClips[kv.type] = kv.clip;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[AudioManager] sfxData 미할당.");
+        }
     }
 
     public void PlayBGM(BgmType type)
     {
-        int index = (int)type;
-        if (index >= bgmClips.Length || !bgmClips[index]) return;
+        if (!_bgmClips.TryGetValue(type, out var clip) || !clip) return;
 
-        if (bgmSource.clip == bgmClips[index] && bgmSource.isPlaying) return;
+        if (bgmSource.clip == clip && bgmSource.isPlaying) return;
 
-        bgmSource.clip = bgmClips[index];
+        bgmSource.clip = clip;
         bgmSource.Play();
     }
 
@@ -81,10 +104,9 @@ public class AudioManager : Singleton<AudioManager>
 
     public void PlaySFX(SfxType type)
     {
-        int index = (int)type;
-        if (index >= sfxClips.Length || !sfxClips[index]) return;
+        if (!_sfxClips.TryGetValue(type, out var clip) || !clip) return;
 
-        sfxSource.PlayOneShot(sfxClips[index], sfxVolume);
+        sfxSource.PlayOneShot(clip);
     }
 
     public void SetBGMVolume(float volume)
@@ -97,32 +119,5 @@ public class AudioManager : Singleton<AudioManager>
     {
         sfxVolume = Mathf.Clamp01(volume);
         sfxSource.volume = sfxVolume;
-    }
-
-    public static BgmType StringToBgmType(string value)
-    {
-        switch (value)
-        {
-            case nameof(BgmType.Title): return BgmType.Title;
-            case nameof(BgmType.Stage): return BgmType.Stage;
-            case nameof(BgmType.Store): return BgmType.Store;
-            default: return BgmType.None;
-        }
-    }
-
-    public static SfxType StringToSfxType(string value)
-    {
-        switch (value)
-        {
-            case nameof(SfxType.Sweep): return SfxType.Sweep;
-            case nameof(SfxType.Thrust): return SfxType.Thrust;
-            case nameof(SfxType.Gun01): return SfxType.Gun01;
-            case nameof(SfxType.Fire): return SfxType.Fire;
-            case nameof(SfxType.EnemyHit): return SfxType.EnemyHit;
-            case nameof(SfxType.PlayerHit): return SfxType.PlayerHit;
-            case nameof(SfxType.LevelUp): return SfxType.LevelUp;
-            case nameof(SfxType.Purchase): return SfxType.Purchase;
-            default: return SfxType.None;
-        }
     }
 }
