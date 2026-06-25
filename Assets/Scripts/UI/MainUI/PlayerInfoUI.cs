@@ -11,6 +11,14 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private GameObject infoUI;
     private StringBuilder sb;
     
+    //Btn
+    [SerializeField] private Button resumeBtn;
+    [SerializeField] private Button restartBtn;
+    [SerializeField] private Button optionBtn;
+    [SerializeField] private Button titleBtn;
+    
+    [SerializeField] private OptionUI optionUI;
+    
     [SerializeField] private Image healthBar;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Image expBar;
@@ -44,6 +52,10 @@ public class PlayerInfoUI : MonoBehaviour
     private void Start()
     {
         InputManager.Instance.Input.Global.Menu.performed += ShowInfoUI; //상태창
+        
+        optionBtn.onClick.AddListener(() => optionUI.ShowOptionPanel(true));
+        
+        //재시작/타이틀/종료 -> 확인창
     }
 
     public void Init(PlayerManager playerManager)
@@ -80,6 +92,12 @@ public class PlayerInfoUI : MonoBehaviour
     {
         if (infoUI.activeSelf) //닫기
         {
+            if (optionUI.IsOpen)//옵션창 닫기
+            {
+                optionUI.ShowOptionPanel(false);
+                return;
+            }
+            
             InputManager.Instance.Input.Player.Enable();
             InputManager.Instance.Input.UI.Disable();
             infoUI.SetActive(false);

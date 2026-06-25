@@ -206,12 +206,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dd6768411bfb6f4f9c819defcc931ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mixer: {fileID: 24100000, guid: bd1fbbf886a535949ad8673108c2db3c, type: 2}
+  bgmMixer: {fileID: -9216800995678399898, guid: bd1fbbf886a535949ad8673108c2db3c, type: 2}
+  sfxMixer: {fileID: 1286673774612635717, guid: bd1fbbf886a535949ad8673108c2db3c, type: 2}
+  masterVolumeParam: MasterVolume
+  bgmVolumeParam: BGMVolume
+  sfxVolumeParam: SFXVolume
   bgmSource: {fileID: 6449490001385493043}
   sfxSource: {fileID: 7236771094545361540}
   sfxData: {fileID: 11400000, guid: e855f0b0f587a4c42a3cf85c52a0b695, type: 2}
   bgmData: {fileID: 11400000, guid: edb65afaa0e9b3747a6d1c20ee3ce827, type: 2}
+  masterVolume: 0.5
   bgmVolume: 0.5
-  sfxVolume: 1
+  sfxVolume: 0.5
 --- !u!1 &7445700808997581617
 GameObject:
   m_ObjectHideFlags: 0
