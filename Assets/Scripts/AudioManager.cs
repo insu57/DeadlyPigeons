@@ -115,6 +115,38 @@ public class AudioManager : Singleton<AudioManager>
             Debug.LogWarning("[AudioManager] sfxData 미할당.");
         }
     }
+    
+    public static BgmType StringToBgmType(string value)
+    {
+        switch (value)
+        {
+            case nameof(BgmType.Title): return BgmType.Title;
+            case nameof(BgmType.Stage): return BgmType.Stage;
+            case nameof(BgmType.Store): return BgmType.Store;
+            default:
+                Debug.LogWarning("[AudioManager] 알 수 없는 BgmType 문자열: " + value);
+                return BgmType.None;
+        }
+    }
+    
+    public static SfxType StringToSfxType(string value)
+    {
+        switch (value)
+        {
+            case nameof(SfxType.Sweep): return SfxType.Sweep;
+            case nameof(SfxType.Thrust): return SfxType.Thrust;
+            case nameof(SfxType.Gun01): return SfxType.Gun01;
+            case nameof(SfxType.Fire): return SfxType.Fire;
+            case nameof(SfxType.EnemyHit): return SfxType.EnemyHit;
+            case nameof(SfxType.PlayerHit): return SfxType.PlayerHit;
+            case nameof(SfxType.LevelUp): return SfxType.LevelUp;
+            case nameof(SfxType.Purchase): return SfxType.Purchase;
+            default:
+                Debug.LogWarning("[AudioManager] 알 수 없는 SfxType 문자열: " + value);
+                return SfxType.None;
+        }
+    }
+
 
     public void PlayBGM(BgmType type)
     {

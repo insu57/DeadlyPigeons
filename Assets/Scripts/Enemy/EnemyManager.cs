@@ -219,6 +219,8 @@ public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
     {
         if (_health <= 0) return;
 
+        AudioManager.Instance.PlaySFX(SfxType.EnemyHit);
+        
         _health -= damage;
 
         PlayHitFlash();

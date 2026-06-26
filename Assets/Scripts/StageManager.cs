@@ -212,6 +212,8 @@ public class StageManager : MonoBehaviour
     private IEnumerator WaveCoroutine(WaveData waveData)
     {
         _playerManager.WavePlayerInit(); //웨이브 시작시 플레이어 초기화.
+        
+        AudioManager.Instance.PlayBGM(BgmType.Stage);
 
         SpawnBosses(waveData);  //웨이브 시작시 보스 전부 스폰
         float elapsed = 0f;
@@ -296,6 +298,8 @@ public class StageManager : MonoBehaviour
 
     private void HandleOnWaveEnd()
     {
+        AudioManager.Instance.PlayBGM(BgmType.Store);
+        
         SetupRerollPrice();
 
         OpenWaveEndUI();
@@ -602,6 +606,9 @@ public class StageManager : MonoBehaviour
             if (itemIdx == idx)
             {
                 if(price > _playerManager.GetMoney) return;
+                
+                AudioManager.Instance.PlaySFX(SfxType.Purchase);
+                
                 _playerManager.ChangeMoney(-price);
                 _playerManager.AddItem(itemData);
                 
@@ -620,6 +627,9 @@ public class StageManager : MonoBehaviour
             {
                 if(price > _playerManager.GetMoney) return;
                 if(_playerManager.WeaponIsFull) return;
+                
+                AudioManager.Instance.PlaySFX(SfxType.Purchase);
+                
                 _playerManager.ChangeMoney(-price);
                 _playerManager.AddWeapon(currentWeaponStat.WeaponData, currentWeaponStat.Tier);
                 

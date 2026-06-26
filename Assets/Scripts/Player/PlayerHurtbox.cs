@@ -36,6 +36,7 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
     {
         if(IsInvincible) return;
 
+        AudioManager.Instance.PlaySFX(SfxType.PlayerHit);
         OnDamage?.Invoke(damage);
 
         _invincibleTimer = InvincibleDuration;

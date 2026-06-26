@@ -42,6 +42,8 @@ public class TitleUI : MonoBehaviour
         
         selectWindow.Window.SetActive(false);
         optionWindow.Window.SetActive(false);
+        
+        AudioManager.Instance.PlayBGM(BgmType.Title);
     }
 
     private void OpenSelectWindow()

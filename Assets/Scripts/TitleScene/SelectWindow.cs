@@ -276,6 +276,21 @@ public class SelectWindow : MonoBehaviour
             HealthAbsorb = weaponData.WeaponStat.healthAbsorb[0],
         };
         
+        var effectParams = new List<List<(float param, bool isValue)>>();
+        foreach (var weaponEffectData in weaponData.WeaponEffectDataList)
+        {
+            var paramList = new List<(float param, bool isValue)>();
+            foreach (var effectValue in weaponEffectData.valuesList)
+            {
+                var value = effectValue.values[0];
+                paramList.Add((value, true)); //스탯 반영된 최종 수치
+                if (effectValue.multipliers.Count > 0)
+                    paramList.Add((effectValue.multipliers[0], false)); //스탯 배율(고정)
+            }
+            effectParams.Add(paramList);
+        }
+        currentWeaponStat.EffectParams = effectParams;
+        
         weaponPanel.ShowWeaponInfo(currentWeaponStat);
     }
 

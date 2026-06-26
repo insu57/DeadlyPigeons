@@ -661,6 +661,9 @@ public class DataSync : MonoBehaviour
                     projectileColliderSize.x = float.Parse(strArr[0]);
                     projectileColliderSize.y = float.Parse(strArr[1]);
                 }
+
+                var sfxStr = rowData[21];
+                var sfxType = AudioManager.StringToSfxType(sfxStr);
                 
                 WeaponStat parsed = new WeaponStat
                 {
@@ -684,7 +687,7 @@ public class DataSync : MonoBehaviour
                 
 #if UNITY_EDITOR
                 
-                so.SyncDataCSV(weaponName, parsed, weaponSprite);
+                so.SyncDataCSV(weaponName, parsed, weaponSprite, sfxType);
 
                 weaponUpdateCount++;
                 

@@ -2452,7 +2452,7 @@ MonoBehaviour:
   testChar: {fileID: 11400000, guid: 67c162034c93ad449912219262ad8f2b, type: 2}
   testWeapon:
   - {fileID: 11400000, guid: 02133ae5e1a50e3479b9012a2016009e, type: 2}
-  - {fileID: 11400000, guid: 98f2b559d39340c47a42afda49a06924, type: 2}
+  - {fileID: 11400000, guid: 97380fb8d84f6234aa7d53399a2d8de4, type: 2}
   testStage: 0
   testWave: 4
 --- !u!1 &519420028
@@ -20021,10 +20021,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2689481477159014243, guid: 9792b0c03a7ce2943bc28fd078428fec, type: 3}
-      propertyPath: masterMixer
-      value: 
-      objectReference: {fileID: 24100000, guid: bd1fbbf886a535949ad8673108c2db3c, type: 2}
     - target: {fileID: 4099563706919916501, guid: 9792b0c03a7ce2943bc28fd078428fec, type: 3}
       propertyPath: m_Name
       value: AudioManager

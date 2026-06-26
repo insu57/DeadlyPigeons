@@ -297,6 +297,8 @@ public class PlayerStat : MonoBehaviour
         
         if(currentExp >= TargetExp) //레벨 업. 한번에 여러번가능하도록 수정?
         {
+            AudioManager.Instance.PlaySFX(SfxType.LevelUp);
+            
             currentExp = TargetExp - currentExp;
             CurrentLevel++;
             hasLvUp = true;

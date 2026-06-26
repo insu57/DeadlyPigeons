@@ -67,7 +67,6 @@ public struct CurrentWeaponStat
     public bool IsMelee;
     public int HealthAbsorb;
     public int RecyclePrice;
-    public List<IWeaponEffect> WeaponEffects;
     //효과별 표시 파라미터(스탯 반영된 value + 배율). WeaponEffectDataList와 같은 순서, InfoPanel이 그대로 소비.
     public List<List<(float param, bool isValue)>> EffectParams;
 }
@@ -97,6 +96,7 @@ public class WeaponData : ScriptableObject
     [field: SerializeField] public Sprite Sprite { get; private set; }
     [field: SerializeField] public WeaponStat WeaponStat { get; private set; }
     [field: SerializeField] public List<WeaponEffectData> WeaponEffectDataList {get; private set;}
+    [field: SerializeField] public SfxType SfxType { get; private set; }
     
     [field: SerializeField] public WeaponTransform WeaponTransform {get; private set;}
 
@@ -155,11 +155,12 @@ public class WeaponData : ScriptableObject
     
     
 #if UNITY_EDITOR
-    public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite)
+    public void SyncDataCSV(string weaponName, WeaponStat weaponStat, Sprite sprite, SfxType sfxType)
     {
         Name = weaponName;
         WeaponStat = weaponStat;
         Sprite = sprite;
+        SfxType =  sfxType;
     }
 
     public void SetWeaponTransform(WeaponTransform weaponTransform)

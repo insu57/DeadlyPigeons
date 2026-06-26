@@ -248,7 +248,8 @@ public class PlayerWeapon : MonoBehaviour
 
         _targetDist = MathF.Sqrt(_targetInfo.SqrDistance);//루트 연산(실제 거리)
         transform.position = _center.position; //중앙으로
-            
+           
+        AudioManager.Instance.PlaySFX(WeaponData.SfxType);
         //공격 유형
         //None Sweep Thrust..
         //특수한 공격(근접무기) 인 경우 None으로
@@ -327,6 +328,7 @@ public class PlayerWeapon : MonoBehaviour
         
         if (_attackCoolTimer > 0) return; //공격 쿨 타이머(무기 공격 속도 기준)
        
+        AudioManager.Instance.PlaySFX(WeaponData.SfxType);
         //투사체 만큼 발사.//투사체 각도!
         var projectile = ObjectPoolingManager.Instance.GetProjectile();
         projectile.transform.position = Muzzle.position;//
