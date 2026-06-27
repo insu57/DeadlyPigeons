@@ -336,7 +336,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 31d29ee0a10c97e43b42ca3d8de289d5, type: 2}
   m_sharedMaterial: {fileID: 4554492593091051563, guid: 31d29ee0a10c97e43b42ca3d8de289d5, type: 2}
@@ -737,7 +737,6 @@ MonoBehaviour:
   mainStatBtn: {fileID: 5696093211383770961}
   mainStatPanel: {fileID: 991331946586009181}
   mainStatGrid: {fileID: 5159760751887599338}
-  currentLevelLabel: {fileID: 7460536879593538794}
   currentLevelValue: {fileID: 2725356256246090023}
   subStatPanel: {fileID: 2776848005326957682}
   subStatGrid: {fileID: 3112461158421260166}

@@ -8,7 +8,7 @@ public class DataManager : Singleton<DataManager>
     public List<CharacterData> CharList { get; } = new();
    
     private const int MaxTier = 4;
-    public int GetMaxTier => MaxTier;
+    public static int GetMaxTier => MaxTier;
     public Dictionary<int, ItemData> ItemDict { get; } = new();
     public Dictionary<int, List<ItemData>> ItemTierDict { get; } = new();
     public List<ItemData> ItemList { get; } = new();
@@ -162,6 +162,11 @@ public class DataManager : Singleton<DataManager>
     {
         return HexToColor.TryGetValue(colorString, out var color) ? color : Color.white;
     }
-    
+
+    public Color GetTierToColor(int tier)
+    {
+        var colorHex = TierColorDict[tier];
+        return GetHexToColor(colorHex);
+    }
 }
 

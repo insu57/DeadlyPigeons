@@ -47,10 +47,10 @@ public class ItemGridUI : MonoBehaviour
         OnShowWeaponInfo += playerManager.HandleOnShowWeaponInfo;
     }
     
-    private void AddWeapon(Sprite sprite, int index)
+    private void AddWeapon(Sprite sprite, int tier, int index)
     {
         var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        selectBtn.SetButtonImg(sprite);
+        selectBtn.SetButtonImg(sprite, tier);
         selectBtn.SetGrid(weaponGrid.transform, weaponGrid.cellSize);
         _weaponSelectButtons.Add(selectBtn);
         
@@ -117,7 +117,7 @@ public class ItemGridUI : MonoBehaviour
     private void AddItem(ItemData item, int idx)
     {
         var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        selectBtn.SetButtonImg(item.Icon);
+        selectBtn.SetButtonImg(item.Icon, item.Tier);
         selectBtn.SetGrid(itemGrid.transform, itemGrid.cellSize);
         
         selectBtn.OnBtnPointerEnter += () => ShowItemInfo(item, selectBtn, idx);
@@ -166,7 +166,8 @@ public class ItemGridUI : MonoBehaviour
         infoPanel.gameObject.SetActive(true);
     }
 
-    public void ShowWeaponInfo(CurrentWeaponStat currentWeaponStat, SelectButton selectButton, int weaponIdx) //무기 정보 표시
+    public void ShowWeaponInfo(CurrentWeaponStat currentWeaponStat, SelectButton selectButton, 
+        int weaponIdx, bool canCombine) //무기 정보 표시
     {
         SetInfoPanel(weaponGrid.constraintCount, weaponIdx, selectButton);//피봇 설정 관련 개선?
         infoPanel.ShowWeaponInfo(currentWeaponStat);
@@ -175,7 +176,7 @@ public class ItemGridUI : MonoBehaviour
 
         if (_infoPanelType == InfoPanelType.Store)
         {
-            infoPanel.ShowWeaponStoreButtons(currentWeaponStat.Tier, currentWeaponStat.RecyclePrice);
+            infoPanel.ShowWeaponStoreButtons(currentWeaponStat.RecyclePrice, canCombine);
         }
         else
         {

@@ -150,7 +150,7 @@ public class SelectWindow : MonoBehaviour
     {
         var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         randomBtn.transform.SetParent(charViewportContent);
-        randomBtn.SetButtonImg(randomSprite);
+        randomBtn.SetButtonImg(randomSprite, -1);
         randomBtn.OnBtnPointerEnter += ShowRandCharDescription; //랜덤 버튼 
         randomBtn.SelectBtn.onClick.AddListener(SelectRandomCharacter);
 
@@ -159,7 +159,7 @@ public class SelectWindow : MonoBehaviour
             var newBtn = ObjectPoolingManager.Instance.GetSelectBtn();
             newBtn.transform.SetParent(charViewportContent);
 
-            newBtn.SetButtonImg(charData.CharacterSprite);
+            newBtn.SetButtonImg(charData.CharacterSprite, -1);
 
             newBtn.OnBtnPointerEnter += () => ShowCharDescription(id); //포인터 진입 시 캐릭터 설명
 
@@ -217,7 +217,7 @@ public class SelectWindow : MonoBehaviour
 
             var weaponData = DataManager.Instance.WeaponDict[weaponID];
             
-            selectBtn.SetButtonImg(weaponData.Sprite);
+            selectBtn.SetButtonImg(weaponData.Sprite, weaponData.WeaponStat.initTier);
 
             _weaponSelectList.Add(selectBtn);
 

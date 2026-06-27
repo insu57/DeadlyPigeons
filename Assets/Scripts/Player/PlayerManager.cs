@@ -28,11 +28,10 @@ public class PlayerManager : MonoBehaviour
     public event Action<SubStats, int> OnUpdateSubStat;
     public event Action<int> OnUpdateLevel; 
     
-    public event Action OnPlayerLevelUp;
     public event Action OnCratePickup;
     public event Action<int> OnUpdateMoney;
 
-    public event Action<Sprite, int> OnAddWeapon;
+    public event Action<Sprite, int, int> OnAddWeapon;
     public event Action<ItemData, int> OnAddItem;
     public event Action<int> OnRemoveWeapon;
 
@@ -106,7 +105,7 @@ public class PlayerManager : MonoBehaviour
         if (playerLevelInfo.hasLevelUp)
         {
             //레벨업...
-            OnPlayerLevelUp?.Invoke();
+            OnUpdateLevel?.Invoke(lv);
         }
     }
 
@@ -170,7 +169,7 @@ public class PlayerManager : MonoBehaviour
         for (int i = 0; i < initWeaponList.Count; i++)
         {
             var sprite = initWeaponList[i].Sprite;
-            OnAddWeapon?.Invoke(sprite, i);
+            OnAddWeapon?.Invoke(sprite, initWeaponList[i].WeaponStat.initTier ,i);
         }
 
         //sync?
@@ -188,7 +187,7 @@ public class PlayerManager : MonoBehaviour
         playerWeapons[idx].SetWeaponData(weaponData, tier);
         playerWeapons[idx].gameObject.SetActive(true);
 
-        OnAddWeapon?.Invoke(weaponData.Sprite, idx);
+        OnAddWeapon?.Invoke(weaponData.Sprite, tier, idx);
 
         var classes = weaponData.WeaponStat.classes;
         foreach (var weaponClass in classes)
@@ -238,20 +237,8 @@ public class PlayerManager : MonoBehaviour
         var targetWeapon = playerWeapons[idx];
         var targetWeaponData = targetWeapon.WeaponData;
         var tier = targetWeapon.Tier;
-        
-        if(tier == DataManager.Instance.GetMaxTier) return; //최고 티어면 중단. 
-        
-        
-        bool hasDuplicateWeapon = false;
-        for (int i = 0; i < playerWeapons.Count; i++) //ID,티어가 동일한 무기의 유무 확인
-        {
-            if(i == idx) continue; //자기 자신 제외
-            if(!playerWeapons[i].WeaponData) continue;   
-            if(playerWeapons[i].WeaponData.ID != targetWeaponData.ID) continue;
-            if(playerWeapons[i].Tier != tier) continue;
-            hasDuplicateWeapon = true;
-            break;
-        }
+
+        bool hasDuplicateWeapon = CheckWeaponCanCombine(idx);
         
         if(!hasDuplicateWeapon) return;
         
@@ -351,7 +338,29 @@ public class PlayerManager : MonoBehaviour
     {
         var playerWeapon =  playerWeapons[index];
         var currentWeaponStat = GetWeaponStat(playerWeapon.WeaponData, playerWeapon.Tier);
-        itemGridUI.ShowWeaponInfo(currentWeaponStat, selectBtn, index);
+
+        bool canCombine = CheckWeaponCanCombine(index);
+        
+        itemGridUI.ShowWeaponInfo(currentWeaponStat, selectBtn, index, canCombine);
+    }
+
+    private bool CheckWeaponCanCombine(int idx)
+    {
+        var playerWeapon =  playerWeapons[idx];
+        
+        if(playerWeapon.Tier == DataManager.GetMaxTier) return false;
+        
+        for (int i = 0; i < playerWeapons.Count; i++)
+        {
+            if(i == idx) continue;
+            if(!playerWeapons[i].WeaponData) continue;
+            if(playerWeapon.WeaponData.ID != playerWeapons[i].WeaponData.ID) continue;
+            if(playerWeapon.Tier != playerWeapons[i].Tier) continue;
+                
+            return true;
+        } 
+        
+        return false;
     }
     
     private void SetWeaponClassBonus() //클래스 보너스 업데이트

@@ -169,7 +169,7 @@ public class StageManager : MonoBehaviour
 
         _playerManager.InitCharacter(charData, items, weapons);
 
-        _playerManager.OnPlayerLevelUp += OnLevelUp;
+        _playerManager.OnUpdateLevel += _ => OnLevelUp();
         _playerManager.OnCratePickup += OnCratePickup;
         _playerManager.OnUpdateMoney += money => _stageUI.UpdateMoney(money);
         _playerManager.OnPlayerDeath += () => OnStageEnd(false);

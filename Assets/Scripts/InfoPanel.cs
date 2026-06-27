@@ -134,11 +134,12 @@ public class InfoPanel : MonoBehaviour
         classInfo.ShowWeaponClassInfo(weaponClasses);
     }
 
-    public void ShowWeaponStoreButtons(int tier, int recyclePrice)
+    public void ShowWeaponStoreButtons(int recyclePrice, bool canCombine)
     {
         StoreButtons.gameObject.SetActive(true);
 
-        StoreButtons.CombineButton.gameObject.SetActive(tier != DataManager.Instance.GetMaxTier); 
+        //StoreButtons.CombineButton.gameObject.SetActive(tier != DataManager.Instance.GetMaxTier); 
+        StoreButtons.CombineButton.gameObject.SetActive(canCombine);
         //최고티어가 아니면 활성화
 
         var sb = StatUtil.StringBuilder;

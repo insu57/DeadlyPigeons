@@ -519,7 +519,8 @@ public static class WeaponStatCalculator
     public static float GetRealKnockback(WeaponData weaponData, int tier,
         IReadOnlyDictionary<SubStats, int> finalSubStatDict)
     {
-        var weaponKnockback = weaponData.WeaponStat.knockBack[tier];
+        var tierIdx = tier - weaponData.WeaponStat.initTier;
+        var weaponKnockback = weaponData.WeaponStat.knockBack[tierIdx];
         var knockbackStat = finalSubStatDict[SubStats.Knockback];
 
         return (weaponKnockback + knockbackStat) * KnockbackScaler;//0.1배

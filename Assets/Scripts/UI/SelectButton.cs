@@ -11,6 +11,7 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [SerializeField] private Image btnImage;
     [SerializeField] private TMP_Text btnText;
     [SerializeField] private Button selectBtn;
+    [SerializeField] private Image borderImage;
     [field: SerializeField] public RectTransform InfoPanelParentBottomLeft { get; private set; }
     [field: SerializeField] public RectTransform InfoPanelParentBottomRight { get; private set; }
     [field: SerializeField] public RectTransform InfoPanelParentTopLeft { get; private set; }
@@ -26,11 +27,21 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         btnImage.enabled = false;
         btnText.enabled = false;
     }
+
     
-    public void SetButtonImg(Sprite sprite)
+    
+    public void SetButtonImg(Sprite sprite, int tier)
     {
         btnImage.enabled = true;
         btnImage.sprite = sprite;
+        if (tier <= 0)
+        {
+            borderImage.enabled = false;
+            return;
+        }
+        borderImage.enabled = true;
+        var color = DataManager.Instance.GetTierToColor(tier);
+        borderImage.color = color;
     }
 
     public void SetBtnText(StringBuilder sb)
