@@ -634,7 +634,37 @@ public class DataSync : MonoBehaviour
                     }
                 }
                 
-                strArr = rowData[15].Split('|'); //판매가격
+                strArr = rowData[15].Split('|');
+                List<int> piercings = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var piercing))
+                    {
+                        piercings.Add(piercing);
+                    }
+                }
+                
+                strArr = rowData[16].Split('|');
+                List<int> piercingDmg = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var dmg))
+                    {
+                        piercingDmg.Add(dmg);
+                    }
+                }
+                
+                strArr = rowData[17].Split('|');
+                List<int> bounces = new();
+                foreach (var str in strArr)
+                {
+                    if (int.TryParse(str, out var bounce))
+                    {
+                        bounces.Add(bounce);
+                    }
+                }
+                
+                strArr = rowData[18].Split('|'); //판매가격
                 List<int> prices = new();
                 foreach (var str in strArr)
                 {
@@ -645,24 +675,24 @@ public class DataSync : MonoBehaviour
                 }
 
 
-                int.TryParse(rowData[18], out var projectileID);
+                int.TryParse(rowData[21], out var projectileID);
                 projectileSpriteDict.TryGetValue(projectileID, out var projectileSprite);
                 var projectileSpriteScale = new Vector2();
                 var projectileColliderSize = new Vector2();
-                strArr = rowData[19].Split('|');
+                strArr = rowData[22].Split('|');
                 if (strArr.Length > 1)
                 {
                     projectileSpriteScale.x = float.Parse(strArr[0]);
                     projectileSpriteScale.y = float.Parse(strArr[1]);
                 }
-                strArr = rowData[20].Split('|');
+                strArr = rowData[23].Split('|');
                 if (strArr.Length > 1)
                 {
                     projectileColliderSize.x = float.Parse(strArr[0]);
                     projectileColliderSize.y = float.Parse(strArr[1]);
                 }
 
-                var sfxStr = rowData[21];
+                var sfxStr = rowData[24];
                 var sfxType = AudioManager.StringToSfxType(sfxStr);
                 
                 WeaponStat parsed = new WeaponStat
@@ -679,6 +709,9 @@ public class DataSync : MonoBehaviour
                     range = range,
                     knockBack = knockback,
                     healthAbsorb = healthAbsorb,
+                    piercing = piercings,
+                    piercingDamage = piercingDmg,
+                    bounces = bounces,
                     prices = prices,
                     projectileSprite = projectileSprite,
                     projectileSpriteScale = projectileSpriteScale,

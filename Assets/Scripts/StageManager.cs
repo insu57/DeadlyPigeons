@@ -37,6 +37,7 @@ public class StageManager : MonoBehaviour
     [SerializeField] private float farSpawnMax = 15f;
     private const int MaxSpawnRetries = 10;
     private const int MaxSpawnCount = 100;
+    private const float FirstSpawnDelay = 0.5f;
 
     [Header("Wave")] 
     [SerializeField] private int waveLevelUp = 0;
@@ -218,6 +219,7 @@ public class StageManager : MonoBehaviour
         SpawnBosses(waveData);  //웨이브 시작시 보스 전부 스폰
         float elapsed = 0f;
         float spawnTimer = 0f;
+        float spawnInterval = FirstSpawnDelay;
         int totalSpawned = 0;
 
         while (elapsed < waveData.WaveLength)
@@ -232,8 +234,9 @@ public class StageManager : MonoBehaviour
             _stageUI.UpdateWaveTimer(leftTime);
 
             //스폰 틱마다 적 스폰
-            if (spawnTimer < waveData.SpawnTick) continue;
-            spawnTimer -= waveData.SpawnTick;
+            if (spawnTimer < spawnInterval) continue;
+            spawnTimer -= spawnInterval;
+            spawnInterval = waveData.SpawnTick;
 
             if (totalSpawned > MaxSpawnCount) continue;
 
@@ -686,14 +689,7 @@ public class StageManager : MonoBehaviour
             SpawnEnemy(bossData, SpawnLocationType.Far);
         }
     }
-
-    private void SpawnEnemy(WaveData waveData)
-    {
-        if (waveData.Enemies == null || waveData.Enemies.Count == 0) return;
-
-        var spawnInfo = PickWeightedEnemy(waveData.Enemies);
-        SpawnEnemy(spawnInfo.enemyData, spawnInfo.spawnLocation);
-    }
+    
 
     private void SpawnEnemy(EnemyData enemyData, SpawnLocationType spawnLocation)
     {

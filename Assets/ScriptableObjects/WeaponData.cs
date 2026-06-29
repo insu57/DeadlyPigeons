@@ -47,6 +47,9 @@ public struct WeaponStat
     public List<int> range;
     public List<int>  knockBack;
     public List<int>  healthAbsorb;
+    public List<int>  piercing;
+    public List<int>  piercingDamage;
+    public List<int>  bounces;
     public List<int> prices;
     public Sprite projectileSprite;
     public Vector2 projectileSpriteScale;
@@ -66,6 +69,9 @@ public struct CurrentWeaponStat
     public int Range;
     public bool IsMelee;
     public int HealthAbsorb;
+    public int Piercing;
+    public int PiercingDamage;
+    public int Bounces;
     public int RecyclePrice;
     //효과별 표시 파라미터(스탯 반영된 value + 배율). WeaponEffectDataList와 같은 순서, InfoPanel이 그대로 소비.
     public List<List<(float param, bool isValue)>> EffectParams;

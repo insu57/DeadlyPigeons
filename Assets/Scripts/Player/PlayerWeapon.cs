@@ -419,6 +419,9 @@ public static class WeaponStatCalculator
             Range =  weaponStat.range[tierIdx] + finalMainStatDict[MainStats.Range],
             IsMelee = weaponStat.isMelee,
             HealthAbsorb = GetHealthAbsorb(weaponData, tier, finalMainStatDict),
+            Piercing = weaponStat.piercing[tierIdx] + finalSubStatDict[SubStats.Piercing],
+            PiercingDamage = weaponStat.piercingDamage[tierIdx] + finalSubStatDict[SubStats.PiercingDamage],
+            Bounces = weaponStat.bounces[tierIdx] + finalSubStatDict[SubStats.Bounces],
             RecyclePrice = Mathf.FloorToInt(weaponStat.prices[tierIdx] / 2f) //판매가 = 구매가의 절반.
         };
 

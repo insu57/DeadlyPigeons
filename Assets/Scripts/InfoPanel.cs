@@ -88,6 +88,28 @@ public class InfoPanel : MonoBehaviour
             sb.AppendColorCompare(healthAbsorb, weaponStat.healthAbsorb[tierIdx]);
             sb.AppendLine();
         }
+
+        var piercing = weapon.Piercing;
+        if (piercing > 0)
+        {
+            var piercingDmg = weapon.PiercingDamage;
+            sb.AppendHeadString("관통: ");
+            sb.AppendColorCompare(piercing, weaponStat.piercing[tierIdx]);
+            if (piercingDmg < 0) //관통 데미지는 최대 0
+            {
+                sb.Append('(').AppendColorValue(piercingDmg);
+                sb.Append("%)");
+            }
+            sb.AppendLine();
+        }
+
+        var bounces = weapon.Bounces;
+        if (bounces > 0)
+        {
+            sb.AppendHeadString("도탄: ");
+            sb.AppendColorCompare(bounces, weaponStat.bounces[tierIdx]);
+            sb.AppendLine();
+        }
         
         sb.AppendHeadString("범위: ");
         sb.AppendColorCompare(weapon.Range, weaponStat.range[tierIdx]);
@@ -137,10 +159,8 @@ public class InfoPanel : MonoBehaviour
     public void ShowWeaponStoreButtons(int recyclePrice, bool canCombine)
     {
         StoreButtons.gameObject.SetActive(true);
-
-        //StoreButtons.CombineButton.gameObject.SetActive(tier != DataManager.Instance.GetMaxTier); 
+        
         StoreButtons.CombineButton.gameObject.SetActive(canCombine);
-        //최고티어가 아니면 활성화
 
         var sb = StatUtil.StringBuilder;
         sb.Clear();
