@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
 {
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    //[SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Transform playerSprite;
+    private SpriteRenderer[] _spriteRenderers;
     [SerializeField] private Color hitFlashColor = Color.red;
     [SerializeField] private float hitFlashDuration = 0.1f;
     private static readonly int FlashColorID = Shader.PropertyToID("_FlashColor");
@@ -22,6 +24,8 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
     private void Awake()
     {
         _propBlock = new MaterialPropertyBlock();
+        
+        _spriteRenderers = playerSprite.GetComponentsInChildren<SpriteRenderer>(true);
     }
 
     public void Update()
@@ -60,10 +64,16 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
 
     private void SetFlashAmount(float amount, Color? color = null)
     {
-        spriteRenderer.GetPropertyBlock(_propBlock);
-        if (color.HasValue) _propBlock.SetColor(FlashColorID, color.Value);
-        _propBlock.SetFloat(FlashAmountID, amount);
-        spriteRenderer.SetPropertyBlock(_propBlock);
+        foreach (var spriteRenderer in _spriteRenderers)
+        {
+            _propBlock.Clear();
+            spriteRenderer.GetPropertyBlock(_propBlock);
+            
+            if(color.HasValue) _propBlock.SetColor(FlashColorID, color.Value);
+            
+            _propBlock.SetFloat(FlashAmountID, amount);
+            spriteRenderer.SetPropertyBlock(_propBlock);
+        }
     }
 
     public void Heal(int healAmount)

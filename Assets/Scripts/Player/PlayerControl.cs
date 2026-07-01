@@ -10,10 +10,12 @@ public class PlayerControl : MonoBehaviour
     private Vector2 _moveInputVector;
     private bool _isFacingRight = true;
     [SerializeField] private GameObject playerSprite; 
+    private PlayerAnim _playerAnim;
     
     private void Awake()
     {
         TryGetComponent(out _rigidbody2D);
+        TryGetComponent(out _playerAnim);
     }
     
     private void Start()
@@ -34,7 +36,14 @@ public class PlayerControl : MonoBehaviour
     private void MoveInput()
     {
         _moveInputVector = _moveAction.ReadValue<Vector2>();
-        
+        if (_moveInputVector.normalized != Vector2.zero)
+        {
+            _playerAnim.SetWalk(true);
+        }
+        else
+        {
+            _playerAnim.SetWalk(false);
+        }
     }
 
     private void Move()
@@ -51,10 +60,7 @@ public class PlayerControl : MonoBehaviour
         }
         
         _rigidbody2D.linearVelocity = _moveInputVector * 5f;
-        
-        //맵 제한?
-        //1. Wall Collider
-        //2. 좌표 제한
+     
         //추후 성능 문제, 떨림 등 문제가 생기면 수정
     }
     
