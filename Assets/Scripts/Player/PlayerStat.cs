@@ -214,8 +214,9 @@ public class PlayerStat : MonoBehaviour
     public void Damage(int damage)
     {
         var armor = _finalMainStatDict[MainStats.Armor];
-        var ratio =  CalculateArmorRatio(damage, armor);
+        var ratio =  CalculateArmorRatio(armor);
         var finalDamage = Mathf.FloorToInt(damage * ratio + 0.5f);
+        Debug.Log($"damage: {damage} armor: {armor} final: {finalDamage}");
         currentHP -= finalDamage;
         OnChangeHealth?.Invoke(currentHP, MaxHp);
         if (currentHP <= 0)
@@ -224,22 +225,18 @@ public class PlayerStat : MonoBehaviour
         }
     }
 
-    private static float CalculateArmorRatio(float rawDamage, float armor)
+    private static float CalculateArmorRatio(float armor)
     {
-        float damageRatio;
-
         if (armor >= 0)
         {
             // 양수 방어도 — 감쇠
-            damageRatio = 1f / (1f + armor / 15f);
+            return 1f / (1f + armor / 15f);
         }
         else
         {
             // 음수 방어도 — 피해 증가
-            damageRatio = (15f - 2f * armor) / (15f - armor);
+            return (15f - 2f * armor) / (15f - armor);
         }
-
-        return rawDamage * damageRatio;
     }
 
     public void Heal(int healAmount)

@@ -13,6 +13,18 @@ public class StageEndPanel : MonoBehaviour
     {
         stageEndButton.onClick.AddListener(BackToTitle);
     }
+
+    public void StageEndTxt(bool isClear)
+    {
+        if (isClear)
+        {
+            stageEndText.SetText("스테이지 클리어!");
+        }
+        else
+        {
+            stageEndText.SetText("스테이지 중단...");
+        }
+    }
     
     private void BackToTitle()
     {

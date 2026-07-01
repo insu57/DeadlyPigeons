@@ -26,6 +26,10 @@ public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
     public float Speed { get; private set; }
     public EnemyData EnemyData => enemyData;
 
+    //test
+    [field: SerializeField] public int dmg;
+    [field: SerializeField] public int health;
+    
     public Transform Target { get; private set; }
     private Coroutine _activeDotCoroutine;
 
@@ -159,6 +163,10 @@ public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
         ChangeShootState(initShootState);
         
         hitbox.ContactInit(AttackDamage);
+
+        //test
+        dmg = AttackDamage;
+        health = _health;
     }
     
     private void CheckTransitions()

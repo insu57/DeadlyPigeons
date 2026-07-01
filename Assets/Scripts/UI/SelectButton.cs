@@ -3,7 +3,6 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
@@ -27,8 +26,6 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         btnImage.enabled = false;
         btnText.enabled = false;
     }
-
-    
     
     public void SetButtonImg(Sprite sprite, int tier)
     {
@@ -69,7 +66,7 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void SetGrid(Transform gridTransform, Vector2 cellSize)
     {
-        transform.SetParent(gridTransform);
+        transform.SetParent(gridTransform, false);
         
         InfoPanelParentBottomLeft.anchoredPosition = new Vector2(0, -cellSize.y);
         InfoPanelParentBottomRight.anchoredPosition = new Vector2(0, -cellSize.y);

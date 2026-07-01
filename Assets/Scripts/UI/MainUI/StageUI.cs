@@ -289,5 +289,6 @@ public class StageUI : MonoBehaviour
     public void StageEnd(bool isClear)
     {
         stageEndPanel.gameObject.SetActive(true);
+        stageEndPanel.StageEndTxt(isClear);
     }
 }

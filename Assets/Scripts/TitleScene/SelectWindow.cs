@@ -149,7 +149,7 @@ public class SelectWindow : MonoBehaviour
     private void InitCharSelectBtn()
     {
         var randomBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        randomBtn.transform.SetParent(charViewportContent);
+        randomBtn.transform.SetParent(charViewportContent,false);
         randomBtn.SetButtonImg(randomSprite, -1);
         randomBtn.OnBtnPointerEnter += ShowRandCharDescription; //랜덤 버튼 
         randomBtn.SelectBtn.onClick.AddListener(SelectRandomCharacter);
@@ -157,7 +157,7 @@ public class SelectWindow : MonoBehaviour
         foreach (var (id, charData) in DataManager.Instance.CharDict)
         {
             var newBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-            newBtn.transform.SetParent(charViewportContent);
+            newBtn.transform.SetParent(charViewportContent,false);
 
             newBtn.SetButtonImg(charData.CharacterSprite, -1);
 
@@ -187,7 +187,7 @@ public class SelectWindow : MonoBehaviour
     private void InitWeaponRandom()
     {
         _randomWeaponBtn = ObjectPoolingManager.Instance.GetSelectBtn();
-        _randomWeaponBtn.transform.SetParent(weaponViewportContent);
+        _randomWeaponBtn.transform.SetParent(weaponViewportContent, false);
         _randomWeaponBtn.OnBtnPointerEnter += ShowRandomWeapon;
     }
 
@@ -213,7 +213,7 @@ public class SelectWindow : MonoBehaviour
         {
             var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
 
-            selectBtn.transform.SetParent(weaponViewportContent); //부모 설정.
+            selectBtn.transform.SetParent(weaponViewportContent, false); //부모 설정.
 
             var weaponData = DataManager.Instance.WeaponDict[weaponID];
             
@@ -318,7 +318,7 @@ public class SelectWindow : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             var btn = ObjectPoolingManager.Instance.GetSelectBtn();
-            btn.transform.SetParent(stageViewportContent);
+            btn.transform.SetParent(stageViewportContent, false);
             
             sb.Clear();
             sb.Append(i);

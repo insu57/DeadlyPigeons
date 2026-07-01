@@ -25,6 +25,7 @@ public class StageManager : MonoBehaviour
     private PlayerSelected _playerSelected;
 
     private HashSet<EnemyManager> activeEnemies = new();
+    private readonly HashSet<EnemyManager> _activeBosses = new();
     private const float MaxFindRange = 100f;
 
     [Header("Enemy Spawn")]
@@ -69,7 +70,9 @@ public class StageManager : MonoBehaviour
     [SerializeField] private int testWave;
 
     private int _currentWave = 1; //1~20...
-    private const int LastWave = 20;
+    private const int LastWave = 10; //빠른모드
+    //private const int LastWave = 20;
+    
     //21~ -> InfiniteMode
 
     private void Awake()
@@ -216,13 +219,16 @@ public class StageManager : MonoBehaviour
         
         AudioManager.Instance.PlayBGM(BgmType.Stage);
 
+        _activeBosses.Clear();
         SpawnBosses(waveData);  //웨이브 시작시 보스 전부 스폰
+        bool hasBosses = _activeBosses.Count > 0;
         float elapsed = 0f;
         float spawnTimer = 0f;
         float spawnInterval = FirstSpawnDelay;
         int totalSpawned = 0;
 
-        while (elapsed < waveData.WaveLength)
+        while (elapsed < waveData.WaveLength
+               && (_currentWave != LastWave || !hasBosses || _activeBosses.Count > 0))
         {
             yield return null;
 
@@ -266,6 +272,7 @@ public class StageManager : MonoBehaviour
         }
         
         activeEnemies.Clear();
+        _activeBosses.Clear();
 
         if (_currentWave == LastWave)
         {
@@ -686,15 +693,16 @@ public class StageManager : MonoBehaviour
         foreach (var bossData in waveData.BossEnemies)
         {
             if (!bossData) continue;
-            SpawnEnemy(bossData, SpawnLocationType.Far);
+            var boss = SpawnEnemy(bossData, SpawnLocationType.Far);
+            if (boss) _activeBosses.Add(boss);
         }
     }
     
 
-    private void SpawnEnemy(EnemyData enemyData, SpawnLocationType spawnLocation)
+    private EnemyManager SpawnEnemy(EnemyData enemyData, SpawnLocationType spawnLocation)
     {
-        if (!enemyData) return;
-        if (!enemyBasePrefab) { Debug.LogWarning("enemyBasePrefab이 비어 있습니다."); return; }
+        if (!enemyData) return null;
+        if (!enemyBasePrefab) { Debug.LogWarning("enemyBasePrefab이 비어 있습니다."); return null; }
 
         var spawnPos = GetSpawnPosition(spawnLocation);
 
@@ -705,6 +713,7 @@ public class StageManager : MonoBehaviour
         enemy.OnDropCollectable += OnDropCollectable;
         enemy.OnDeath += OnEnemyDeath;
         activeEnemies.Add(enemy);
+        return enemy;
     }
 
     private EnemySpawnInfo PickWeightedEnemy(List<EnemySpawnInfo> enemies) //적 선택
@@ -753,6 +762,7 @@ public class StageManager : MonoBehaviour
         enemy.OnDeath -= OnEnemyDeath;
         enemy.OnDropCollectable -= OnDropCollectable;
         activeEnemies.Remove(enemy);//활성화 된 적 리스트에서 제거.
+        _activeBosses.Remove(enemy);
     }
 
     private void OnDropCollectable(Collectable collectable, CollectableType collectableType)
