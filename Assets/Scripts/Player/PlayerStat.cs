@@ -216,7 +216,7 @@ public class PlayerStat : MonoBehaviour
         var armor = _finalMainStatDict[MainStats.Armor];
         var ratio =  CalculateArmorRatio(armor);
         var finalDamage = Mathf.FloorToInt(damage * ratio + 0.5f);
-        Debug.Log($"damage: {damage} armor: {armor} final: {finalDamage}");
+       
         currentHP -= finalDamage;
         OnChangeHealth?.Invoke(currentHP, MaxHp);
         if (currentHP <= 0)

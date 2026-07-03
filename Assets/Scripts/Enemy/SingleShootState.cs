@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class SingleShootState : IShootState
 {
-    private  float _fireRate = 3f;
-    private  float _projectileRange = 15f;
+    private float _fireRate = 3f;
+    private float _speed = 5;
+    private const float ProjectileRange = 15f;
 
     private float _fireCooldown;
 
@@ -13,6 +14,7 @@ public class SingleShootState : IShootState
         if (stateParameter.shootParameters.Count >= 2)
         {
             _fireRate = stateParameter.shootParameters[0];
+            _speed = stateParameter.shootParameters[1];
         }
     }
 
@@ -64,6 +66,6 @@ public class SingleShootState : IShootState
         projectile.Initialize(data);
 
         Vector3 dir = (enemyManager.Target.position - enemyManager.transform.position).normalized;
-        projectile.Fire(dir, _projectileRange);
+        projectile.Fire(dir, ProjectileRange, _speed);
     }
 }

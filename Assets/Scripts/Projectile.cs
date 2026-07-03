@@ -30,7 +30,7 @@ public class Projectile : MonoBehaviour
     private Action _onHitEnemy;
 
     private float _lifeTimer;
-    private float _speed = 10f; //temp?
+    private float _speed = 7f; //temp?
     private CapsuleCollider2D _collider2D;
     private Rigidbody2D _rigidbody2D;
     private SpriteRenderer _renderer;
@@ -64,9 +64,9 @@ public class Projectile : MonoBehaviour
         _collider2D.size = data.ColliderSize;
     }
     
-    public void Fire(Vector3 direction, float range)//발사
+    public void Fire(Vector3 direction, float range, float speed = 7f)//발사
     {
-        _rigidbody2D.linearVelocity = direction.normalized * _speed;
+        _rigidbody2D.linearVelocity = direction.normalized * speed;
         _lifeTimer = range / _speed; //거리/속도 = 시간
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.localRotation = Quaternion.Euler(0, 0, angle);

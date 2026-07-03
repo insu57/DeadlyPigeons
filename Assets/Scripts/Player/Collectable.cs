@@ -43,8 +43,12 @@ public class Collectable : MonoBehaviour
     {
         if (other.TryGetComponent(out IPickup pickup))
         {
-            OnPickup?.Invoke(this, CollectableType);
             pickup.Pickup(this);
         }
+    }
+
+    public void CollectablePickUp()
+    {
+        OnPickup?.Invoke(this, CollectableType);
     }
 }

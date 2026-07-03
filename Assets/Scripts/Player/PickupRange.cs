@@ -10,6 +10,7 @@ public class PickupRange : MonoBehaviour, IPickup
         if (collectable.CollectableType == CollectableType.Material)
         {
             OnGetMaterial?.Invoke(collectable.Amount);
+            collectable.CollectablePickUp();
             ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
         }
     }

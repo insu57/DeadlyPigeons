@@ -152,7 +152,7 @@ public class StageUI : MonoBehaviour
         _sb.Clear();
         _sb.Append('x').Append(count);
         crateCountTxt.SetText(_sb);
-        if(count > 0) crateIcon.SetActive(true);
+        crateIcon.SetActive(count > 0);
     }
 
     public void UpdateLvUpCount(int count)
@@ -160,7 +160,7 @@ public class StageUI : MonoBehaviour
         _sb.Clear();
         _sb.Append('x').Append(count);
         lvUpCountTxt.SetText(_sb);
-        if (count > 0) lvUpIcon.SetActive(true);
+        lvUpIcon.SetActive(count > 0);
     }
 
     public void UpdateMoney(int money)

@@ -90,6 +90,7 @@ public class PlayerHurtbox : MonoBehaviour, IDamageable, IPickup
         if (collectable.CollectableType != CollectableType.Material) //재료 획득(Exp, Money)
         {
             OnGetCollectable?.Invoke(collectable.CollectableType);
+            collectable.CollectablePickUp();
             ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
         }
     }

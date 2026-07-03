@@ -56,7 +56,7 @@ public class PlayerWeapon : MonoBehaviour
     private bool _isAttacking;
     private float _animTimer;
     [SerializeField] private float attackDuration = 0.3f;//근거리 - 찌르기/휩쓸기를 하는 시간 <- 무기마다 수정필요?
-    [SerializeField] private float sweepAngle = 90;
+    private const float SweepAngle = 60;
     private float _startAngle;
     private float _endAngle;
     
@@ -150,31 +150,13 @@ public class PlayerWeapon : MonoBehaviour
         
         FinalDamage = WeaponStatCalculator.GetWeaponDamage(weaponData,  tier, _mainStats);
         _finalRange = WeaponStatCalculator.GetRealRange(weaponData, tier, _mainStats);
+        FinalAttackSpeed = WeaponStatCalculator.GetAttackSpeed(weaponData, tier, _mainStats);
         _finalKnockback = WeaponStatCalculator.GetRealKnockback(weaponData, tier, _subStats);
         _finalHealthAbsorb = WeaponStatCalculator.GetHealthAbsorb(weaponData, tier, _mainStats);
         
         if(!weaponData.WeaponStat.isMelee) MeleeCollider.enabled = false; //원거리면 비활성.
     }
-
-    /*
-    private float GetEffectValueStatMultiplier(WeaponEffectValues weaponEffectValues)
-    {
-        var value = weaponEffectValues.values[TierIdx];
-        if (weaponEffectValues.multipliers.Count == 0) return value;
-        
-        var multiplier = weaponEffectValues.multipliers[TierIdx];
-        //스탯 계수(티어 값)
-        if (weaponEffectValues.mainStat != MainStats.None)
-        {
-            value += (int)( _mainStats[weaponEffectValues.mainStat] * multiplier / 100f);
-        }
-        else if (weaponEffectValues.subStat != SubStats.None)
-        {
-            value += (int)(_subStats[weaponEffectValues.subStat] * multiplier / 100f);
-        }
-        return value;
-    }*/
-
+    
     public void SetTarget(TargetInfo target)
     {
         _targetInfo = target;
@@ -240,11 +222,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         if(_finalRange * _finalRange < _targetInfo.SqrDistance) return; //범위 밖
         
-        if (_attackCoolTimer > 0) return; //공격 쿨 타이머(무기 공격 속도 기준)
-
-        _isAttacking = true;
-        _animTimer = 0f;
-        MeleeCollider.enabled = true;
+        if (_attackCoolTimer - attackDuration > 0) return; //공격 쿨 타이머(무기 공격 속도 기준)
 
         _targetDist = MathF.Sqrt(_targetInfo.SqrDistance);//루트 연산(실제 거리)
         transform.position = _center.position; //중앙으로
@@ -253,7 +231,7 @@ public class PlayerWeapon : MonoBehaviour
         //공격 유형
         //None Sweep Thrust..
         //특수한 공격(근접무기) 인 경우 None으로
-        _meleeRange = MathF.Max(MinMeleeRange, _targetDist - 1); //1유닛 여유(스프라이트 크기고려) -> 개선 방안?   
+        _meleeRange = MathF.Max(MinMeleeRange, _targetDist - .3f); //유닛 여유(스프라이트 크기고려?) -> 개선 방안?   
         Vector3 dirToTarget = _targetInfo.Target.position - _center.position; //방향벡터
         float centerAngle = Mathf.Atan2(dirToTarget.y, dirToTarget.x) * Mathf.Rad2Deg; //중심각
         _hitbox.transform.localPosition = new Vector3(_meleeRange, 0, 0); //해당 위치로 이동
@@ -266,7 +244,7 @@ public class PlayerWeapon : MonoBehaviour
         var attackType = WeaponData.WeaponStat.attackType;
         if (attackType == AttackType.Sweep)
         {
-            float halfAngle = sweepAngle / 2f;
+            float halfAngle = SweepAngle / 2f;
                 
                 
             if (Mathf.Abs(centerAngle) > 90f) //시작-끝 각도 계산(중심각 기준)
@@ -284,11 +262,16 @@ public class PlayerWeapon : MonoBehaviour
         {
             transform.localRotation = Quaternion.Euler(0, 0, centerAngle); //타겟 조준
         }
+        
+        _isAttacking = true;
+        _animTimer = 0f;
+        MeleeCollider.enabled = true;
     }
 
     private void MeleeAnimation()//근거리 무기 공격 애니메이션
     {
         if(!_isAttacking) return;
+        //if(_attackCoolTimer < FinalAttackSpeed) return;
         
         _animTimer += Time.deltaTime;
 
@@ -296,7 +279,7 @@ public class PlayerWeapon : MonoBehaviour
         if (percent >= 1f)
         {
             _isAttacking = false;
-            _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
+            _attackCoolTimer = FinalAttackSpeed;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
             _hitbox.transform.localPosition = Vector3.zero;
@@ -314,7 +297,7 @@ public class PlayerWeapon : MonoBehaviour
         }
         else if (attackType == AttackType.Thrust)
         {
-            float moveFactor = Mathf.PingPong(percent * 2f, attackDuration);
+            float moveFactor = Mathf.PingPong(percent * 2f, FinalAttackSpeed);
             _hitbox.transform.localPosition = new Vector3(moveFactor * _meleeRange, 0, 0);
         }
     }
@@ -355,7 +338,7 @@ public class PlayerWeapon : MonoBehaviour
         projectile.Initialize(projectileInitData);
         projectile.Fire(dir, _finalRange);
 
-        _attackCoolTimer = WeaponData.WeaponStat.attackSpeed[TierIdx];
+        _attackCoolTimer = FinalAttackSpeed;
     }
 
     private void HandleHitEnemy() //적 적중 시: 흡혈 확률 굴림 -> 성공 시 회복 이벤트
@@ -398,7 +381,7 @@ public static class WeaponStatCalculator
     //Weapons Stat 
     private const float AttackSpeedScaler = 0.01f; //공격 속도 상수(스탯이 늘어나면 속도가 0에 가까워짐)
     private const int RangeScaler = 75; //실제 유니티 유닛으로 스케일링
-    private const float MeleeRangeMultiplier = 0.5f; //근접 무기 스탯효율 감소치
+    private const float MeleeRangeMultiplier = 0.8f; //근접 무기 스탯효율 감소치
     private const float KnockbackScaler = 0.1f;
 
     public static CurrentWeaponStat GetCurrentWeaponStat(WeaponData weaponData, int tier,

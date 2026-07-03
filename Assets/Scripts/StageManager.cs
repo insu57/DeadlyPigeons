@@ -283,11 +283,13 @@ public class StageManager : MonoBehaviour
 
         foreach (var (collectableType, hashSet) in _collectables)
         {
+            Debug.Log($"collectableType: {collectableType} , count: {hashSet.Count}");
             if (collectableType == CollectableType.Crate)
             {
                 foreach (var collectable in hashSet)
                 {
-                    cratePickup++;
+                    //cratePickup++;
+                    OnCratePickup();
                     ObjectPoolingManager.Instance.ReleaseCollectable(collectable);
                 }   
             }
@@ -538,6 +540,7 @@ public class StageManager : MonoBehaviour
         _playerManager.AddItem(_currentCrateItem);
 
         cratePickup--;
+        _stageUI.UpdateCrateCount(cratePickup);
         
         OpenWaveEndUI();
     }
@@ -547,6 +550,7 @@ public class StageManager : MonoBehaviour
         _playerManager.ChangeMoney(_currentCrateItemPrice);
 
         cratePickup--;
+        _stageUI.UpdateCrateCount(cratePickup);
         
         OpenWaveEndUI();
     }
@@ -774,6 +778,7 @@ public class StageManager : MonoBehaviour
     private void OnCollectablePickup(Collectable collectable, CollectableType collectableType)
     {
         _collectables[collectableType].Remove(collectable);
+        collectable.OnPickup -= OnCollectablePickup;
     }
 
     private void FindClosestEnemy() //가장 가까운 적 찾기 => 개선 점?

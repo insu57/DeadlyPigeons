@@ -2451,7 +2451,7 @@ MonoBehaviour:
   cratePickup: 0
   testChar: {fileID: 11400000, guid: 3bb58431dc6c8714ba65af892d05a0f6, type: 2}
   testWeapon:
-  - {fileID: 11400000, guid: 97380fb8d84f6234aa7d53399a2d8de4, type: 2}
+  - {fileID: 11400000, guid: b8461bd226a71bc4ba6af9abd11b7261, type: 2}
   testStage: 0
   testWave: 4
 --- !u!1 &519420028
@@ -3236,7 +3236,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &634413418
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3253,9 +3253,9 @@ RectTransform:
   - {fileID: 1619001228}
   m_Father: {fileID: 1841949948}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 90, y: -50}
   m_SizeDelta: {x: 175, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &655250443
@@ -9221,7 +9221,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 150}
+  m_SizeDelta: {x: 700, y: 150}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1478413099
 MonoBehaviour:
@@ -9273,7 +9273,7 @@ MonoBehaviour:
   m_fontSize: 72
   m_fontSizeBase: 72
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -18838,7 +18838,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2056673521
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18855,9 +18855,9 @@ RectTransform:
   - {fileID: 1087616634}
   m_Father: {fileID: 1841949948}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 287.5, y: -50}
   m_SizeDelta: {x: 175, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2086846336

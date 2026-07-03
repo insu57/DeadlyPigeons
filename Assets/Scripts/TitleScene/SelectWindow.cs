@@ -188,6 +188,7 @@ public class SelectWindow : MonoBehaviour
     {
         _randomWeaponBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         _randomWeaponBtn.transform.SetParent(weaponViewportContent, false);
+        _randomWeaponBtn.SetButtonImg(randomSprite, -1);
         _randomWeaponBtn.OnBtnPointerEnter += ShowRandomWeapon;
     }
 
@@ -337,6 +338,8 @@ public class SelectWindow : MonoBehaviour
         //
         sb.Append(level);
         stageTxt.SetText(sb);
+        sb.Clear();
+        sb.Append("스테이지 ").Append(level);
         stageDescription.SetText(sb);
     }
     

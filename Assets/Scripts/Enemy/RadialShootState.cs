@@ -6,17 +6,19 @@ public class RadialShootState : IShootState
     private const int MinProjectileCount = 4; // 최소 발사 개수(상하좌우)
 
     private float _fireRate = 3f;
-    private float _projectileRange = 15f;
+    private float _speed = 5f;
+    private const float ProjectileRange = 15f;
     private int _projectileCount = MinProjectileCount;
 
     private float _fireCooldown;
 
     public void Init(EnemyStateParameter stateParameter)
     {
-        if (stateParameter.shootParameters.Count >= 2)
+        if (stateParameter.shootParameters.Count >= 3)
         {
             _fireRate = stateParameter.shootParameters[0];
             _projectileCount = Mathf.Max(MinProjectileCount, Mathf.FloorToInt(stateParameter.shootParameters[1]));
+            _speed = stateParameter.shootParameters[2];
         }
     }
 
@@ -73,7 +75,7 @@ public class RadialShootState : IShootState
 
             float angle = angleStep * i * Mathf.Deg2Rad; // 0°(우)부터 균등 간격 → 4개면 우/상/좌/하
             Vector3 dir = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f);
-            projectile.Fire(dir, _projectileRange);
+            projectile.Fire(dir, ProjectileRange, _speed);
         }
     }
 }
