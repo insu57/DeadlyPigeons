@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour
     //Weapons
     [field: SerializeField] private List<GameObject> weaponParents;
     [field: SerializeField] private List<PlayerWeapon> playerWeapons;
+    private Dictionary<PlayerWeapon, int> _playerWeaponIdxDict = new();
     [SerializeField] private PlayerWeapon playerWeaponPrefab;
     public Dictionary<WeaponClasses, int> WeaponClassDict { get; } = new(); //클래스 수치 Dict
     private int _weaponSlotCount = 6; //추후 패시브 등으로 바뀔 수 있음.
@@ -34,6 +35,7 @@ public class PlayerManager : MonoBehaviour
     public event Action<Sprite, int, int> OnAddWeapon;
     public event Action<ItemData, int> OnAddItem;
     public event Action<int> OnRemoveWeapon;
+    public event Action<int, int> OnUpgradeWeapon;
 
     public event Action OnPlayerDeath;
     
@@ -53,7 +55,7 @@ public class PlayerManager : MonoBehaviour
             var weaponClass = (WeaponClasses)i;
             WeaponClassDict[weaponClass] = 0;
         }
-
+        
         _playerStat.OnChangeMainStats += UpdateStat;
         _playerStat.OnChangeSubStats += UpdateStat;
         _playerStat.OnChangeHealth += UpdateHealth;
@@ -174,6 +176,12 @@ public class PlayerManager : MonoBehaviour
 
         //sync?
         _playerStat.SyncStat();
+        
+        
+        for (int i = 0; i < playerWeapons.Count; i++)
+        {
+            _playerWeaponIdxDict[playerWeapons[i]] = i;
+        }
     }
 
     public void AddWeapon(WeaponData weaponData, int tier)
@@ -235,29 +243,37 @@ public class PlayerManager : MonoBehaviour
     public void CombineWeapon(int idx)
     {
         var targetWeapon = playerWeapons[idx];
-        var targetWeaponData = targetWeapon.WeaponData;
-        var tier = targetWeapon.Tier;
 
-        bool hasDuplicateWeapon = CheckWeaponCanCombine(idx);
+        var (hasDuplicateWeapon, duplicate) = CheckWeaponCanCombine(idx);
         
         if(!hasDuplicateWeapon) return;
         
         var nextTier = targetWeapon.Tier + 1;
+       
+        UpgradeWeapon(idx, nextTier);
         
-        RemoveWeapon(idx);
-        
-        //무기를 제거하면 인덱스가 변하기 때문에 다시 찾기. 개선 방안?
-        for (int i = 0; i < playerWeapons.Count; i++) 
+        var duplicateIdx = _playerWeaponIdxDict[duplicate];
+        RemoveWeapon(duplicateIdx);
+    }
+
+    public void CombineStoreWeapon(CurrentWeaponStat weapon)
+    {
+        for (int i = 0; i < playerWeapons.Count; i++)
         {
-            if(!playerWeapons[i].WeaponData) continue;   
-            if(playerWeapons[i].WeaponData.ID != targetWeaponData.ID) continue;
-            if(playerWeapons[i].Tier != tier) continue;
+            if(!playerWeapons[i].WeaponData) continue;
+            if(playerWeapons[i].WeaponData.ID != weapon.WeaponData.ID) continue;
+            if(playerWeapons[i].Tier != weapon.Tier) continue;
             
-            RemoveWeapon(i);
-            break;
+            UpgradeWeapon(i, weapon.Tier + 1);
+            return;
         }
-        
-        AddWeapon(targetWeaponData, nextTier);
+    }
+
+    private void UpgradeWeapon(int idx, int tier)
+    {
+        var playerWeapon =  playerWeapons[idx];
+        playerWeapon.SetWeaponData(playerWeapon.WeaponData, tier);
+        OnUpgradeWeapon?.Invoke(idx, tier);
     }
 
     //Remove Item 구현?
@@ -339,16 +355,16 @@ public class PlayerManager : MonoBehaviour
         var playerWeapon =  playerWeapons[index];
         var currentWeaponStat = GetWeaponStat(playerWeapon.WeaponData, playerWeapon.Tier);
 
-        bool canCombine = CheckWeaponCanCombine(index);
+        bool canCombine = CheckWeaponCanCombine(index).canCombine;
         
         itemGridUI.ShowWeaponInfo(currentWeaponStat, selectBtn, index, canCombine);
     }
 
-    private bool CheckWeaponCanCombine(int idx)
+    private (bool canCombine, PlayerWeapon duplicate) CheckWeaponCanCombine(int idx)
     {
         var playerWeapon =  playerWeapons[idx];
         
-        if(playerWeapon.Tier == DataManager.GetMaxTier) return false;
+        if(playerWeapon.Tier == DataManager.GetMaxTier) return (false,null);
         
         for (int i = 0; i < playerWeapons.Count; i++)
         {
@@ -357,11 +373,24 @@ public class PlayerManager : MonoBehaviour
             if(playerWeapon.WeaponData.ID != playerWeapons[i].WeaponData.ID) continue;
             if(playerWeapon.Tier != playerWeapons[i].Tier) continue;
                 
-            return true;
+            return (true, playerWeapons[i]);
         } 
+        
+        return (false, null);
+    }
+    
+    public bool CanStoreWeaponCombine(WeaponData weaponData, int tier)
+    {
+        foreach (var playerWeapon in playerWeapons)
+        {
+            if(!playerWeapon.WeaponData)  continue;
+            if (weaponData.ID == playerWeapon.WeaponData.ID && tier == playerWeapon.Tier) 
+                return true;
+        }
         
         return false;
     }
+    
     
     private void SetWeaponClassBonus() //클래스 보너스 업데이트
     { 

@@ -41,6 +41,13 @@ public class SelectButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         borderImage.color = color;
     }
 
+    public void SetButtonTier(int tier)
+    {
+        borderImage.enabled = true;
+        var color = DataManager.Instance.GetTierToColor(tier);
+        borderImage.color = color;
+    }
+
     public void SetBtnText(StringBuilder sb)
     {
         btnText.enabled = true;

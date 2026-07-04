@@ -283,7 +283,6 @@ public class StageManager : MonoBehaviour
 
         foreach (var (collectableType, hashSet) in _collectables)
         {
-            Debug.Log($"collectableType: {collectableType} , count: {hashSet.Count}");
             if (collectableType == CollectableType.Crate)
             {
                 foreach (var collectable in hashSet)
@@ -547,8 +546,10 @@ public class StageManager : MonoBehaviour
 
     private void HandleOnSellCrateItem()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Purchase);
+        
         _playerManager.ChangeMoney(_currentCrateItemPrice);
-
+        
         cratePickup--;
         _stageUI.UpdateCrateCount(cratePickup);
         
@@ -606,6 +607,8 @@ public class StageManager : MonoBehaviour
     {
         if(_storeRerollPrice > _playerManager.GetMoney) return;
         
+        AudioManager.Instance.PlaySFX(SfxType.Reroll);
+        
         _playerManager.ChangeMoney(-_storeRerollPrice);
         
         _storeRerollPrice += _storeRerollIncrease;
@@ -640,12 +643,25 @@ public class StageManager : MonoBehaviour
             if (weaponIdx == idx)
             {
                 if(price > _playerManager.GetMoney) return;
-                if(_playerManager.WeaponIsFull) return;
+                
+                bool canCombine =
+                    _playerManager.CanStoreWeaponCombine(currentWeaponStat.WeaponData, currentWeaponStat.Tier);
+                
+                if(_playerManager.WeaponIsFull && !canCombine) return;
                 
                 AudioManager.Instance.PlaySFX(SfxType.Purchase);
                 
                 _playerManager.ChangeMoney(-price);
-                _playerManager.AddWeapon(currentWeaponStat.WeaponData, currentWeaponStat.Tier);
+
+                if (!_playerManager.WeaponIsFull)
+                {
+                    _playerManager.AddWeapon(currentWeaponStat.WeaponData, currentWeaponStat.Tier);
+                }
+                else //합체
+                {
+                    if(currentWeaponStat.Tier < DataManager.GetMaxTier)
+                        _playerManager.CombineStoreWeapon(currentWeaponStat);
+                }
                 
                 _stageUI.DisableStorePanelOnBuy(idx);
                 
@@ -682,11 +698,13 @@ public class StageManager : MonoBehaviour
 
     private void HandleOnCombineWeapon(int idx)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Combine);
         _playerManager.CombineWeapon(idx);
     }
 
     private void HandleOnRecycleWeapon(int idx)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Purchase);
         _playerManager.RecycleWeapon(idx);
     }
     

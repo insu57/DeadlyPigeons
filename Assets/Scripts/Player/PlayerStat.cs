@@ -244,6 +244,8 @@ public class PlayerStat : MonoBehaviour
         currentHP += healAmount;
         if(currentHP>= MaxHp) currentHP = MaxHp;
         OnChangeHealth?.Invoke(currentHP, MaxHp);
+        var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
+        dmgTxt.SetText(transform, healAmount, false, true);
     }
 
     private void Update()

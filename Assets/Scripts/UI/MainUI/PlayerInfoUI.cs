@@ -40,7 +40,7 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private InfoPanel infoPanel;
     [SerializeField] private ClassInfo classInfo;
     private int _weaponSlot;
-    public event Action<int, SelectButton> OnShowWeaponInfo; //ID
+    //public event Action<int, SelectButton> OnShowWeaponInfo; //ID
     
     private void Awake()
     {

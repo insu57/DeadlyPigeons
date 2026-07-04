@@ -234,9 +234,7 @@ public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
         PlayHitFlash();
 
         var dmgTxt = ObjectPoolingManager.Instance.GetDamageTxt();
-        dmgTxt.transform.position = transform.position;
-        dmgTxt.Init(ObjectPoolingManager.Instance.Sb);
-        dmgTxt.SetText(damage, isCrit);
+        dmgTxt.SetText(transform, damage, isCrit);
 
         if (_health <= 0)
         {

@@ -20,6 +20,9 @@ public enum SfxType
     PlayerHit,
     LevelUp,
     Purchase,
+    Reroll,
+    Combine,
+    Get,
     None
 }
 

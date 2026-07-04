@@ -14,7 +14,8 @@ public class ItemGridUI : MonoBehaviour
 {
     [SerializeField] private SelectButton selectBtnPrefab;
     [SerializeField] private GridLayoutGroup weaponGrid;
-    private List<SelectButton> _weaponSelectButtons = new();
+    //private List<SelectButton> _weaponSelectButtons = new();
+    private Dictionary<int, SelectButton> _weaponSelectBtnDict = new();
     [SerializeField] private GridLayoutGroup itemGrid;
     [SerializeField] private InfoPanel infoPanel;
     private InfoPanelType _infoPanelType;
@@ -33,6 +34,7 @@ public class ItemGridUI : MonoBehaviour
         playerManager.OnAddWeapon += AddWeapon;
         playerManager.OnAddItem +=  AddItem;
         playerManager.OnRemoveWeapon += RemoveWeapon;
+        playerManager.OnUpgradeWeapon += UpgradeWeapon;
         
         _infoPanelType = infoPanelType;
         if (infoPanelType == InfoPanelType.Store)
@@ -45,6 +47,8 @@ public class ItemGridUI : MonoBehaviour
         classInfo.SetWeaponClassBonusDict(playerManager.WeaponClassDict);
         
         OnShowWeaponInfo += playerManager.HandleOnShowWeaponInfo;
+        
+        
     }
     
     private void AddWeapon(Sprite sprite, int tier, int index)
@@ -52,9 +56,16 @@ public class ItemGridUI : MonoBehaviour
         var selectBtn = ObjectPoolingManager.Instance.GetSelectBtn();
         selectBtn.SetButtonImg(sprite, tier);
         selectBtn.SetGrid(weaponGrid.transform, weaponGrid.cellSize);
-        _weaponSelectButtons.Add(selectBtn);
+        //_weaponSelectButtons.Add(selectBtn);
+        _weaponSelectBtnDict[index] = selectBtn;
         
         InitWeaponEvent(index, selectBtn);
+    }
+
+    private void UpgradeWeapon(int idx, int tier)
+    {
+        //_weaponSelectButtons[idx].SetButtonTier(tier);
+        _weaponSelectBtnDict[idx].SetButtonTier(tier);
     }
 
     private void InitWeaponEvent(int idx, SelectButton selectBtn)
@@ -69,22 +80,23 @@ public class ItemGridUI : MonoBehaviour
 
     private void RemoveWeapon(int idx)
     {
-        var targetSelectBtn = _weaponSelectButtons[idx];
+        //var targetSelectBtn = _weaponSelectButtons[idx];
+        var targetSelectBtn = _weaponSelectBtnDict[idx];
         targetSelectBtn.ClearEvent();
         ObjectPoolingManager.Instance.ReleaseSelectBtn(targetSelectBtn);
-
-        if (_weaponSelectButtons.Count > 1)
+        
+        if (_weaponSelectBtnDict.Count > 1)
         {
-            for (int i = idx; i < _weaponSelectButtons.Count - 1; i++) //idx 당기기.
+            for (int i = idx; i < _weaponSelectBtnDict.Count - 1; i++) //idx 당기기.
             {
-                _weaponSelectButtons[i] = _weaponSelectButtons[i + 1]; 
-                _weaponSelectButtons[i].ClearEvent();
+                _weaponSelectBtnDict[i] = _weaponSelectBtnDict[i + 1]; 
+                _weaponSelectBtnDict[i].ClearEvent();
             
-                InitWeaponEvent(i, _weaponSelectButtons[i]);
+                InitWeaponEvent(i, _weaponSelectBtnDict[i]);
             }
         } 
         
-        _weaponSelectButtons.RemoveAt(_weaponSelectButtons.Count - 1);
+        _weaponSelectBtnDict.Remove(_weaponSelectBtnDict.Count - 1);
     }
 
     private void OnSelectWeapon(int index, SelectButton selectBtn)

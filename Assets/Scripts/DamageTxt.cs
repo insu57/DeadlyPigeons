@@ -11,15 +11,13 @@ public class DamageTxt : MonoBehaviour
     private void Awake()
     {
         TryGetComponent(out _text);
-    }
-
-    public void Init(StringBuilder sb)
-    {
-        _sb = sb;
+        _sb = StatUtil.StringBuilder;
     }
     
-    public void SetText(int damage, bool isCrit)
+    public void SetText(Transform startPos, int damage, bool isCrit = false, bool isHeal = false)
     {
+        transform.position = startPos.position;
+        
         _sb.Clear();
         _sb.Append(damage);
         _text.SetText(_sb);
@@ -27,6 +25,11 @@ public class DamageTxt : MonoBehaviour
         {
             _text.fontSize = 40f;
             _text.color = Color.yellow;
+        }
+        else if (isHeal)
+        {
+            _text.fontSize = 36f;
+            _text.color = Color.green;
         }
         else
         {
