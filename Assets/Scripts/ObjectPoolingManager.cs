@@ -107,13 +107,34 @@ public class ObjectPoolingManager : Singleton<ObjectPoolingManager>
     public void ReleaseSelectBtn(SelectButton btn)
     {
         ReleaseToPool(Pooling.SelectBtn, btn);
-        btn.transform.SetParent(_containers[Pooling.SelectBtn]);
+        btn.transform.SetParent(_containers[Pooling.SelectBtn], false);
     } 
 
     // ── Projectile ─────────────────────────────────────────────
+    private readonly HashSet<Projectile> _activeProjectiles = new();
     public void InitProjectilePool() => InitPool<Projectile>(Pooling.Projectile);
-    public Projectile GetProjectile() => GetFromPool<Projectile>(Pooling.Projectile);
-    public void ReleaseProjectile(Projectile projectile) => ReleaseToPool(Pooling.Projectile, projectile);
+
+    public Projectile GetProjectile()
+    {
+        var projectile = GetFromPool<Projectile>(Pooling.Projectile);
+        _activeProjectiles.Add(projectile);
+        return projectile;
+    }
+
+    public void ReleaseProjectile(Projectile projectile)
+    {
+        _activeProjectiles.Remove(projectile);
+        ReleaseToPool(Pooling.Projectile, projectile);
+    }
+
+    public void ReleaseAllProjectiles()
+    {
+        foreach (var projectile in _activeProjectiles)
+        {
+            ReleaseToPool(Pooling.Projectile, projectile);
+        }
+        _activeProjectiles.Clear();
+    }
 
     // ── DamageTxt ──────────────────────────────────────────────
     public void InitDamageTxtPool() => InitPool<DamageTxt>(Pooling.DamageTxt);

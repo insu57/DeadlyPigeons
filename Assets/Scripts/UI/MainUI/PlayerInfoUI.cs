@@ -16,6 +16,7 @@ public class PlayerInfoUI : MonoBehaviour
     [SerializeField] private Button restartBtn;
     [SerializeField] private Button optionBtn;
     [SerializeField] private Button titleBtn;
+    [SerializeField] private Button quitBtn;
     
     [SerializeField] private OptionUI optionUI;
     
@@ -55,7 +56,8 @@ public class PlayerInfoUI : MonoBehaviour
         
         optionBtn.onClick.AddListener(() => optionUI.ShowOptionPanel(true));
         
-        //재시작/타이틀/종료 -> 확인창
+        //재시작/타이틀/종료 -> 확인창 추가 필요.
+        quitBtn.onClick.AddListener( Application.Quit);
     }
 
     public void Init(PlayerManager playerManager)
@@ -97,6 +99,8 @@ public class PlayerInfoUI : MonoBehaviour
                 optionUI.ShowOptionPanel(false);
                 return;
             }
+            
+            infoPanel.gameObject.SetActive(false);
             
             InputManager.Instance.Input.Player.Enable();
             InputManager.Instance.Input.UI.Disable();

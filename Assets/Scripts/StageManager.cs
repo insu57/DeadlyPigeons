@@ -271,6 +271,8 @@ public class StageManager : MonoBehaviour
             ObjectPoolingManager.Instance.ReleaseEnemy(enemy);
         }
         
+        ObjectPoolingManager.Instance.ReleaseAllProjectiles();
+        
         activeEnemies.Clear();
         _activeBosses.Clear();
 
@@ -471,6 +473,8 @@ public class StageManager : MonoBehaviour
         //RerollCost...
         if(_playerManager.GetMoney < _upgradeRerollPrice) return;
         
+        AudioManager.Instance.PlaySFX(SfxType.Reroll);
+        
         _playerManager.ChangeMoney(-_upgradeRerollPrice);
 
         _upgradeRerollPrice += _upgradeRerollIncrease;
@@ -536,6 +540,8 @@ public class StageManager : MonoBehaviour
     
     private void HandleOnUseCrateItem()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Get);
+        
         _playerManager.AddItem(_currentCrateItem);
 
         cratePickup--;

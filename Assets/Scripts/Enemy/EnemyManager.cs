@@ -53,6 +53,8 @@ public class EnemyManager : MonoBehaviour, IDamageable, IKnockbackable
     [SerializeField] private float knockbackDrag = 8f;       // 넉백 중 감속용 linearDamping
     private float _knockbackTimer;
 
+    //HashSet<Projectile> _projectiles = new();
+    
     public void SetTarget(Transform target)
     {
         Target = target;
