@@ -1,6 +1,7 @@
-# DeadlyPigeons
 
-<img width="1920" height="1078" alt="image" src="https://github.com/user-attachments/assets/e58a3e13-ed3e-450b-8175-398a96bb33ea" />
+# DeadlyPigeons
+<img width="2560" height="1440" alt="Build Screenshot 2026 07 08 - 16 26 27 10" src="https://github.com/user-attachments/assets/5d6c29f5-7efa-4a87-8ba7-4cb510c275d2" />
+<img width="2560" height="1440" alt="Build Screenshot 2026 07 08 - 16 27 33 47" src="https://github.com/user-attachments/assets/5d6f89ae-e455-4583-8c3d-764b028ce8c9" />
 
 ## 프로젝트 소개
 
